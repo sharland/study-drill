@@ -220,7 +220,13 @@ function MCQQuiz(){
   },[]);
 
   const startQuiz=useCallback((sub)=>{
-    setQuizQs(shuffleArray(sub||questions));setIdx(0);setSelected(null);setLocked(false);setResults([]);setSess(c=>c+1);setPhase("quiz");
+    const shuffled=shuffleArray(sub||questions).map(q=>{
+      const correctText=q.options.find(o=>o.label===q.correct)?.text;
+      const newOpts=shuffleArray(q.options).map((o,i)=>({...o,label:["A","B","C","D"][i]}));
+      const newCorrect=newOpts.find(o=>o.text===correctText)?.label;
+      return{...q,options:newOpts,correct:newCorrect};
+    });
+    setQuizQs(shuffled);setIdx(0);setSelected(null);setLocked(false);setResults([]);setSess(c=>c+1);setPhase("quiz");
   },[questions]);
 
   const startMissed=useCallback(()=>{
