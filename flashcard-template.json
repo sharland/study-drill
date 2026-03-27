@@ -1,0 +1,34 @@
+{
+  "_instructions": {
+    "for_claude": "You are generating flashcard quiz data. The user will provide study notes or a topic. Your job is to create challenging, exam-style questions that test genuine understanding — not surface recall. Follow the schema below exactly.",
+    "card_schema": {
+      "id": "Sequential integer starting at 1",
+      "category": "Short topic grouping label (e.g. 'Clause 9', 'Risk Management', 'Annex A')",
+      "question": "A clear, specific question. Prefer 'explain', 'distinguish', 'name X examples of', 'what is the relationship between' over simple 'what is' questions.",
+      "answer": "The canonical correct answer. Be precise and complete. Include clause/section references where applicable. This is what the user will judge themselves against, so it must be unambiguous."
+    },
+    "guidelines": [
+      "Aim for 20-40 cards per topic depending on depth.",
+      "Mix question types: recall, application, comparison, listing.",
+      "Include trick questions where common misconceptions exist.",
+      "Group cards by category for the review screen.",
+      "Do NOT include multiple-choice options — these are open-recall cards.",
+      "Output ONLY valid JSON matching the schema. No markdown, no commentary."
+    ],
+    "example_prompt": "Here are my notes on [TOPIC]. Generate a flashcard deck in the JSON format specified. Focus on exam-level questions that test understanding, not just definitions."
+  },
+  "cards": [
+    {
+      "id": 1,
+      "category": "Example",
+      "question": "Replace with your question",
+      "answer": "Replace with the answer"
+    },
+    {
+      "id": 2,
+      "category": "Example",
+      "question": "Second question here",
+      "answer": "Second answer here"
+    }
+  ]
+}

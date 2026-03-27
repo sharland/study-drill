@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Study Drill</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:#06060b;color:#e8e6e1;font-family:'JetBrains Mono','SF Mono','Fira Code','Courier New',monospace}
+  #root{min-height:100vh}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const {useState,useCallback,useRef} = React;
+
+/* ===== SHARED UTILITIES ===== */
+function shuffleArray(arr){
+  const s=[...arr];
+  for(let i=s.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[s[i],s[j]]=[s[j],s[i]];}
+  return s;
+}
+function downloadJSON(data,filename){
+  const b=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
+  const u=URL.createObjectURL(b);
+  const a=document.createElement("a");a.href=u;a.download=filename;a.click();
+  URL.revokeObjectURL(u);
+}
+
+/* ===== TEMPLATES ===== */
+const FC_TEMPLATE={
+  _instructions:{
+    for_claude:"You are generating flashcard quiz data. The user will provide study notes or a topic. Your job is to create challenging, exam-style questions that test genuine understanding — not surface recall. Follow the schema below exactly.",
+    card_schema:{id:"Sequential integer starting at 1",category:"Short topic grouping label (e.g. 'Clause 9', 'Risk Management', 'Annex A')",question:"A clear, specific question. Prefer 'explain', 'distinguish', 'name X examples of', 'what is the relationship between' over simple 'what is' questions.",answer:"The canonical correct answer. Be precise and complete. Include clause/section references where applicable. This is what the user will judge themselves against, so it must be unambiguous."},
+    guidelines:["Aim for 20-40 cards per topic depending on depth.","Mix question types: recall, application, comparison, listing.","Include trick questions where common misconceptions exist.","Group cards by category for the review screen.","Do NOT include multiple-choice options — these are open-recall cards.","Output ONLY valid JSON matching the schema. No markdown, no commentary."],
+    example_prompt:"Here are my notes on [TOPIC]. Generate a flashcard deck in the JSON format specified. Focus on exam-level questions that test understanding, not just definitions."
+  },
+  cards:[{id:1,category:"Example",question:"Replace with your question",answer:"Replace with the answer"},{id:2,category:"Example",question:"Second question here",answer:"Second answer here"}]
+};
+
+const MCQ_TEMPLATE={
+  _instructions:{
+    for_claude:"You are generating multiple-choice exam questions. The user will provide study notes, a syllabus, or a topic. Your job is to create realistic, exam-grade questions that test genuine understanding — not just surface recall. Include plausible distractors that reflect real misconceptions. Follow the schema below exactly.",
+    question_schema:{id:"Sequential integer starting at 1",category:"Short topic grouping (e.g. 'Risk Management', 'Clause 9')",question:"Clear, unambiguous question stem. Avoid 'all of the above' or 'none of the above'. Prefer scenario-based questions where possible.",options:"Array of exactly 4 objects: { label: 'A'|'B'|'C'|'D', text: 'option text' }. Randomise the position of the correct answer across questions.",correct:"The label ('A','B','C', or 'D') of the correct option",explanation:"2-3 sentence explanation of WHY the correct answer is right AND why the most tempting distractor is wrong."},
+    guidelines:["Aim for 20-40 questions per topic.","Mix difficulty: ~30% recall, ~50% application/scenario, ~20% tricky edge cases.","Distractors must be plausible — reflect real misunderstandings.","Vary correct answer positions evenly across A/B/C/D.","Never use 'All of the above' or 'None of the above'.","Explanations should teach.","Output ONLY valid JSON matching the schema. No markdown fences, no commentary."],
+    example_prompt:"Here are my notes on [TOPIC]. Generate a multiple-choice exam in the JSON format specified. Make the distractors realistic and include scenario-based questions."
+  },
+  questions:[{id:1,category:"Example",question:"Replace with question stem",options:[{label:"A",text:"First option"},{label:"B",text:"Second option"},{label:"C",text:"Third option"},{label:"D",text:"Fourth option"}],correct:"B",explanation:"Explain why B is correct."}]
+};
+
+const SAMPLE_FC=[{id:1,category:"Sample",question:"Import your own JSON flashcards to get started.",answer:"Use the toolbar to download the template, then import your deck."}];
+const SAMPLE_MCQ=[{id:1,category:"Sample",question:"Import your own JSON quiz to get started.",options:[{label:"A",text:"Download template"},{label:"B",text:"Give to Claude with notes"},{label:"C",text:"Import generated JSON"},{label:"D",text:"All of the above"}],correct:"A",explanation:"Start by downloading the template."}];
+
+
+/* ===== FLASHCARD COMPONENT ===== */
+function FlashcardDrill(){
+  const [cards,setCards]=useState(SAMPLE_FC);
+  const [deckName,setDeckName]=useState("No deck loaded");
+  const [phase,setPhase]=useState("start");
+  const [quizCards,setQuizCards]=useState([]);
+  const [ci,setCi]=useState(0);
+  const [showAns,setShowAns]=useState(false);
+  const [results,setResults]=useState([]);
+  const [sess,setSess]=useState(0);
+  const [err,setErr]=useState(null);
+  const fr=useRef(null);
+
+  const handleImport=useCallback((e)=>{
+    const f=e.target.files?.[0];if(!f)return;setErr(null);
+    const r=new FileReader();
+    r.onload=(ev)=>{try{
+      const d=JSON.parse(ev.target.result);const a=d.cards||d;
+      if(!Array.isArray(a)||!a.length){setErr("JSON must contain a 'cards' array.");return;}
+      if(!a.every(c=>c.id!==undefined&&c.question&&c.answer)){setErr("Every card needs id, question, answer.");return;}
+      setCards(a);setDeckName(d.deck_name||f.name.replace(/\.json$/,""));setPhase("start");setSess(0);
+    }catch{setErr("Invalid JSON.");}};
+    r.readAsText(f);e.target.value="";
+  },[]);
+
+  const startQuiz=useCallback((sub)=>{
+    setQuizCards(shuffleArray(sub||cards));setCi(0);setShowAns(false);setResults([]);setSess(c=>c+1);setPhase("quiz");
+  },[cards]);
+
+  const startMissed=useCallback(()=>{
+    const ids=results.filter(r=>!r.correct).map(r=>r.cardId);
+    const m=cards.filter(c=>ids.includes(c.id));if(m.length)startQuiz(m);
+  },[results,cards,startQuiz]);
+
+  const mark=useCallback((correct)=>{
+    setResults(p=>[...p,{cardId:quizCards[ci].id,correct}]);
+    if(ci+1<quizCards.length){setCi(i=>i+1);setShowAns(false);}else setPhase("review");
+  },[quizCards,ci]);
+
+  const card=quizCards[ci];
+  const ok=results.filter(r=>r.correct).length;
+  const miss=results.filter(r=>!r.correct).length;
+
+  const tb=(<div style={fs.toolbar}>
+    <div style={fs.tl}><span style={fs.dk}>{deckName}</span><span style={fs.cc}>{cards.length} cards</span></div>
+    <div style={fs.tr}>
+      <button style={fs.tb} onClick={()=>downloadJSON(FC_TEMPLATE,"flashcard-template.json")}>↓ Template</button>
+      <button style={fs.tb} onClick={()=>fr.current?.click()}>↑ Import</button>
+      {cards!==SAMPLE_FC&&<button style={fs.tb} onClick={()=>downloadJSON({deck_name:deckName,cards},deckName.replace(/\s+/g,"-").toLowerCase()+"-deck.json")}>↓ Export</button>}
+      <input ref={fr} type="file" accept=".json" onChange={handleImport} style={{display:"none"}}/>
+    </div>
+  </div>);
+
+  if(phase==="start"){
+    const cats=[...new Set(cards.map(c=>c.category||"Uncategorised"))];
+    return(<div style={fs.page}>{tb}{err&&<div style={fs.err}>{err}</div>}<div style={fs.hero}>
+      <div style={fs.badge}>FLASHCARD DRILL</div><h1 style={fs.title}>{deckName}</h1>
+      <p style={fs.sub}>{cards.length} cards · {cats.length} categories</p>
+      <div style={fs.cats}>{cats.map(c=><span key={c} style={fs.pill}>{c} ({cards.filter(x=>(x.category||"Uncategorised")===c).length})</span>)}</div>
+      <div style={fs.wf}>
+        <div style={fs.ws}><span style={fs.sn}>1</span><span>Download the <strong>Template</strong> JSON</span></div>
+        <div style={fs.ws}><span style={fs.sn}>2</span><span>Give it to Claude with your notes</span></div>
+        <div style={fs.ws}><span style={fs.sn}>3</span><span><strong>Import</strong> the JSON back here and drill</span></div>
+      </div>
+      <button style={fs.pri} onClick={()=>startQuiz()}>Start Drill</button>
+    </div></div>);
+  }
+
+  if(phase==="review"){
+    const tot=results.length;const pct=tot?Math.round(ok/tot*100):0;const hm=miss>0;
+    return(<div style={fs.page}>{tb}<div style={fs.rev}>
+      <div style={fs.badge}>SESSION {sess}</div>
+      <div style={fs.sr}><div style={fs.ss}><span style={fs.snum}>{ok}</span><span style={fs.slbl}>Correct</span></div><div style={fs.sdiv}/><div style={fs.ss}><span style={{...fs.snum,color:miss?"#e74c3c":"#2ecc71"}}>{miss}</span><span style={fs.slbl}>Missed</span></div><div style={fs.sdiv}/><div style={fs.ss}><span style={fs.snum}>{pct}%</span><span style={fs.slbl}>Score</span></div></div>
+      {hm&&<div style={fs.ml}><h3 style={fs.mt}>Missed</h3>{results.filter(r=>!r.correct).map(r=>{const c=cards.find(x=>x.id===r.cardId);return(<div key={r.cardId} style={fs.mi}><div style={fs.mc}>{c?.category}</div><div style={fs.mq}>{c?.question}</div><div style={fs.ma}>{c?.answer}</div></div>);})}</div>}
+      <div style={fs.br}><button style={fs.pri} onClick={()=>startQuiz()}>Full Deck</button>{hm&&<button style={fs.sec} onClick={startMissed}>Missed Only ({miss})</button>}<button style={fs.ghost} onClick={()=>setPhase("start")}>← Back</button></div>
+    </div></div>);
+  }
+
+  return(<div style={fs.page}>{tb}
+    <div style={fs.topb}><span style={fs.prog}>{ci+1} / {quizCards.length}</span><span style={fs.cat}>{card?.category}</span><span style={fs.rs}><span style={{color:"#2ecc71"}}>✓{ok}</span>{" · "}<span style={{color:"#e74c3c"}}>✗{miss}</span></span></div>
+    <div style={fs.pb}><div style={{...fs.pf,width:`${(ci+1)/quizCards.length*100}%`}}/></div>
+    <div style={fs.co}><div style={fs.qs}><p style={fs.qt}>{card?.question}</p></div>
+      {!showAns?<button style={fs.rb} onClick={()=>setShowAns(true)}>Reveal Answer</button>:
+      <div style={fs.as}><div style={fs.al}>CORRECT ANSWER</div><p style={fs.at}>{card?.answer}</p>
+        <div style={fs.jb}><button style={fs.gi} onClick={()=>mark(true)}>✓ Got It</button><button style={fs.mi2} onClick={()=>mark(false)}>✗ Missed It</button></div>
+      </div>}
+    </div>
+  </div>);
+}
+
+const fs={
+  page:{minHeight:"100vh",background:"#08080d",color:"#e8e6e1",fontFamily:"inherit",display:"flex",flexDirection:"column",alignItems:"center",padding:"0 16px 40px"},
+  toolbar:{width:"100%",maxWidth:640,display:"flex",justifyContent:"space-between",alignItems:"center",padding:"14px 0",borderBottom:"1px solid #1a1a24",marginBottom:24,flexWrap:"wrap",gap:8},
+  tl:{display:"flex",alignItems:"center",gap:10},tr:{display:"flex",gap:6,flexWrap:"wrap"},
+  dk:{fontSize:13,fontWeight:700,color:"#ccc"},cc:{fontSize:11,color:"#555",fontWeight:600},
+  tb:{background:"#14141e",color:"#888",border:"1px solid #1e1e2e",borderRadius:5,padding:"6px 12px",fontSize:11,fontWeight:600,fontFamily:"inherit",cursor:"pointer",whiteSpace:"nowrap"},
+  err:{width:"100%",maxWidth:640,background:"#e74c3c18",border:"1px solid #e74c3c44",color:"#e74c3c",borderRadius:6,padding:"10px 16px",fontSize:12,marginBottom:16},
+  hero:{textAlign:"center",maxWidth:540,marginTop:20},
+  badge:{display:"inline-block",fontSize:10,fontWeight:700,letterSpacing:"0.16em",color:"#f39c12",border:"1px solid #f39c1233",borderRadius:4,padding:"3px 10px",marginBottom:14},
+  title:{fontSize:28,fontWeight:800,margin:"0 0 6px",color:"#fff",letterSpacing:"-0.02em"},
+  sub:{fontSize:13,color:"#666",margin:"0 0 16px"},
+  cats:{display:"flex",flexWrap:"wrap",gap:6,justifyContent:"center",marginBottom:28},
+  pill:{fontSize:11,color:"#777",background:"#12121a",border:"1px solid #1e1e2a",borderRadius:20,padding:"4px 10px"},
+  wf:{textAlign:"left",background:"#0e0e16",border:"1px solid #1a1a24",borderRadius:10,padding:"18px 20px",marginBottom:28,display:"flex",flexDirection:"column",gap:12},
+  ws:{display:"flex",alignItems:"center",gap:12,fontSize:13,color:"#999",lineHeight:1.5},
+  sn:{width:24,height:24,borderRadius:"50%",background:"#f39c1222",color:"#f39c12",display:"flex",alignItems:"center",justifyContent:"center",fontSize:12,fontWeight:800,flexShrink:0},
+  pri:{background:"#f39c12",color:"#08080d",border:"none",borderRadius:6,padding:"12px 32px",fontSize:13,fontWeight:700,fontFamily:"inherit",cursor:"pointer",letterSpacing:"0.04em"},
+  sec:{background:"transparent",color:"#f39c12",border:"1px solid #f39c1255",borderRadius:6,padding:"12px 24px",fontSize:12,fontWeight:600,fontFamily:"inherit",cursor:"pointer"},
+  ghost:{background:"transparent",color:"#555",border:"none",padding:"12px 16px",fontSize:12,fontFamily:"inherit",cursor:"pointer"},
+  rev:{maxWidth:640,width:"100%",textAlign:"center"},
+  sr:{display:"flex",justifyContent:"center",alignItems:"center",gap:28,margin:"20px 0 28px"},
+  ss:{display:"flex",flexDirection:"column",alignItems:"center",gap:3},
+  snum:{fontSize:32,fontWeight:800,color:"#fff"},slbl:{fontSize:10,color:"#555",fontWeight:600,letterSpacing:"0.1em",textTransform:"uppercase"},
+  sdiv:{width:1,height:44,background:"#1a1a24"},
+  ml:{textAlign:"left",background:"#0e0e16",border:"1px solid #1a1a24",borderRadius:8,padding:"18px 20px",marginBottom:24},
+  mt:{fontSize:11,fontWeight:700,letterSpacing:"0.12em",color:"#e74c3c",margin:"0 0 14px",textTransform:"uppercase"},
+  mi:{marginBottom:14,paddingBottom:14,borderBottom:"1px solid #14141e"},
+  mc:{fontSize:10,color:"#555",fontWeight:600,letterSpacing:"0.1em",textTransform:"uppercase",marginBottom:4},
+  mq:{fontSize:12,fontWeight:600,color:"#ddd",marginBottom:5},ma:{fontSize:11,lineHeight:1.7,color:"#777"},
+  br:{display:"flex",gap:10,justifyContent:"center",flexWrap:"wrap"},
+  topb:{width:"100%",maxWidth:640,display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8,fontSize:12},
+  prog:{color:"#555",fontWeight:600},cat:{color:"#f39c12",fontSize:10,fontWeight:700,letterSpacing:"0.12em",textTransform:"uppercase"},
+  rs:{fontSize:12,fontWeight:600},
+  pb:{width:"100%",maxWidth:640,height:3,background:"#1a1a24",borderRadius:2,marginBottom:20,overflow:"hidden"},
+  pf:{height:"100%",background:"#f39c12",borderRadius:2,transition:"width 0.3s ease"},
+  co:{width:"100%",maxWidth:640,background:"#0e0e16",border:"1px solid #1a1a24",borderRadius:10,overflow:"hidden"},
+  qs:{padding:"28px 24px"},qt:{fontSize:15,lineHeight:1.75,margin:0,color:"#e8e6e1"},
+  rb:{width:"100%",background:"#14141e",color:"#f39c12",border:"none",borderTop:"1px solid #1a1a24",padding:"14px",fontSize:13,fontWeight:700,fontFamily:"inherit",cursor:"pointer"},
+  as:{borderTop:"1px solid #1a1a24",padding:"22px 24px",background:"#0a0a12"},
+  al:{fontSize:10,fontWeight:700,letterSpacing:"0.15em",color:"#2ecc71",marginBottom:10},
+  at:{fontSize:13,lineHeight:1.8,color:"#bbb",margin:"0 0 20px"},
+  jb:{display:"flex",gap:10},
+  gi:{flex:1,background:"#2ecc7118",color:"#2ecc71",border:"1px solid #2ecc7133",borderRadius:6,padding:"11px",fontSize:13,fontWeight:700,fontFamily:"inherit",cursor:"pointer"},
+  mi2:{flex:1,background:"#e74c3c18",color:"#e74c3c",border:"1px solid #e74c3c33",borderRadius:6,padding:"11px",fontSize:13,fontWeight:700,fontFamily:"inherit",cursor:"pointer"},
+};
+
+
+/* ===== MCQ COMPONENT ===== */
+function MCQQuiz(){
+  const [questions,setQuestions]=useState(SAMPLE_MCQ);
+  const [deckName,setDeckName]=useState("No quiz loaded");
+  const [phase,setPhase]=useState("start");
+  const [quizQs,setQuizQs]=useState([]);
+  const [idx,setIdx]=useState(0);
+  const [selected,setSelected]=useState(null);
+  const [locked,setLocked]=useState(false);
+  const [results,setResults]=useState([]);
+  const [sess,setSess]=useState(0);
+  const [err,setErr]=useState(null);
+  const fr=useRef(null);
+
+  const handleImport=useCallback((e)=>{
+    const f=e.target.files?.[0];if(!f)return;setErr(null);
+    const r=new FileReader();
+    r.onload=(ev)=>{try{
+      const d=JSON.parse(ev.target.result);const a=d.questions||d;
+      if(!Array.isArray(a)||!a.length){setErr("JSON must contain a 'questions' array.");return;}
+      if(!a.every(q=>q.id!==undefined&&q.question&&Array.isArray(q.options)&&q.options.length>=2&&q.correct)){setErr("Every question needs id, question, options[], correct.");return;}
+      setQuestions(a);setDeckName(d.quiz_name||f.name.replace(/\.json$/,""));setPhase("start");setSess(0);
+    }catch{setErr("Invalid JSON.");}};
+    r.readAsText(f);e.target.value="";
+  },[]);
+
+  const startQuiz=useCallback((sub)=>{
+    setQuizQs(shuffleArray(sub||questions));setIdx(0);setSelected(null);setLocked(false);setResults([]);setSess(c=>c+1);setPhase("quiz");
+  },[questions]);
+
+  const startMissed=useCallback(()=>{
+    const ids=results.filter(r=>!r.correct).map(r=>r.qId);
+    const m=questions.filter(q=>ids.includes(q.id));if(m.length)startQuiz(m);
+  },[results,questions,startQuiz]);
+
+  const confirmAns=useCallback(()=>{
+    if(selected===null||locked)return;
+    const q=quizQs[idx];setLocked(true);
+    setResults(p=>[...p,{qId:q.id,chose:selected,correct:selected===q.correct}]);
+  },[selected,locked,quizQs,idx]);
+
+  const nextQ=useCallback(()=>{
+    if(idx+1<quizQs.length){setIdx(i=>i+1);setSelected(null);setLocked(false);}else setPhase("review");
+  },[idx,quizQs]);
+
+  const q=quizQs[idx];
+  const ok=results.filter(r=>r.correct).length;
+  const miss=results.filter(r=>!r.correct).length;
+
+  const tb=(<div style={ms.toolbar}>
+    <div style={ms.tl}><span style={ms.dk}>{deckName}</span><span style={ms.qc}>{questions.length} Qs</span></div>
+    <div style={ms.tr2}>
+      <button style={ms.tb} onClick={()=>downloadJSON(MCQ_TEMPLATE,"mcq-template.json")}>↓ Template</button>
+      <button style={ms.tb} onClick={()=>fr.current?.click()}>↑ Import</button>
+      {questions!==SAMPLE_MCQ&&<button style={ms.tb} onClick={()=>downloadJSON({quiz_name:deckName,questions},deckName.replace(/\s+/g,"-").toLowerCase()+"-quiz.json")}>↓ Export</button>}
+      <input ref={fr} type="file" accept=".json" onChange={handleImport} style={{display:"none"}}/>
+    </div>
+  </div>);
+
+  if(phase==="start"){
+    const cats=[...new Set(questions.map(q=>q.category||"General"))];
+    return(<div style={ms.page}>{tb}{err&&<div style={ms.err}>{err}</div>}<div style={ms.hero}>
+      <div style={ms.tag}>MULTIPLE CHOICE</div><h1 style={ms.title}>{deckName}</h1>
+      <p style={ms.sub}>{questions.length} questions · {cats.length} categories</p>
+      <div style={ms.cats}>{cats.map(c=><span key={c} style={ms.pill}>{c} ({questions.filter(x=>(x.category||"General")===c).length})</span>)}</div>
+      <div style={ms.wf}>
+        <div style={ms.ws}><span style={ms.sn}>1</span><span>Download the <strong>Template</strong> JSON</span></div>
+        <div style={ms.ws}><span style={ms.sn}>2</span><span>Give it to Claude with your notes — it generates MCQs</span></div>
+        <div style={ms.ws}><span style={ms.sn}>3</span><span><strong>Import</strong> the JSON and test yourself</span></div>
+      </div>
+      <button style={ms.pri} onClick={()=>startQuiz()}>Begin Exam</button>
+    </div></div>);
+  }
+
+  if(phase==="review"){
+    const tot=results.length;const pct=tot?Math.round(ok/tot*100):0;const hm=miss>0;
+    const grade=pct>=90?"A":pct>=80?"B":pct>=70?"C":pct>=60?"D":"F";
+    const gc=pct>=80?"#2ecc71":pct>=60?"#f39c12":"#e74c3c";
+    return(<div style={ms.page}>{tb}<div style={ms.rev}>
+      <div style={ms.tag}>SESSION {sess}</div>
+      <div style={ms.gc}><span style={{...ms.gl,color:gc}}>{grade}</span><span style={ms.gp}>{pct}%</span></div>
+      <div style={ms.strip}><div style={ms.sc}><span style={ms.sv}>{ok}</span><span style={ms.sl}>Correct</span></div><div style={ms.sdiv}/><div style={ms.sc}><span style={{...ms.sv,color:miss?"#e74c3c":"#2ecc71"}}>{miss}</span><span style={ms.sl}>Wrong</span></div><div style={ms.sdiv}/><div style={ms.sc}><span style={ms.sv}>{tot}</span><span style={ms.sl}>Total</span></div></div>
+      {hm&&<div style={ms.mb}><h3 style={ms.mh}>Review Incorrect</h3>{results.filter(r=>!r.correct).map(r=>{
+        const qo=questions.find(x=>x.id===r.qId);if(!qo)return null;
+        const ch=qo.options.find(o=>o.label===r.chose);const co=qo.options.find(o=>o.label===qo.correct);
+        return(<div key={r.qId} style={ms.mc2}><div style={ms.mcat}>{qo.category}</div><div style={ms.mqt}>{qo.question}</div>
+          <div style={ms.ac}><div style={ms.ya}><span style={{fontWeight:800}}>✗</span> You: <strong>{r.chose}</strong> — {ch?.text}</div><div style={ms.ca}><span style={{fontWeight:800}}>✓</span> Correct: <strong>{qo.correct}</strong> — {co?.text}</div></div>
+          {qo.explanation&&<div style={ms.exp}>{qo.explanation}</div>}</div>);})}</div>}
+      <div style={ms.br}><button style={ms.pri} onClick={()=>startQuiz()}>Full Quiz</button>{hm&&<button style={ms.sec} onClick={startMissed}>Wrong Only ({miss})</button>}<button style={ms.ghost} onClick={()=>setPhase("start")}>← Back</button></div>
+    </div></div>);
+  }
+
+  // Quiz
+  return(<div style={ms.page}>{tb}
+    <div style={ms.qbar}><span style={ms.qprog}>{idx+1} / {quizQs.length}</span><span style={ms.qcat}>{q?.category}</span><span style={ms.qrs}><span style={{color:"#2ecc71"}}>✓{ok}</span>{" · "}<span style={{color:"#e74c3c"}}>✗{miss}</span></span></div>
+    <div style={ms.pb}><div style={{...ms.pbf,width:`${(idx+1)/quizQs.length*100}%`}}/></div>
+    <div style={ms.qcard}>
+      <div style={ms.stem}><p style={ms.stxt}>{q?.question}</p></div>
+      <div style={ms.opts}>{q?.options.map(opt=>{
+        const isSel=selected===opt.label;const isCor=locked&&opt.label===q.correct;const isWS=locked&&isSel&&opt.label!==q.correct;
+        let bg="#0c0c14",bdr="#1e1e2e",col="#ccc",lbg="#1a1a28",lc="#888";
+        if(!locked&&isSel){bg="#1a1a2e";bdr="#3b82f6";lbg="#3b82f6";lc="#fff";}
+        if(isCor){bg="#2ecc7112";bdr="#2ecc7155";col="#2ecc71";lbg="#2ecc71";lc="#000";}
+        if(isWS){bg="#e74c3c12";bdr="#e74c3c55";col="#e74c3c";lbg="#e74c3c";lc="#fff";}
+        return(<button key={opt.label} style={{...ms.obtn,background:bg,borderColor:bdr,color:col,cursor:locked?"default":"pointer"}} onClick={()=>!locked&&setSelected(opt.label)} disabled={locked}>
+          <span style={{...ms.olab,background:lbg,color:lc}}>{opt.label}</span><span style={{flex:1}}>{opt.text}</span></button>);
+      })}</div>
+      {locked&&q?.explanation&&<div style={ms.ebox}><div style={ms.elab}>EXPLANATION</div><p style={ms.etxt}>{q.explanation}</p></div>}
+      <div style={ms.abar}>{!locked?
+        <button style={{...ms.conf,opacity:selected===null?0.35:1,cursor:selected===null?"default":"pointer"}} onClick={confirmAns} disabled={selected===null}>Lock Answer</button>:
+        <button style={ms.next} onClick={nextQ}>{idx+1<quizQs.length?"Next Question →":"See Results →"}</button>
+      }</div>
+    </div>
+  </div>);
+}
+
+const ms={
+  page:{minHeight:"100vh",background:"#06060b",color:"#e8e6e1",fontFamily:"inherit",display:"flex",flexDirection:"column",alignItems:"center",padding:"0 16px 48px"},
+  toolbar:{width:"100%",maxWidth:660,display:"flex",justifyContent:"space-between",alignItems:"center",padding:"14px 0",borderBottom:"1px solid #151520",marginBottom:24,flexWrap:"wrap",gap:8},
+  tl:{display:"flex",alignItems:"center",gap:10},tr2:{display:"flex",gap:6,flexWrap:"wrap"},
+  dk:{fontSize:13,fontWeight:700,color:"#bbb"},qc:{fontSize:11,color:"#444",fontWeight:600},
+  tb:{background:"#10101a",color:"#777",border:"1px solid #1a1a28",borderRadius:5,padding:"6px 12px",fontSize:11,fontWeight:600,fontFamily:"inherit",cursor:"pointer",whiteSpace:"nowrap"},
+  err:{width:"100%",maxWidth:660,background:"#e74c3c14",border:"1px solid #e74c3c33",color:"#e74c3c",borderRadius:6,padding:"10px 16px",fontSize:12,marginBottom:16},
+  hero:{textAlign:"center",maxWidth:560,marginTop:16},
+  tag:{display:"inline-block",fontSize:10,fontWeight:700,letterSpacing:"0.16em",color:"#3b82f6",border:"1px solid #3b82f633",borderRadius:4,padding:"3px 10px",marginBottom:14},
+  title:{fontSize:28,fontWeight:800,margin:"0 0 6px",color:"#fff",letterSpacing:"-0.02em"},
+  sub:{fontSize:13,color:"#555",margin:"0 0 18px"},
+  cats:{display:"flex",flexWrap:"wrap",gap:6,justifyContent:"center",marginBottom:28},
+  pill:{fontSize:11,color:"#666",background:"#0e0e16",border:"1px solid #1a1a24",borderRadius:20,padding:"4px 10px"},
+  wf:{textAlign:"left",background:"#0a0a12",border:"1px solid #151520",borderRadius:10,padding:"18px 20px",marginBottom:28,display:"flex",flexDirection:"column",gap:12},
+  ws:{display:"flex",alignItems:"center",gap:12,fontSize:13,color:"#888",lineHeight:1.5},
+  sn:{width:24,height:24,borderRadius:"50%",background:"#3b82f618",color:"#3b82f6",display:"flex",alignItems:"center",justifyContent:"center",fontSize:12,fontWeight:800,flexShrink:0},
+  pri:{background:"#3b82f6",color:"#fff",border:"none",borderRadius:6,padding:"12px 32px",fontSize:13,fontWeight:700,fontFamily:"inherit",cursor:"pointer",letterSpacing:"0.04em"},
+  sec:{background:"transparent",color:"#3b82f6",border:"1px solid #3b82f644",borderRadius:6,padding:"12px 24px",fontSize:12,fontWeight:600,fontFamily:"inherit",cursor:"pointer"},
+  ghost:{background:"transparent",color:"#444",border:"none",padding:"12px 16px",fontSize:12,fontFamily:"inherit",cursor:"pointer"},
+  rev:{maxWidth:660,width:"100%",textAlign:"center"},
+  gc:{display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",width:100,height:100,borderRadius:"50%",border:"2px solid #1a1a28",margin:"20px auto 16px"},
+  gl:{fontSize:36,fontWeight:900,lineHeight:1},gp:{fontSize:12,color:"#555",fontWeight:600,marginTop:2},
+  strip:{display:"flex",justifyContent:"center",alignItems:"center",gap:24,marginBottom:28},
+  sc:{display:"flex",flexDirection:"column",alignItems:"center",gap:3},
+  sv:{fontSize:28,fontWeight:800,color:"#fff"},sl:{fontSize:10,color:"#555",fontWeight:600,letterSpacing:"0.1em",textTransform:"uppercase"},
+  sdiv:{width:1,height:40,background:"#1a1a24"},
+  mb:{textAlign:"left",background:"#0a0a12",border:"1px solid #151520",borderRadius:8,padding:"20px",marginBottom:24},
+  mh:{fontSize:11,fontWeight:700,letterSpacing:"0.12em",color:"#e74c3c",margin:"0 0 16px",textTransform:"uppercase"},
+  mc2:{marginBottom:18,paddingBottom:18,borderBottom:"1px solid #151520"},
+  mcat:{fontSize:10,color:"#444",fontWeight:600,letterSpacing:"0.1em",textTransform:"uppercase",marginBottom:4},
+  mqt:{fontSize:13,fontWeight:600,color:"#ddd",marginBottom:10,lineHeight:1.6},
+  ac:{display:"flex",flexDirection:"column",gap:6,marginBottom:10},
+  ya:{display:"flex",alignItems:"center",gap:8,fontSize:12,color:"#e74c3c"},
+  ca:{display:"flex",alignItems:"center",gap:8,fontSize:12,color:"#2ecc71"},
+  exp:{fontSize:11,lineHeight:1.7,color:"#777",background:"#0e0e18",borderRadius:6,padding:"10px 14px"},
+  br:{display:"flex",gap:10,justifyContent:"center",flexWrap:"wrap"},
+  // quiz
+  qbar:{width:"100%",maxWidth:660,display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8,fontSize:12},
+  qprog:{color:"#444",fontWeight:600},qcat:{color:"#3b82f6",fontSize:10,fontWeight:700,letterSpacing:"0.12em",textTransform:"uppercase"},
+  qrs:{fontSize:12,fontWeight:600},
+  pb:{width:"100%",maxWidth:660,height:3,background:"#151520",borderRadius:2,marginBottom:20,overflow:"hidden"},
+  pbf:{height:"100%",background:"#3b82f6",borderRadius:2,transition:"width 0.3s ease"},
+  qcard:{width:"100%",maxWidth:660,background:"#0a0a12",border:"1px solid #151520",borderRadius:10,overflow:"hidden"},
+  stem:{padding:"28px 24px 20px"},stxt:{fontSize:15,lineHeight:1.75,margin:0,color:"#e8e6e1"},
+  opts:{padding:"0 24px 8px",display:"flex",flexDirection:"column",gap:8},
+  obtn:{display:"flex",alignItems:"center",gap:14,width:"100%",padding:"14px 16px",borderRadius:8,border:"1px solid",fontFamily:"inherit",fontSize:13,textAlign:"left",transition:"all 0.15s ease",lineHeight:1.5},
+  olab:{width:28,height:28,borderRadius:6,display:"flex",alignItems:"center",justifyContent:"center",fontSize:12,fontWeight:800,flexShrink:0,transition:"all 0.15s ease"},
+  ebox:{margin:"8px 24px 0",padding:"16px 18px",background:"#0e0e18",border:"1px solid #1a1a28",borderRadius:8},
+  elab:{fontSize:10,fontWeight:700,letterSpacing:"0.14em",color:"#3b82f6",marginBottom:8},
+  etxt:{fontSize:12,lineHeight:1.8,color:"#999",margin:0},
+  abar:{padding:"16px 24px 20px"},
+  conf:{width:"100%",background:"#3b82f6",color:"#fff",border:"none",borderRadius:6,padding:"13px",fontSize:13,fontWeight:700,fontFamily:"inherit",letterSpacing:"0.04em"},
+  next:{width:"100%",background:"#151522",color:"#3b82f6",border:"1px solid #3b82f633",borderRadius:6,padding:"13px",fontSize:13,fontWeight:700,fontFamily:"inherit",cursor:"pointer",letterSpacing:"0.04em"},
+};
+
+
+/* ===== TOP-LEVEL APP WITH TAB SWITCHER ===== */
+function App(){
+  const [mode,setMode]=useState("flash");
+  return(<div>
+    <div style={appS.nav}>
+      <div style={appS.navInner}>
+        <span style={appS.logo}>STUDY DRILL</span>
+        <div style={appS.tabs}>
+          <button style={mode==="flash"?{...appS.tab,...appS.tabActive}:{...appS.tab,...appS.tabInactive}} onClick={()=>setMode("flash")}>Flashcards</button>
+          <button style={mode==="mcq"?{...appS.tab,...appS.tabActive}:{...appS.tab,...appS.tabInactive}} onClick={()=>setMode("mcq")}>Multiple Choice</button>
+        </div>
+      </div>
+    </div>
+    {mode==="flash"?<FlashcardDrill/>:<MCQQuiz/>}
+  </div>);
+}
+
+const appS={
+  nav:{width:"100%",background:"#04040a",borderBottom:"1px solid #151520",padding:"12px 16px",position:"sticky",top:0,zIndex:100},
+  navInner:{maxWidth:660,margin:"0 auto",display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:10},
+  logo:{fontSize:11,fontWeight:800,letterSpacing:"0.2em",color:"#444"},
+  tabs:{display:"flex",gap:4},
+  tab:{padding:"7px 16px",borderRadius:6,fontSize:12,fontWeight:600,fontFamily:"inherit",cursor:"pointer",border:"none",transition:"all 0.15s ease"},
+  tabActive:{background:"#1a1a28",color:"#fff"},
+  tabInactive:{background:"transparent",color:"#555"},
+};
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
+</body>
+</html>
