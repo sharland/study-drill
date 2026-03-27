@@ -22,7 +22,7 @@ Data flow: JSON files are imported via `FileReader`, validated, stored in compon
 
 **Bugs to fix:**
 
-1. **MCQ options not shuffled** — options always render in original JSON order (A/B/C/D). When shuffling options, `correct` must be updated to match whichever label ends up in the correct position, or the comparison logic changed to match on content rather than label.
+1. ~~**MCQ options not shuffled**~~ — **Fixed.** Options are now shuffled in `startQuiz`; correct answer text is looked up before shuffling, labels are reassigned A/B/C/D sequentially, and `correct` is remapped to whichever label holds the correct text.
 2. **Tab switching breaks toolbar** — after completing MCQ and switching to the Flashcards tab, import/export toolbar buttons stop working until page refresh. Likely a `useRef` initialisation issue on remount.
 
 **Features to add:**
