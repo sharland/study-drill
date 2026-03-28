@@ -67,6 +67,7 @@ function FlashcardDrill(){
   const [results,setResults]=useState([]);
   const [sess,setSess]=useState(0);
   const [err,setErr]=useState(null);
+  const [selCat,setSelCat]=useState(null);
 
   const handleImport=useCallback((e)=>{
     const f=e.target.files?.[0];if(!f)return;setErr(null);
@@ -75,14 +76,15 @@ function FlashcardDrill(){
       const d=JSON.parse(ev.target.result);const a=d.cards||d;
       if(!Array.isArray(a)||!a.length){setErr("JSON must contain a 'cards' array.");return;}
       if(!a.every(c=>c.id!==undefined&&c.question&&c.answer)){setErr("Every card needs id, question, answer.");return;}
-      setCards(a);setDeckName(d.deck_name||f.name.replace(/\.json$/,""));setPhase("start");setSess(0);
+      setCards(a);setDeckName(d.deck_name||f.name.replace(/\.json$/,""));setPhase("start");setSess(0);setSelCat(null);
     }catch{setErr("Invalid JSON.");}};
     r.readAsText(f);e.target.value="";
   },[]);
 
   const startQuiz=useCallback((sub)=>{
-    setQuizCards(shuffleArray(sub||cards));setCi(0);setShowAns(false);setResults([]);setSess(c=>c+1);setPhase("quiz");
-  },[cards]);
+    const pool=sub||(selCat?cards.filter(c=>(c.category||"Uncategorised")===selCat):cards);
+    setQuizCards(shuffleArray(pool));setCi(0);setShowAns(false);setResults([]);setSess(c=>c+1);setPhase("quiz");
+  },[cards,selCat]);
 
   const startMissed=useCallback(()=>{
     const ids=results.filter(r=>!r.correct).map(r=>r.cardId);
@@ -112,13 +114,16 @@ function FlashcardDrill(){
     return(<div style={fs.page}>{tb}{err&&<div style={fs.err}>{err}</div>}<div style={fs.hero}>
       <div style={fs.badge}>FLASHCARD DRILL</div><h1 style={fs.title}>{deckName}</h1>
       <p style={fs.sub}>{cards.length} cards · {cats.length} categories</p>
-      <div style={fs.cats}>{cats.map(c=><span key={c} style={fs.pill}>{c} ({cards.filter(x=>(x.category||"Uncategorised")===c).length})</span>)}</div>
+      <div style={fs.cats}>
+        <span style={selCat===null?{...fs.pill,...fs.pillOn}:fs.pill} onClick={()=>setSelCat(null)}>All ({cards.length})</span>
+        {cats.map(c=><span key={c} style={selCat===c?{...fs.pill,...fs.pillOn}:fs.pill} onClick={()=>setSelCat(selCat===c?null:c)}>{c} ({cards.filter(x=>(x.category||"Uncategorised")===c).length})</span>)}
+      </div>
       <div style={fs.wf}>
         <div style={fs.ws}><span style={fs.sn}>1</span><span>Download the <strong>Template</strong> JSON</span></div>
         <div style={fs.ws}><span style={fs.sn}>2</span><span>Give it to Claude with your notes</span></div>
         <div style={fs.ws}><span style={fs.sn}>3</span><span><strong>Import</strong> the JSON back here and drill</span></div>
       </div>
-      <button style={fs.pri} onClick={()=>startQuiz()}>Start Drill</button>
+      <button style={fs.pri} onClick={()=>startQuiz()}>{selCat?`Drill: ${selCat}`:"Start Drill"}</button>
     </div></div>);
   }
 
@@ -156,7 +161,8 @@ const fs={
   title:{fontSize:28,fontWeight:800,margin:"0 0 6px",color:"#fff",letterSpacing:"-0.02em"},
   sub:{fontSize:13,color:"#666",margin:"0 0 16px"},
   cats:{display:"flex",flexWrap:"wrap",gap:6,justifyContent:"center",marginBottom:28},
-  pill:{fontSize:11,color:"#777",background:"#12121a",border:"1px solid #1e1e2a",borderRadius:20,padding:"4px 10px"},
+  pill:{fontSize:11,color:"#777",background:"#12121a",border:"1px solid #1e1e2a",borderRadius:20,padding:"4px 10px",cursor:"pointer"},
+  pillOn:{color:"#f39c12",background:"#f39c1211",borderColor:"#f39c1255"},
   wf:{textAlign:"left",background:"#0e0e16",border:"1px solid #1a1a24",borderRadius:10,padding:"18px 20px",marginBottom:28,display:"flex",flexDirection:"column",gap:12},
   ws:{display:"flex",alignItems:"center",gap:12,fontSize:13,color:"#999",lineHeight:1.5},
   sn:{width:24,height:24,borderRadius:"50%",background:"#f39c1222",color:"#f39c12",display:"flex",alignItems:"center",justifyContent:"center",fontSize:12,fontWeight:800,flexShrink:0},
@@ -203,6 +209,7 @@ function MCQQuiz(){
   const [results,setResults]=useState([]);
   const [sess,setSess]=useState(0);
   const [err,setErr]=useState(null);
+  const [selCat,setSelCat]=useState(null);
 
   const handleImport=useCallback((e)=>{
     const f=e.target.files?.[0];if(!f)return;setErr(null);
@@ -211,20 +218,21 @@ function MCQQuiz(){
       const d=JSON.parse(ev.target.result);const a=d.questions||d;
       if(!Array.isArray(a)||!a.length){setErr("JSON must contain a 'questions' array.");return;}
       if(!a.every(q=>q.id!==undefined&&q.question&&Array.isArray(q.options)&&q.options.length>=2&&q.correct)){setErr("Every question needs id, question, options[], correct.");return;}
-      setQuestions(a);setDeckName(d.quiz_name||f.name.replace(/\.json$/,""));setPhase("start");setSess(0);
+      setQuestions(a);setDeckName(d.quiz_name||f.name.replace(/\.json$/,""));setPhase("start");setSess(0);setSelCat(null);
     }catch{setErr("Invalid JSON.");}};
     r.readAsText(f);e.target.value="";
   },[]);
 
   const startQuiz=useCallback((sub)=>{
-    const shuffled=shuffleArray(sub||questions).map(q=>{
+    const pool=sub||(selCat?questions.filter(q=>(q.category||"General")===selCat):questions);
+    const shuffled=shuffleArray(pool).map(q=>{
       const correctText=q.options.find(o=>o.label===q.correct)?.text;
       const newOpts=shuffleArray(q.options).map((o,i)=>({...o,label:["A","B","C","D"][i]}));
       const newCorrect=newOpts.find(o=>o.text===correctText)?.label;
       return{...q,options:newOpts,correct:newCorrect};
     });
     setQuizQs(shuffled);setIdx(0);setSelected(null);setLocked(false);setResults([]);setSess(c=>c+1);setPhase("quiz");
-  },[questions]);
+  },[questions,selCat]);
 
   const startMissed=useCallback(()=>{
     const ids=results.filter(r=>!r.correct).map(r=>r.qId);
@@ -259,13 +267,16 @@ function MCQQuiz(){
     return(<div style={ms.page}>{tb}{err&&<div style={ms.err}>{err}</div>}<div style={ms.hero}>
       <div style={ms.tag}>MULTIPLE CHOICE</div><h1 style={ms.title}>{deckName}</h1>
       <p style={ms.sub}>{questions.length} questions · {cats.length} categories</p>
-      <div style={ms.cats}>{cats.map(c=><span key={c} style={ms.pill}>{c} ({questions.filter(x=>(x.category||"General")===c).length})</span>)}</div>
+      <div style={ms.cats}>
+        <span style={selCat===null?{...ms.pill,...ms.pillOn}:ms.pill} onClick={()=>setSelCat(null)}>All ({questions.length})</span>
+        {cats.map(c=><span key={c} style={selCat===c?{...ms.pill,...ms.pillOn}:ms.pill} onClick={()=>setSelCat(selCat===c?null:c)}>{c} ({questions.filter(x=>(x.category||"General")===c).length})</span>)}
+      </div>
       <div style={ms.wf}>
         <div style={ms.ws}><span style={ms.sn}>1</span><span>Download the <strong>Template</strong> JSON</span></div>
         <div style={ms.ws}><span style={ms.sn}>2</span><span>Give it to Claude with your notes — it generates MCQs</span></div>
         <div style={ms.ws}><span style={ms.sn}>3</span><span><strong>Import</strong> the JSON and test yourself</span></div>
       </div>
-      <button style={ms.pri} onClick={()=>startQuiz()}>Begin Exam</button>
+      <button style={ms.pri} onClick={()=>startQuiz()}>{selCat?`Exam: ${selCat}`:"Begin Exam"}</button>
     </div></div>);
   }
 
@@ -323,7 +334,8 @@ const ms={
   title:{fontSize:28,fontWeight:800,margin:"0 0 6px",color:"#fff",letterSpacing:"-0.02em"},
   sub:{fontSize:13,color:"#555",margin:"0 0 18px"},
   cats:{display:"flex",flexWrap:"wrap",gap:6,justifyContent:"center",marginBottom:28},
-  pill:{fontSize:11,color:"#666",background:"#0e0e16",border:"1px solid #1a1a24",borderRadius:20,padding:"4px 10px"},
+  pill:{fontSize:11,color:"#666",background:"#0e0e16",border:"1px solid #1a1a24",borderRadius:20,padding:"4px 10px",cursor:"pointer"},
+  pillOn:{color:"#3b82f6",background:"#3b82f611",borderColor:"#3b82f655"},
   wf:{textAlign:"left",background:"#0a0a12",border:"1px solid #151520",borderRadius:10,padding:"18px 20px",marginBottom:28,display:"flex",flexDirection:"column",gap:12},
   ws:{display:"flex",alignItems:"center",gap:12,fontSize:13,color:"#888",lineHeight:1.5},
   sn:{width:24,height:24,borderRadius:"50%",background:"#3b82f618",color:"#3b82f6",display:"flex",alignItems:"center",justifyContent:"center",fontSize:12,fontWeight:800,flexShrink:0},

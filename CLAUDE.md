@@ -27,7 +27,7 @@ Data flow: JSON files are imported via `FileReader`, validated, stored in compon
 
 **Features to add:**
 
-3. **Category filter** — on the start screen, category pills should be clickable to start a drill/quiz on that category only, with an "All" option. Currently display-only.
+3. ~~**Category filter**~~ — **Done.** Category pills on the start screen are now clickable. Selecting a pill filters the deck to that category; clicking it again or clicking "All" resets. The start button label updates to reflect the active filter. `selCat` state resets to null on import.
 4. **Session score history** — track scores across sessions within a single page load (no localStorage; ephemeral state only). Show a running history of session scores on the review screen.
 
 ## JSON data files
