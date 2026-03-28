@@ -58,8 +58,8 @@ const SAMPLE_MCQ=[{id:1,category:"Sample",question:"Import your own JSON quiz to
 
 /* ===== FLASHCARD COMPONENT ===== */
 function FlashcardDrill(){
-  const [cards,setCards]=useState(SAMPLE_FC);
-  const [deckName,setDeckName]=useState("No deck loaded");
+  const [cards,setCards]=useState(()=>{try{const d=JSON.parse(localStorage.getItem("fc_deck"));return d?.cards?.length?d.cards:SAMPLE_FC;}catch{return SAMPLE_FC;}});
+  const [deckName,setDeckName]=useState(()=>{try{const d=JSON.parse(localStorage.getItem("fc_deck"));return d?.deck_name||"No deck loaded";}catch{return "No deck loaded";}});
   const [phase,setPhase]=useState("start");
   const [quizCards,setQuizCards]=useState([]);
   const [ci,setCi]=useState(0);
@@ -77,9 +77,16 @@ function FlashcardDrill(){
       const d=JSON.parse(ev.target.result);const a=d.cards||d;
       if(!Array.isArray(a)||!a.length){setErr("JSON must contain a 'cards' array.");return;}
       if(!a.every(c=>c.id!==undefined&&c.question&&c.answer)){setErr("Every card needs id, question, answer.");return;}
-      setCards(a);setDeckName(d.deck_name||f.name.replace(/\.json$/,""));setPhase("start");setSess(0);setSelCat(null);
+      const name=d.deck_name||f.name.replace(/\.json$/,"");
+      setCards(a);setDeckName(name);setPhase("start");setSess(0);setSelCat(null);
+      localStorage.setItem("fc_deck",JSON.stringify({deck_name:name,cards:a}));
     }catch{setErr("Invalid JSON.");}};
     r.readAsText(f);e.target.value="";
+  },[]);
+
+  const clearDeck=useCallback(()=>{
+    localStorage.removeItem("fc_deck");
+    setCards(SAMPLE_FC);setDeckName("No deck loaded");setPhase("start");setSess(0);setSelCat(null);setHistory([]);
   },[]);
 
   const startQuiz=useCallback((sub)=>{
@@ -113,6 +120,7 @@ function FlashcardDrill(){
       <button style={fs.tb} onClick={()=>downloadJSON(FC_TEMPLATE,"flashcard-template.json")}>↓ Template</button>
       <label style={fs.tb}>↑ Import<input type="file" accept=".json" onChange={handleImport} style={{display:"none"}}/></label>
       {cards!==SAMPLE_FC&&<button style={fs.tb} onClick={()=>downloadJSON({deck_name:deckName,cards},deckName.replace(/\s+/g,"-").toLowerCase()+"-deck.json")}>↓ Export</button>}
+      {cards!==SAMPLE_FC&&<button style={fs.tb} onClick={clearDeck}>✕ Clear</button>}
     </div>
   </div>);
 
@@ -213,8 +221,8 @@ const fs={
 
 /* ===== MCQ COMPONENT ===== */
 function MCQQuiz(){
-  const [questions,setQuestions]=useState(SAMPLE_MCQ);
-  const [deckName,setDeckName]=useState("No quiz loaded");
+  const [questions,setQuestions]=useState(()=>{try{const d=JSON.parse(localStorage.getItem("mcq_deck"));return d?.questions?.length?d.questions:SAMPLE_MCQ;}catch{return SAMPLE_MCQ;}});
+  const [deckName,setDeckName]=useState(()=>{try{const d=JSON.parse(localStorage.getItem("mcq_deck"));return d?.quiz_name||"No quiz loaded";}catch{return "No quiz loaded";}});
   const [phase,setPhase]=useState("start");
   const [quizQs,setQuizQs]=useState([]);
   const [idx,setIdx]=useState(0);
@@ -233,9 +241,16 @@ function MCQQuiz(){
       const d=JSON.parse(ev.target.result);const a=d.questions||d;
       if(!Array.isArray(a)||!a.length){setErr("JSON must contain a 'questions' array.");return;}
       if(!a.every(q=>q.id!==undefined&&q.question&&Array.isArray(q.options)&&q.options.length>=2&&q.correct)){setErr("Every question needs id, question, options[], correct.");return;}
-      setQuestions(a);setDeckName(d.quiz_name||f.name.replace(/\.json$/,""));setPhase("start");setSess(0);setSelCat(null);
+      const name=d.quiz_name||f.name.replace(/\.json$/,"");
+      setQuestions(a);setDeckName(name);setPhase("start");setSess(0);setSelCat(null);
+      localStorage.setItem("mcq_deck",JSON.stringify({quiz_name:name,questions:a}));
     }catch{setErr("Invalid JSON.");}};
     r.readAsText(f);e.target.value="";
+  },[]);
+
+  const clearDeck=useCallback(()=>{
+    localStorage.removeItem("mcq_deck");
+    setQuestions(SAMPLE_MCQ);setDeckName("No quiz loaded");setPhase("start");setSess(0);setSelCat(null);setHistory([]);
   },[]);
 
   const startQuiz=useCallback((sub)=>{
@@ -279,6 +294,7 @@ function MCQQuiz(){
       <button style={ms.tb} onClick={()=>downloadJSON(MCQ_TEMPLATE,"mcq-template.json")}>↓ Template</button>
       <label style={ms.tb}>↑ Import<input type="file" accept=".json" onChange={handleImport} style={{display:"none"}}/></label>
       {questions!==SAMPLE_MCQ&&<button style={ms.tb} onClick={()=>downloadJSON({quiz_name:deckName,questions},deckName.replace(/\s+/g,"-").toLowerCase()+"-quiz.json")}>↓ Export</button>}
+      {questions!==SAMPLE_MCQ&&<button style={ms.tb} onClick={clearDeck}>✕ Clear</button>}
     </div>
   </div>);
 
