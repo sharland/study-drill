@@ -16,7 +16,7 @@
 <body>
 <div id="root"></div>
 <script type="text/babel">
-const {useState,useCallback} = React;
+const {useState,useCallback,useEffect} = React;
 
 /* ===== SHARED UTILITIES ===== */
 function shuffleArray(arr){
@@ -110,6 +110,20 @@ function FlashcardDrill(){
     }
   },[quizCards,ci,results,sess,selCat]);
 
+  useEffect(()=>{
+    if(phase!=="quiz")return;
+    const onKey=(e)=>{
+      if(e.target.tagName==="INPUT"||e.target.tagName==="TEXTAREA")return;
+      if(!showAns){if(e.code==="Space"){e.preventDefault();setShowAns(true);}}
+      else{
+        if(e.key==="y"||e.key==="Y"||e.key==="ArrowRight")mark(true);
+        if(e.key==="n"||e.key==="N"||e.key==="ArrowLeft")mark(false);
+      }
+    };
+    window.addEventListener("keydown",onKey);
+    return()=>window.removeEventListener("keydown",onKey);
+  },[phase,showAns,mark]);
+
   const card=quizCards[ci];
   const ok=results.filter(r=>r.correct).length;
   const miss=results.filter(r=>!r.correct).length;
@@ -157,9 +171,9 @@ function FlashcardDrill(){
     <div style={fs.topb}><span style={fs.prog}>{ci+1} / {quizCards.length}</span><span style={fs.cat}>{card?.category}</span><span style={fs.rs}><span style={{color:"#2ecc71"}}>✓{ok}</span>{" · "}<span style={{color:"#e74c3c"}}>✗{miss}</span></span></div>
     <div style={fs.pb}><div style={{...fs.pf,width:`${(ci+1)/quizCards.length*100}%`}}/></div>
     <div style={fs.co}><div style={fs.qs}><p style={fs.qt}>{card?.question}</p></div>
-      {!showAns?<button style={fs.rb} onClick={()=>setShowAns(true)}>Reveal Answer</button>:
+      {!showAns?<button style={fs.rb} onClick={()=>setShowAns(true)}>Reveal Answer<span style={fs.kh}>[Space]</span></button>:
       <div style={fs.as}><div style={fs.al}>CORRECT ANSWER</div><p style={fs.at}>{card?.answer}</p>
-        <div style={fs.jb}><button style={fs.gi} onClick={()=>mark(true)}>✓ Got It</button><button style={fs.mi2} onClick={()=>mark(false)}>✗ Missed It</button></div>
+        <div style={fs.jb}><button style={fs.gi} onClick={()=>mark(true)}>✓ Got It<span style={fs.kh}>[Y / →]</span></button><button style={fs.mi2} onClick={()=>mark(false)}>✗ Missed It<span style={fs.kh}>[N / ←]</span></button></div>
       </div>}
     </div>
   </div>);
@@ -216,6 +230,7 @@ const fs={
   jb:{display:"flex",gap:10},
   gi:{flex:1,background:"#2ecc7118",color:"#2ecc71",border:"1px solid #2ecc7133",borderRadius:6,padding:"11px",fontSize:13,fontWeight:700,fontFamily:"inherit",cursor:"pointer"},
   mi2:{flex:1,background:"#e74c3c18",color:"#e74c3c",border:"1px solid #e74c3c33",borderRadius:6,padding:"11px",fontSize:13,fontWeight:700,fontFamily:"inherit",cursor:"pointer"},
+  kh:{opacity:0.45,fontSize:10,fontWeight:400,marginLeft:5},
 };
 
 
@@ -283,6 +298,22 @@ function MCQQuiz(){
       setPhase("review");
     }
   },[idx,quizQs,results,sess,selCat]);
+
+  useEffect(()=>{
+    if(phase!=="quiz")return;
+    const onKey=(e)=>{
+      if(e.target.tagName==="INPUT"||e.target.tagName==="TEXTAREA")return;
+      if(!locked){
+        const map={a:"A",b:"B",c:"C",d:"D","1":"A","2":"B","3":"C","4":"D"};
+        if(map[e.key])setSelected(map[e.key]);
+        if(e.key==="Enter"&&selected!==null)confirmAns();
+      }else{
+        if(e.key==="Enter")nextQ();
+      }
+    };
+    window.addEventListener("keydown",onKey);
+    return()=>window.removeEventListener("keydown",onKey);
+  },[phase,locked,selected,confirmAns,nextQ]);
 
   const q=quizQs[idx];
   const ok=results.filter(r=>r.correct).length;
@@ -352,8 +383,8 @@ function MCQQuiz(){
       })}</div>
       {locked&&q?.explanation&&<div style={ms.ebox}><div style={ms.elab}>EXPLANATION</div><p style={ms.etxt}>{q.explanation}</p></div>}
       <div style={ms.abar}>{!locked?
-        <button style={{...ms.conf,opacity:selected===null?0.35:1,cursor:selected===null?"default":"pointer"}} onClick={confirmAns} disabled={selected===null}>Lock Answer</button>:
-        <button style={ms.next} onClick={nextQ}>{idx+1<quizQs.length?"Next Question →":"See Results →"}</button>
+        <button style={{...ms.conf,opacity:selected===null?0.35:1,cursor:selected===null?"default":"pointer"}} onClick={confirmAns} disabled={selected===null}>Lock Answer<span style={ms.kh}>[Enter]</span></button>:
+        <button style={ms.next} onClick={nextQ}>{idx+1<quizQs.length?"Next Question →":"See Results →"}<span style={ms.kh}>[Enter]</span></button>
       }</div>
     </div>
   </div>);
@@ -419,6 +450,7 @@ const ms={
   abar:{padding:"16px 24px 20px"},
   conf:{width:"100%",background:"#3b82f6",color:"#fff",border:"none",borderRadius:6,padding:"13px",fontSize:13,fontWeight:700,fontFamily:"inherit",letterSpacing:"0.04em"},
   next:{width:"100%",background:"#151522",color:"#3b82f6",border:"1px solid #3b82f633",borderRadius:6,padding:"13px",fontSize:13,fontWeight:700,fontFamily:"inherit",cursor:"pointer",letterSpacing:"0.04em"},
+  kh:{opacity:0.45,fontSize:10,fontWeight:400,marginLeft:5},
 };
 
 
