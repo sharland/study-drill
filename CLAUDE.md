@@ -28,7 +28,7 @@ Data flow: JSON files are imported via `FileReader`, validated, stored in compon
 **Features to add:**
 
 3. ~~**Category filter**~~ — **Done.** Category pills on the start screen are now clickable. Selecting a pill filters the deck to that category; clicking it again or clicking "All" resets. The start button label updates to reflect the active filter. `selCat` state resets to null on import.
-4. **Session score history** — track scores across sessions within a single page load (no localStorage; ephemeral state only). Show a running history of session scores on the review screen.
+4. ~~**Session score history**~~ — **Done.** `history` state (ephemeral, resets on page load) accumulates each session's result when the quiz ends. The review screen shows prior sessions below the missed-cards list — most recent first — with session number, score %, and correct/missed/total counts.
 
 ## JSON data files
 

@@ -68,6 +68,7 @@ function FlashcardDrill(){
   const [sess,setSess]=useState(0);
   const [err,setErr]=useState(null);
   const [selCat,setSelCat]=useState(null);
+  const [history,setHistory]=useState([]);
 
   const handleImport=useCallback((e)=>{
     const f=e.target.files?.[0];if(!f)return;setErr(null);
@@ -92,9 +93,15 @@ function FlashcardDrill(){
   },[results,cards,startQuiz]);
 
   const mark=useCallback((correct)=>{
-    setResults(p=>[...p,{cardId:quizCards[ci].id,correct}]);
-    if(ci+1<quizCards.length){setCi(i=>i+1);setShowAns(false);}else setPhase("review");
-  },[quizCards,ci]);
+    const newResults=[...results,{cardId:quizCards[ci].id,correct}];
+    setResults(newResults);
+    if(ci+1<quizCards.length){setCi(i=>i+1);setShowAns(false);}
+    else{
+      const okCount=newResults.filter(r=>r.correct).length;
+      setHistory(h=>[...h,{sess,pct:Math.round(okCount/newResults.length*100),ok:okCount,miss:newResults.length-okCount,tot:newResults.length,cat:selCat}]);
+      setPhase("review");
+    }
+  },[quizCards,ci,results,sess,selCat]);
 
   const card=quizCards[ci];
   const ok=results.filter(r=>r.correct).length;
@@ -133,6 +140,7 @@ function FlashcardDrill(){
       <div style={fs.badge}>SESSION {sess}</div>
       <div style={fs.sr}><div style={fs.ss}><span style={fs.snum}>{ok}</span><span style={fs.slbl}>Correct</span></div><div style={fs.sdiv}/><div style={fs.ss}><span style={{...fs.snum,color:miss?"#e74c3c":"#2ecc71"}}>{miss}</span><span style={fs.slbl}>Missed</span></div><div style={fs.sdiv}/><div style={fs.ss}><span style={fs.snum}>{pct}%</span><span style={fs.slbl}>Score</span></div></div>
       {hm&&<div style={fs.ml}><h3 style={fs.mt}>Missed</h3>{results.filter(r=>!r.correct).map(r=>{const c=cards.find(x=>x.id===r.cardId);return(<div key={r.cardId} style={fs.mi}><div style={fs.mc}>{c?.category}</div><div style={fs.mq}>{c?.question}</div><div style={fs.ma}>{c?.answer}</div></div>);})}</div>}
+      {history.length>1&&<div style={fs.hl}><h3 style={fs.ht}>Session History</h3>{[...history].reverse().slice(1).map((h,i)=><div key={i} style={fs.hi}><span style={fs.hn}>#{h.sess}</span><span style={fs.hp}>{h.pct}%</span><span style={fs.hd}>{h.cat||"All"} · {h.ok} correct · {h.miss} missed</span></div>)}</div>}
       <div style={fs.br}><button style={fs.pri} onClick={()=>startQuiz()}>Full Deck</button>{hm&&<button style={fs.sec} onClick={startMissed}>Missed Only ({miss})</button>}<button style={fs.ghost} onClick={()=>setPhase("start")}>← Back</button></div>
     </div></div>);
   }
@@ -180,6 +188,12 @@ const fs={
   mc:{fontSize:10,color:"#555",fontWeight:600,letterSpacing:"0.1em",textTransform:"uppercase",marginBottom:4},
   mq:{fontSize:12,fontWeight:600,color:"#ddd",marginBottom:5},ma:{fontSize:11,lineHeight:1.7,color:"#777"},
   br:{display:"flex",gap:10,justifyContent:"center",flexWrap:"wrap"},
+  hl:{textAlign:"left",background:"#0e0e16",border:"1px solid #1a1a24",borderRadius:8,padding:"14px 20px",marginBottom:24},
+  ht:{fontSize:10,fontWeight:700,letterSpacing:"0.12em",color:"#555",margin:"0 0 10px",textTransform:"uppercase"},
+  hi:{display:"flex",alignItems:"center",gap:12,padding:"5px 0",borderBottom:"1px solid #14141e",fontSize:12},
+  hn:{color:"#555",fontWeight:600,width:40,flexShrink:0},
+  hp:{fontWeight:700,color:"#f39c12",width:40,flexShrink:0},
+  hd:{color:"#666",fontSize:11},
   topb:{width:"100%",maxWidth:640,display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8,fontSize:12},
   prog:{color:"#555",fontWeight:600},cat:{color:"#f39c12",fontSize:10,fontWeight:700,letterSpacing:"0.12em",textTransform:"uppercase"},
   rs:{fontSize:12,fontWeight:600},
@@ -210,6 +224,7 @@ function MCQQuiz(){
   const [sess,setSess]=useState(0);
   const [err,setErr]=useState(null);
   const [selCat,setSelCat]=useState(null);
+  const [history,setHistory]=useState([]);
 
   const handleImport=useCallback((e)=>{
     const f=e.target.files?.[0];if(!f)return;setErr(null);
@@ -246,8 +261,13 @@ function MCQQuiz(){
   },[selected,locked,quizQs,idx]);
 
   const nextQ=useCallback(()=>{
-    if(idx+1<quizQs.length){setIdx(i=>i+1);setSelected(null);setLocked(false);}else setPhase("review");
-  },[idx,quizQs]);
+    if(idx+1<quizQs.length){setIdx(i=>i+1);setSelected(null);setLocked(false);}
+    else{
+      const okCount=results.filter(r=>r.correct).length;
+      setHistory(h=>[...h,{sess,pct:Math.round(okCount/results.length*100),ok:okCount,miss:results.length-okCount,tot:results.length,cat:selCat}]);
+      setPhase("review");
+    }
+  },[idx,quizQs,results,sess,selCat]);
 
   const q=quizQs[idx];
   const ok=results.filter(r=>r.correct).length;
@@ -294,6 +314,7 @@ function MCQQuiz(){
         return(<div key={r.qId} style={ms.mc2}><div style={ms.mcat}>{qo.category}</div><div style={ms.mqt}>{qo.question}</div>
           <div style={ms.ac}><div style={ms.ya}><span style={{fontWeight:800}}>✗</span> You: <strong>{r.chose}</strong> — {ch?.text}</div><div style={ms.ca}><span style={{fontWeight:800}}>✓</span> Correct: <strong>{qo.correct}</strong> — {co?.text}</div></div>
           {qo.explanation&&<div style={ms.exp}>{qo.explanation}</div>}</div>);})}</div>}
+      {history.length>1&&<div style={ms.hl}><h3 style={ms.ht}>Session History</h3>{[...history].reverse().slice(1).map((h,i)=><div key={i} style={ms.hi}><span style={ms.hn}>#{h.sess}</span><span style={ms.hp}>{h.pct}%</span><span style={ms.hd}>{h.cat||"All"} · {h.ok} correct · {h.miss} wrong</span></div>)}</div>}
       <div style={ms.br}><button style={ms.pri} onClick={()=>startQuiz()}>Full Quiz</button>{hm&&<button style={ms.sec} onClick={startMissed}>Wrong Only ({miss})</button>}<button style={ms.ghost} onClick={()=>setPhase("start")}>← Back</button></div>
     </div></div>);
   }
@@ -359,6 +380,12 @@ const ms={
   ca:{display:"flex",alignItems:"center",gap:8,fontSize:12,color:"#2ecc71"},
   exp:{fontSize:11,lineHeight:1.7,color:"#777",background:"#0e0e18",borderRadius:6,padding:"10px 14px"},
   br:{display:"flex",gap:10,justifyContent:"center",flexWrap:"wrap"},
+  hl:{textAlign:"left",background:"#0a0a12",border:"1px solid #151520",borderRadius:8,padding:"14px 20px",marginBottom:24},
+  ht:{fontSize:10,fontWeight:700,letterSpacing:"0.12em",color:"#444",margin:"0 0 10px",textTransform:"uppercase"},
+  hi:{display:"flex",alignItems:"center",gap:12,padding:"5px 0",borderBottom:"1px solid #151520",fontSize:12},
+  hn:{color:"#444",fontWeight:600,width:40,flexShrink:0},
+  hp:{fontWeight:700,color:"#3b82f6",width:40,flexShrink:0},
+  hd:{color:"#555",fontSize:11},
   // quiz
   qbar:{width:"100%",maxWidth:660,display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8,fontSize:12},
   qprog:{color:"#444",fontWeight:600},qcat:{color:"#3b82f6",fontSize:10,fontWeight:700,letterSpacing:"0.12em",textTransform:"uppercase"},
