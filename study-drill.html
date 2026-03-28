@@ -16,7 +16,7 @@
 <body>
 <div id="root"></div>
 <script type="text/babel">
-const {useState,useCallback,useRef} = React;
+const {useState,useCallback} = React;
 
 /* ===== SHARED UTILITIES ===== */
 function shuffleArray(arr){
@@ -67,7 +67,6 @@ function FlashcardDrill(){
   const [results,setResults]=useState([]);
   const [sess,setSess]=useState(0);
   const [err,setErr]=useState(null);
-  const fr=useRef(null);
 
   const handleImport=useCallback((e)=>{
     const f=e.target.files?.[0];if(!f)return;setErr(null);
@@ -103,9 +102,8 @@ function FlashcardDrill(){
     <div style={fs.tl}><span style={fs.dk}>{deckName}</span><span style={fs.cc}>{cards.length} cards</span></div>
     <div style={fs.tr}>
       <button style={fs.tb} onClick={()=>downloadJSON(FC_TEMPLATE,"flashcard-template.json")}>↓ Template</button>
-      <button style={fs.tb} onClick={()=>fr.current?.click()}>↑ Import</button>
+      <label style={fs.tb}>↑ Import<input type="file" accept=".json" onChange={handleImport} style={{display:"none"}}/></label>
       {cards!==SAMPLE_FC&&<button style={fs.tb} onClick={()=>downloadJSON({deck_name:deckName,cards},deckName.replace(/\s+/g,"-").toLowerCase()+"-deck.json")}>↓ Export</button>}
-      <input ref={fr} type="file" accept=".json" onChange={handleImport} style={{display:"none"}}/>
     </div>
   </div>);
 
@@ -205,7 +203,6 @@ function MCQQuiz(){
   const [results,setResults]=useState([]);
   const [sess,setSess]=useState(0);
   const [err,setErr]=useState(null);
-  const fr=useRef(null);
 
   const handleImport=useCallback((e)=>{
     const f=e.target.files?.[0];if(!f)return;setErr(null);
@@ -252,9 +249,8 @@ function MCQQuiz(){
     <div style={ms.tl}><span style={ms.dk}>{deckName}</span><span style={ms.qc}>{questions.length} Qs</span></div>
     <div style={ms.tr2}>
       <button style={ms.tb} onClick={()=>downloadJSON(MCQ_TEMPLATE,"mcq-template.json")}>↓ Template</button>
-      <button style={ms.tb} onClick={()=>fr.current?.click()}>↑ Import</button>
+      <label style={ms.tb}>↑ Import<input type="file" accept=".json" onChange={handleImport} style={{display:"none"}}/></label>
       {questions!==SAMPLE_MCQ&&<button style={ms.tb} onClick={()=>downloadJSON({quiz_name:deckName,questions},deckName.replace(/\s+/g,"-").toLowerCase()+"-quiz.json")}>↓ Export</button>}
-      <input ref={fr} type="file" accept=".json" onChange={handleImport} style={{display:"none"}}/>
     </div>
   </div>);
 
