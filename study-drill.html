@@ -6,11 +6,18 @@
 <title>Study Drill</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
 <style>
   *{margin:0;padding:0;box-sizing:border-box}
   body{background:#06060b;color:#e8e6e1;font-family:'JetBrains Mono','SF Mono','Fira Code','Courier New',monospace}
   #root{min-height:100vh}
+  .md p{margin:0 0 8px}.md p:last-child{margin:0}
+  .md ul,.md ol{padding-left:18px;margin:0 0 8px}.md li{margin-bottom:3px}
+  .md code{background:#1a1a28;border:1px solid #2a2a3a;border-radius:3px;padding:1px 5px;font-size:0.92em}
+  .md pre{background:#1a1a28;border:1px solid #2a2a3a;border-radius:6px;padding:10px 14px;overflow-x:auto;margin:0 0 8px}
+  .md pre code{background:none;border:none;padding:0}
+  .md strong{color:#e8e6e1}.md em{color:#bbb}
 </style>
 </head>
 <body>
@@ -24,6 +31,12 @@ function shuffleArray(arr){
   for(let i=s.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[s[i],s[j]]=[s[j],s[i]];}
   return s;
 }
+function renderMd(text){
+  if(!text)return"";
+  const html=marked.parse(String(text));
+  return html.replace(/<script[\s\S]*?<\/script>/gi,"");
+}
+
 function downloadJSON(data,filename){
   const b=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
   const u=URL.createObjectURL(b);
@@ -36,7 +49,7 @@ const FC_TEMPLATE={
   _instructions:{
     for_claude:"You are generating flashcard quiz data. The user will provide study notes or a topic. Your job is to create challenging, exam-style questions that test genuine understanding — not surface recall. Follow the schema below exactly.",
     card_schema:{id:"Sequential integer starting at 1",category:"Short topic grouping label (e.g. 'Clause 9', 'Risk Management', 'Annex A')",question:"A clear, specific question. Prefer 'explain', 'distinguish', 'name X examples of', 'what is the relationship between' over simple 'what is' questions.",answer:"The canonical correct answer. Be precise and complete. Include clause/section references where applicable. This is what the user will judge themselves against, so it must be unambiguous."},
-    guidelines:["Aim for 20-40 cards per topic depending on depth.","Mix question types: recall, application, comparison, listing.","Include trick questions where common misconceptions exist.","Group cards by category for the review screen.","Do NOT include multiple-choice options — these are open-recall cards.","Output ONLY valid JSON matching the schema. No markdown, no commentary."],
+    guidelines:["Aim for 20-40 cards per topic depending on depth.","Mix question types: recall, application, comparison, listing.","Include trick questions where common misconceptions exist.","Group cards by category for the review screen.","Do NOT include multiple-choice options — these are open-recall cards.","Markdown IS supported inside answer fields — use **bold**, bullet lists, and `code` where it aids clarity.","Output ONLY valid JSON matching the schema. No markdown fences or commentary wrapping the JSON."],
     example_prompt:"Here are my notes on [TOPIC]. Generate a flashcard deck in the JSON format specified. Focus on exam-level questions that test understanding, not just definitions."
   },
   cards:[{id:1,category:"Example",question:"Replace with your question",answer:"Replace with the answer"},{id:2,category:"Example",question:"Second question here",answer:"Second answer here"}]
@@ -46,7 +59,7 @@ const MCQ_TEMPLATE={
   _instructions:{
     for_claude:"You are generating multiple-choice exam questions. The user will provide study notes, a syllabus, or a topic. Your job is to create realistic, exam-grade questions that test genuine understanding — not just surface recall. Include plausible distractors that reflect real misconceptions. Follow the schema below exactly.",
     question_schema:{id:"Sequential integer starting at 1",category:"Short topic grouping (e.g. 'Risk Management', 'Clause 9')",question:"Clear, unambiguous question stem. Avoid 'all of the above' or 'none of the above'. Prefer scenario-based questions where possible.",options:"Array of exactly 4 objects: { label: 'A'|'B'|'C'|'D', text: 'option text' }. Randomise the position of the correct answer across questions.",correct:"The label ('A','B','C', or 'D') of the correct option",explanation:"2-3 sentence explanation of WHY the correct answer is right AND why the most tempting distractor is wrong."},
-    guidelines:["Aim for 20-40 questions per topic.","Mix difficulty: ~30% recall, ~50% application/scenario, ~20% tricky edge cases.","Distractors must be plausible — reflect real misunderstandings.","Vary correct answer positions evenly across A/B/C/D.","Never use 'All of the above' or 'None of the above'.","Explanations should teach.","Output ONLY valid JSON matching the schema. No markdown fences, no commentary."],
+    guidelines:["Aim for 20-40 questions per topic.","Mix difficulty: ~30% recall, ~50% application/scenario, ~20% tricky edge cases.","Distractors must be plausible — reflect real misunderstandings.","Vary correct answer positions evenly across A/B/C/D.","Never use 'All of the above' or 'None of the above'.","Explanations should teach — Markdown IS supported inside explanation fields, use **bold**, bullet lists, and `code` where it aids clarity.","Output ONLY valid JSON matching the schema. No markdown fences or commentary wrapping the JSON."],
     example_prompt:"Here are my notes on [TOPIC]. Generate a multiple-choice exam in the JSON format specified. Make the distractors realistic and include scenario-based questions."
   },
   questions:[{id:1,category:"Example",question:"Replace with question stem",options:[{label:"A",text:"First option"},{label:"B",text:"Second option"},{label:"C",text:"Third option"},{label:"D",text:"Fourth option"}],correct:"B",explanation:"Explain why B is correct."}]
@@ -69,6 +82,7 @@ function FlashcardDrill(){
   const [err,setErr]=useState(null);
   const [selCat,setSelCat]=useState(null);
   const [history,setHistory]=useState([]);
+  const [srs,setSrs]=useState(()=>{try{return JSON.parse(localStorage.getItem("fc_srs"))||{};}catch{return{};}});
 
   const handleImport=useCallback((e)=>{
     const f=e.target.files?.[0];if(!f)return;setErr(null);
@@ -80,19 +94,21 @@ function FlashcardDrill(){
       const name=d.deck_name||f.name.replace(/\.json$/,"");
       setCards(a);setDeckName(name);setPhase("start");setSess(0);setSelCat(null);
       localStorage.setItem("fc_deck",JSON.stringify({deck_name:name,cards:a}));
+      localStorage.removeItem("fc_srs");setSrs({});
     }catch{setErr("Invalid JSON.");}};
     r.readAsText(f);e.target.value="";
   },[]);
 
   const clearDeck=useCallback(()=>{
-    localStorage.removeItem("fc_deck");
-    setCards(SAMPLE_FC);setDeckName("No deck loaded");setPhase("start");setSess(0);setSelCat(null);setHistory([]);
+    localStorage.removeItem("fc_deck");localStorage.removeItem("fc_srs");
+    setCards(SAMPLE_FC);setDeckName("No deck loaded");setPhase("start");setSess(0);setSelCat(null);setHistory([]);setSrs({});
   },[]);
 
   const startQuiz=useCallback((sub)=>{
     const pool=sub||(selCat?cards.filter(c=>(c.category||"Uncategorised")===selCat):cards);
-    setQuizCards(shuffleArray(pool));setCi(0);setShowAns(false);setResults([]);setSess(c=>c+1);setPhase("quiz");
-  },[cards,selCat]);
+    const sorted=[1,2,3].flatMap(b=>shuffleArray(pool.filter(c=>(srs[c.id]||1)===b)));
+    setQuizCards(sorted);setCi(0);setShowAns(false);setResults([]);setSess(c=>c+1);setPhase("quiz");
+  },[cards,selCat,srs]);
 
   const startMissed=useCallback(()=>{
     const ids=results.filter(r=>!r.correct).map(r=>r.cardId);
@@ -100,7 +116,11 @@ function FlashcardDrill(){
   },[results,cards,startQuiz]);
 
   const mark=useCallback((correct)=>{
-    const newResults=[...results,{cardId:quizCards[ci].id,correct}];
+    const cardId=quizCards[ci].id;
+    const newBox=correct?Math.min((srs[cardId]||1)+1,3):1;
+    const newSrs={...srs,[cardId]:newBox};
+    setSrs(newSrs);localStorage.setItem("fc_srs",JSON.stringify(newSrs));
+    const newResults=[...results,{cardId,correct}];
     setResults(newResults);
     if(ci+1<quizCards.length){setCi(i=>i+1);setShowAns(false);}
     else{
@@ -108,7 +128,7 @@ function FlashcardDrill(){
       setHistory(h=>[...h,{sess,pct:Math.round(okCount/newResults.length*100),ok:okCount,miss:newResults.length-okCount,tot:newResults.length,cat:selCat}]);
       setPhase("review");
     }
-  },[quizCards,ci,results,sess,selCat]);
+  },[quizCards,ci,results,sess,selCat,srs]);
 
   useEffect(()=>{
     if(phase!=="quiz")return;
@@ -140,9 +160,11 @@ function FlashcardDrill(){
 
   if(phase==="start"){
     const cats=[...new Set(cards.map(c=>c.category||"Uncategorised"))];
+    const boxCounts=[1,2,3].map(b=>cards.filter(c=>(srs[c.id]||1)===b).length);
     return(<div style={fs.page}>{tb}{err&&<div style={fs.err}>{err}</div>}<div style={fs.hero}>
       <div style={fs.badge}>FLASHCARD DRILL</div><h1 style={fs.title}>{deckName}</h1>
       <p style={fs.sub}>{cards.length} cards · {cats.length} categories</p>
+      <p style={fs.srsBar}><span style={{color:"#e74c3c"}}>■ {boxCounts[0]}</span>{" · "}<span style={{color:"#f39c12"}}>■ {boxCounts[1]}</span>{" · "}<span style={{color:"#2ecc71"}}>■ {boxCounts[2]}</span>{" box 1 / 2 / 3"}</p>
       <div style={fs.cats}>
         <span style={selCat===null?{...fs.pill,...fs.pillOn}:fs.pill} onClick={()=>setSelCat(null)}>All ({cards.length})</span>
         {cats.map(c=><span key={c} style={selCat===c?{...fs.pill,...fs.pillOn}:fs.pill} onClick={()=>setSelCat(selCat===c?null:c)}>{c} ({cards.filter(x=>(x.category||"Uncategorised")===c).length})</span>)}
@@ -168,11 +190,11 @@ function FlashcardDrill(){
   }
 
   return(<div style={fs.page}>{tb}
-    <div style={fs.topb}><span style={fs.prog}>{ci+1} / {quizCards.length}</span><span style={fs.cat}>{card?.category}</span><span style={fs.rs}><span style={{color:"#2ecc71"}}>✓{ok}</span>{" · "}<span style={{color:"#e74c3c"}}>✗{miss}</span></span></div>
+    <div style={fs.topb}><span style={fs.prog}>{ci+1} / {quizCards.length}</span><span style={fs.cat}>{card?.category}</span><span style={{...fs.cat,color:["","#e74c3c","#f39c12","#2ecc71"][srs[card?.id]||1]}}>BOX {srs[card?.id]||1}</span><span style={fs.rs}><span style={{color:"#2ecc71"}}>✓{ok}</span>{" · "}<span style={{color:"#e74c3c"}}>✗{miss}</span></span></div>
     <div style={fs.pb}><div style={{...fs.pf,width:`${(ci+1)/quizCards.length*100}%`}}/></div>
     <div style={fs.co}><div style={fs.qs}><p style={fs.qt}>{card?.question}</p></div>
       {!showAns?<button style={fs.rb} onClick={()=>setShowAns(true)}>Reveal Answer<span style={fs.kh}>[Space]</span></button>:
-      <div style={fs.as}><div style={fs.al}>CORRECT ANSWER</div><p style={fs.at}>{card?.answer}</p>
+      <div style={fs.as}><div style={fs.al}>CORRECT ANSWER</div><div className="md" style={fs.at} dangerouslySetInnerHTML={{__html:renderMd(card?.answer)}}/>
         <div style={fs.jb}><button style={fs.gi} onClick={()=>mark(true)}>✓ Got It<span style={fs.kh}>[Y / →]</span></button><button style={fs.mi2} onClick={()=>mark(false)}>✗ Missed It<span style={fs.kh}>[N / ←]</span></button></div>
       </div>}
     </div>
@@ -189,7 +211,8 @@ const fs={
   hero:{textAlign:"center",maxWidth:540,marginTop:20},
   badge:{display:"inline-block",fontSize:10,fontWeight:700,letterSpacing:"0.16em",color:"#f39c12",border:"1px solid #f39c1233",borderRadius:4,padding:"3px 10px",marginBottom:14},
   title:{fontSize:28,fontWeight:800,margin:"0 0 6px",color:"#fff",letterSpacing:"-0.02em"},
-  sub:{fontSize:13,color:"#666",margin:"0 0 16px"},
+  sub:{fontSize:13,color:"#666",margin:"0 0 6px"},
+  srsBar:{fontSize:11,color:"#555",margin:"0 0 16px"},
   cats:{display:"flex",flexWrap:"wrap",gap:6,justifyContent:"center",marginBottom:28},
   pill:{fontSize:11,color:"#777",background:"#12121a",border:"1px solid #1e1e2a",borderRadius:20,padding:"4px 10px",cursor:"pointer"},
   pillOn:{color:"#f39c12",background:"#f39c1211",borderColor:"#f39c1255"},
@@ -360,7 +383,7 @@ function MCQQuiz(){
         const ch=qo.options.find(o=>o.label===r.chose);const co=qo.options.find(o=>o.label===qo.correct);
         return(<div key={r.qId} style={ms.mc2}><div style={ms.mcat}>{qo.category}</div><div style={ms.mqt}>{qo.question}</div>
           <div style={ms.ac}><div style={ms.ya}><span style={{fontWeight:800}}>✗</span> You: <strong>{r.chose}</strong> — {ch?.text}</div><div style={ms.ca}><span style={{fontWeight:800}}>✓</span> Correct: <strong>{qo.correct}</strong> — {co?.text}</div></div>
-          {qo.explanation&&<div style={ms.exp}>{qo.explanation}</div>}</div>);})}</div>}
+          {qo.explanation&&<div className="md" style={ms.exp} dangerouslySetInnerHTML={{__html:renderMd(qo.explanation)}}/>}</div>);})}</div>}
       {history.length>1&&<div style={ms.hl}><h3 style={ms.ht}>Session History</h3>{[...history].reverse().slice(1).map((h,i)=><div key={i} style={ms.hi}><span style={ms.hn}>#{h.sess}</span><span style={ms.hp}>{h.pct}%</span><span style={ms.hd}>{h.cat||"All"} · {h.ok} correct · {h.miss} wrong</span></div>)}</div>}
       <div style={ms.br}><button style={ms.pri} onClick={()=>startQuiz()}>Full Quiz</button>{hm&&<button style={ms.sec} onClick={startMissed}>Wrong Only ({miss})</button>}<button style={ms.ghost} onClick={()=>setPhase("start")}>← Back</button></div>
     </div></div>);
@@ -381,7 +404,7 @@ function MCQQuiz(){
         return(<button key={opt.label} style={{...ms.obtn,background:bg,borderColor:bdr,color:col,cursor:locked?"default":"pointer"}} onClick={()=>!locked&&setSelected(opt.label)} disabled={locked}>
           <span style={{...ms.olab,background:lbg,color:lc}}>{opt.label}</span><span style={{flex:1}}>{opt.text}</span></button>);
       })}</div>
-      {locked&&q?.explanation&&<div style={ms.ebox}><div style={ms.elab}>EXPLANATION</div><p style={ms.etxt}>{q.explanation}</p></div>}
+      {locked&&q?.explanation&&<div style={ms.ebox}><div style={ms.elab}>EXPLANATION</div><div className="md" style={ms.etxt} dangerouslySetInnerHTML={{__html:renderMd(q.explanation)}}/></div>}
       <div style={ms.abar}>{!locked?
         <button style={{...ms.conf,opacity:selected===null?0.35:1,cursor:selected===null?"default":"pointer"}} onClick={confirmAns} disabled={selected===null}>Lock Answer<span style={ms.kh}>[Enter]</span></button>:
         <button style={ms.next} onClick={nextQ}>{idx+1<quizQs.length?"Next Question →":"See Results →"}<span style={ms.kh}>[Enter]</span></button>

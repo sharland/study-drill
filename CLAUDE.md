@@ -8,15 +8,15 @@ A single-file, zero-build study app: `study-drill.html`. Open it directly in a b
 
 ## Architecture
 
-Everything lives in `study-drill.html` inside a single `<script type="text/babel">` block (~400 lines):
+Everything lives in `study-drill.html` inside a single `<script type="text/babel">` block (~510 lines):
 
 - **`App`** — top-level component; tab switcher between `FlashcardDrill` and `MCQQuiz`
 - **`FlashcardDrill`** — open-recall drill; three phases: `start → quiz → review`; user self-marks each card as "Got It" / "Missed It"
 - **`MCQQuiz`** — multiple-choice quiz; same three-phase flow; user selects an option, locks it, sees immediate feedback + explanation
-- **Style objects** (`fs`, `ms`, `appS`) — all styling is inline React style objects, no CSS classes or external stylesheets
+- **Style objects** (`fs`, `ms`, `appS`) — all styling is inline React style objects; one CSS class (`.md`) scopes markdown output styles
 - **Templates** (`FC_TEMPLATE`, `MCQ_TEMPLATE`) — JSON schemas with embedded Claude prompting instructions; downloaded by the user, filled by Claude with study content, then imported back
 
-Data flow: JSON files are imported via `FileReader`, validated, stored in component state, and optionally re-exported. No backend, no localStorage — state is ephemeral per page load.
+Data flow: JSON files are imported via `FileReader`, validated, stored in component state, and optionally re-exported. No backend. Decks persist via `localStorage`; session history is ephemeral per page load.
 
 ## Known issues and planned work
 
@@ -33,9 +33,9 @@ Data flow: JSON files are imported via `FileReader`, validated, stored in compon
 
 6. ~~**Keyboard navigation**~~ — **Done.** `useEffect` adds/removes a `keydown` listener scoped to `phase==="quiz"`. Flashcards: Space reveals answer; Y/→ = Got It; N/← = Missed It. MCQ: A–D or 1–4 select options; Enter locks answer or advances. Key hints shown inline on the relevant buttons in muted text.
 
-7. **Markdown rendering** — Load `marked.js` from CDN (https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js). Use it to render flashcard `answer` fields and MCQ `explanation` fields as HTML. Question stems remain plain text. Sanitise output — strip `<script>` tags at minimum. Keep the change isolated so plain-text JSON still works.
+7. ~~**Markdown rendering**~~ — **Done.** `marked.js` loaded from CDN. `renderMd()` utility calls `marked.parse()` and strips `<script>` tags. Applied to flashcard `answer` and MCQ `explanation` fields (quiz phase + review screen) via `dangerouslySetInnerHTML`. Question stems remain plain text. `.md` CSS class scopes paragraph/list/code styles without bleeding into the rest of the UI.
 
-8. **Spaced repetition (SRS)** — Implement a simplified Leitner box system (3 boxes) rather than full SM-2. New cards start in box 1. Correct answer moves card up a box; wrong answer returns it to box 1. Cards in lower boxes appear more frequently. SRS state persists via localStorage. Add a visible indicator showing which box each card is currently in. This is the most complex feature — plan mode required, implement last.
+8. ~~**Spaced repetition (SRS)**~~ — **Done.** 3-box Leitner system on FlashcardDrill. New cards start in box 1; Got It advances one box (max 3), Missed It returns to box 1. SRS state persists as `"fc_srs"` in localStorage keyed by card id. Session pool is sorted box 1 → 2 → 3 (shuffled within each group) so weaker cards always surface first. Coloured BOX N badge shown in the quiz topbar (red/amber/green). Box distribution (■ N · ■ N · ■ N) shown on the start screen. SRS resets on import or Clear.
 
 ## JSON data files
 
