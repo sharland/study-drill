@@ -75,6 +75,50 @@ const MCQ_TEMPLATE={
 const SAMPLE_FC=[{id:1,category:"Sample",question:"Import your own JSON flashcards to get started.",answer:"Use the toolbar to download the template, then import your deck."}];
 const SAMPLE_MCQ=[{id:1,category:"Sample",question:"Import your own JSON quiz to get started.",options:[{label:"A",text:"Download template"},{label:"B",text:"Give to Claude with notes"},{label:"C",text:"Import generated JSON"},{label:"D",text:"All of the above"}],correct:"A",explanation:"Start by downloading the template."}];
 
+function HistoryPanel({history,isSample}){
+  if(isSample)return null;
+  const recent=[...history].reverse().slice(0,5);
+  const bySection={};
+  history.forEach(h=>{
+    const k=h.cat||"All";
+    if(!bySection[k])bySection[k]={count:0,total:0};
+    bySection[k].count++;bySection[k].total+=h.pct;
+  });
+  const sections=Object.entries(bySection)
+    .map(([k,v])=>({cat:k,count:v.count,avg:Math.round(v.total/v.count)}))
+    .sort((a,b)=>a.avg-b.avg);
+  return(<div style={hpS.wrap}>
+    <div style={hpS.title}>SESSION HISTORY</div>
+    {!history.length
+      ?<p style={hpS.empty}>No sessions recorded yet.</p>
+      :<>
+        <div style={hpS.sub}>RECENT</div>
+        {recent.map((h,i)=><div key={i} style={hpS.row}>
+          <span style={hpS.num}>#{h.sess}</span>
+          <span style={hpS.pct}>{h.pct}%</span>
+          <span style={hpS.detail}>{h.cat||"All"} · {h.ok} correct · {h.miss} wrong</span>
+        </div>)}
+        <div style={{...hpS.sub,marginTop:14}}>BY SECTION</div>
+        {sections.map((s,i)=><div key={i} style={hpS.row}>
+          <span style={hpS.cat}>{s.cat}</span>
+          <span style={hpS.pct}>{s.avg}%</span>
+          <span style={hpS.detail}>{s.count} session{s.count!==1?"s":""}</span>
+        </div>)}
+      </>}
+  </div>);
+}
+
+const hpS={
+  wrap:{width:"100%",maxWidth:560,background:"#0a0a12",border:"1px solid #151520",borderRadius:10,padding:"18px 20px",marginTop:20},
+  title:{fontSize:10,fontWeight:700,letterSpacing:"0.16em",color:"#3b82f6",marginBottom:14,textTransform:"uppercase"},
+  sub:{fontSize:10,fontWeight:700,letterSpacing:"0.12em",color:"#444",marginBottom:8,textTransform:"uppercase"},
+  row:{display:"flex",alignItems:"center",gap:12,padding:"5px 0",borderBottom:"1px solid #0e0e16",fontSize:12},
+  empty:{fontSize:12,color:"#444",textAlign:"center",padding:"8px 0"},
+  num:{color:"#444",fontWeight:600,width:32,flexShrink:0},
+  pct:{fontWeight:700,color:"#3b82f6",width:40,flexShrink:0},
+  detail:{color:"#555",fontSize:11,flex:1},
+  cat:{color:"#ccc",fontWeight:600,flex:1},
+};
 
 /* ===== FLASHCARD COMPONENT ===== */
 function FlashcardDrill(){
