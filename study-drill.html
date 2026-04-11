@@ -314,8 +314,11 @@ function MCQQuiz(){
   },[]);
 
   const clearDeck=useCallback(()=>{
+    const id=localStorage.getItem("mcq_deck_id");
     localStorage.removeItem("mcq_deck");
-    setQuestions(SAMPLE_MCQ);setDeckName("No quiz loaded");setPhase("start");setSess(0);setSelCat(null);setHistory([]);
+    localStorage.removeItem("mcq_deck_id");
+    if(id)localStorage.removeItem(`mcq_history_${id}`);
+    setQuestions(SAMPLE_MCQ);setDeckName("No quiz loaded");setDeckId(null);setPhase("start");setSess(0);setSelCat(null);setHistory([]);
   },[]);
 
   const startQuiz=useCallback((sub)=>{
