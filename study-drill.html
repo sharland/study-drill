@@ -44,6 +44,13 @@ function downloadJSON(data,filename){
   URL.revokeObjectURL(u);
 }
 
+function generateUUID(){
+  return'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,c=>{
+    const r=Math.random()*16|0;
+    return(c==='x'?r:(r&0x3|0x8)).toString(16);
+  });
+}
+
 /* ===== TEMPLATES ===== */
 const FC_TEMPLATE={
   _instructions:{
@@ -269,6 +276,7 @@ function MCQQuiz(){
   const [results,setResults]=useState([]);
   const [sess,setSess]=useState(0);
   const [err,setErr]=useState(null);
+  const [deckId,setDeckId]=useState(()=>localStorage.getItem("mcq_deck_id")||null);
   const [selCat,setSelCat]=useState(null);
   const [history,setHistory]=useState([]);
 
@@ -280,8 +288,15 @@ function MCQQuiz(){
       if(!Array.isArray(a)||!a.length){setErr("JSON must contain a 'questions' array.");return;}
       if(!a.every(q=>q.id!==undefined&&q.question&&Array.isArray(q.options)&&q.options.length>=2&&q.correct)){setErr("Every question needs id, question, options[], correct.");return;}
       const name=d.quiz_name||f.name.replace(/\.json$/,"");
-      setQuestions(a);setDeckName(name);setPhase("start");setSess(0);setSelCat(null);
+      const storedId=localStorage.getItem("mcq_deck_id");
+      const storedName=JSON.parse(localStorage.getItem("mcq_deck")||"{}").quiz_name;
+      const id=(storedId&&storedName===name)?storedId:generateUUID();
+      const stored=JSON.parse(localStorage.getItem(`mcq_history_${id}`)||"[]");
+      const storedSess=stored.length;
+      const newHistory=stored.map((rec,i)=>({...rec,sess:i+1}));
+      setQuestions(a);setDeckName(name);setDeckId(id);setPhase("start");setSess(storedSess);setSelCat(null);setHistory(newHistory);
       localStorage.setItem("mcq_deck",JSON.stringify({quiz_name:name,questions:a}));
+      localStorage.setItem("mcq_deck_id",id);
     }catch{setErr("Invalid JSON.");}};
     r.readAsText(f);e.target.value="";
   },[]);
