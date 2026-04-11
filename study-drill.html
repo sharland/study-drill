@@ -93,13 +93,13 @@ function HistoryPanel({history,isSample}){
       ?<p style={hpS.empty}>No sessions recorded yet.</p>
       :<>
         <div style={hpS.sub}>RECENT</div>
-        {recent.map((h,i)=><div key={i} style={hpS.row}>
+        {recent.map((h)=><div key={h.ts} style={hpS.row}>
           <span style={hpS.num}>#{h.sess}</span>
           <span style={hpS.pct}>{h.pct}%</span>
           <span style={hpS.detail}>{h.cat||"All"} · {h.ok} correct · {h.miss} wrong</span>
         </div>)}
         <div style={{...hpS.sub,marginTop:14}}>BY SECTION</div>
-        {sections.map((s,i)=><div key={i} style={hpS.row}>
+        {sections.map((s)=><div key={s.cat} style={hpS.row}>
           <span style={hpS.cat}>{s.cat}</span>
           <span style={hpS.pct}>{s.avg}%</span>
           <span style={hpS.detail}>{s.count} session{s.count!==1?"s":""}</span>
@@ -358,12 +358,11 @@ function MCQQuiz(){
   },[]);
 
   const clearDeck=useCallback(()=>{
-    const id=localStorage.getItem("mcq_deck_id");
     localStorage.removeItem("mcq_deck");
     localStorage.removeItem("mcq_deck_id");
-    if(id)localStorage.removeItem(`mcq_history_${id}`);
+    if(deckId)localStorage.removeItem(`mcq_history_${deckId}`);
     setQuestions(SAMPLE_MCQ);setDeckName("No quiz loaded");setDeckId(null);setPhase("start");setSess(0);setSelCat(null);setHistory([]);
-  },[]);
+  },[deckId]);
 
   const startQuiz=useCallback((sub)=>{
     const pool=sub||(selCat?questions.filter(q=>(q.category||"General")===selCat):questions);
