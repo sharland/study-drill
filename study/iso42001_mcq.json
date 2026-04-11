@@ -1,0 +1,1504 @@
+{
+  "questions": [
+    {
+      "id": 1,
+      "category": "Related Standards",
+      "question": "An organisation wants to demonstrate formal conformity with AI management best practice and obtain an internationally recognised certificate. Which standard should it implement?",
+      "options": [
+        {
+          "label": "A",
+          "text": "ISO/IEC 42001:2023"
+        },
+        {
+          "label": "B",
+          "text": "ISO/IEC 22989:2022"
+        },
+        {
+          "label": "C",
+          "text": "ISO/IEC 23894:2023"
+        },
+        {
+          "label": "D",
+          "text": "ISO/IEC 42005"
+        }
+      ],
+      "correct": "A",
+      "explanation": "ISO/IEC 42001:2023 is the only standard in this list against which organisations can obtain certification. ISO/IEC 22989 (terminology), 23894 (risk management guidance) and 42005 (AI impact assessment guidance) are all guidance documents with no certification pathway."
+    },
+    {
+      "id": 2,
+      "category": "Related Standards",
+      "question": "A colleague states: 'Our organisation has just certified against ISO/IEC 23894:2023, so our AI risk management is externally validated.' What is wrong with this statement?",
+      "options": [
+        {
+          "label": "A",
+          "text": "ISO/IEC 23894 covers information security, not AI risk management"
+        },
+        {
+          "label": "B",
+          "text": "Certification against ISO/IEC 23894 is not possible — it is a guidance document"
+        },
+        {
+          "label": "C",
+          "text": "Only large organisations can certify against ISO/IEC 23894"
+        },
+        {
+          "label": "D",
+          "text": "ISO/IEC 23894 has been superseded by ISO/IEC 42001"
+        }
+      ],
+      "correct": "B",
+      "explanation": "ISO/IEC 23894:2023 provides guidance on AI risk management but is not a certifiable standard — organisations cannot obtain certification against it. The statement is incorrect because certification is not possible. ISO/IEC 23894 remains a valid and useful companion to 42001; it has not been superseded."
+    },
+    {
+      "id": 3,
+      "category": "Related Standards",
+      "question": "Which ISO standard is specifically concerned with auditing and certifying conformity to ISO/IEC 42001?",
+      "options": [
+        {
+          "label": "A",
+          "text": "ISO/IEC 42006"
+        },
+        {
+          "label": "B",
+          "text": "ISO/IEC 23894"
+        },
+        {
+          "label": "C",
+          "text": "ISO/IEC 42005"
+        },
+        {
+          "label": "D",
+          "text": "ISO 19011"
+        }
+      ],
+      "correct": "A",
+      "explanation": "ISO/IEC 42006 is the specification for auditing and certifying conformity to ISO/IEC 42001. ISO 19011 provides guidelines for auditing management systems generally but is not specific to 42001. ISO/IEC 42005 covers AI system impact assessment guidance."
+    },
+    {
+      "id": 4,
+      "category": "Related Standards",
+      "question": "What are the four core functions of the NIST AI Risk Management Framework?",
+      "options": [
+        {
+          "label": "A",
+          "text": "Identify, Protect, Detect, Respond"
+        },
+        {
+          "label": "B",
+          "text": "Govern, Map, Measure, Manage"
+        },
+        {
+          "label": "C",
+          "text": "Plan, Do, Check, Act"
+        },
+        {
+          "label": "D",
+          "text": "Assess, Treat, Monitor, Review"
+        }
+      ],
+      "correct": "B",
+      "explanation": "The NIST AI RMF defines four core functions: Govern, Map, Measure, and Manage. 'Identify, Protect, Detect, Respond' belongs to the NIST Cybersecurity Framework. 'Plan, Do, Check, Act' is the generic PDCA management cycle. 'Assess, Treat, Monitor, Review' reflects ISO 31000 risk management terminology."
+    },
+    {
+      "id": 5,
+      "category": "AIMS Fundamentals",
+      "question": "Which of the following correctly describes the relationship between Annex A and Annex B of ISO/IEC 42001?",
+      "options": [
+        {
+          "label": "A",
+          "text": "Both are informative — organisations can choose whether to follow either"
+        },
+        {
+          "label": "B",
+          "text": "Annex A is informative guidance; Annex B is normative and must be followed"
+        },
+        {
+          "label": "C",
+          "text": "Both are normative; Annex A lists controls and Annex B provides implementation guidance for those controls"
+        },
+        {
+          "label": "D",
+          "text": "Annex A is normative; Annex B is informative guidance that supplements it"
+        }
+      ],
+      "correct": "C",
+      "explanation": "Both Annex A and Annex B are normative — they form a required part of the standard. Annex A lists the reference control objectives and controls. Annex B provides implementation guidance for those same controls. Annexes C and D are informative. Note that while Annex B is normative, organisations are not required to justify inclusion or exclusion of its implementation guidance in the Statement of Applicability."
+    },
+    {
+      "id": 6,
+      "category": "AIMS Fundamentals",
+      "question": "An organisation's AIMS documentation includes its AI policy, Statement of Applicability and AIMS scope document. Which level of documented information do these represent?",
+      "options": [
+        {
+          "label": "A",
+          "text": "Level 2 — processes and procedures"
+        },
+        {
+          "label": "B",
+          "text": "Level 4 — evidence of conformity"
+        },
+        {
+          "label": "C",
+          "text": "Level 1 — governance framework documents"
+        },
+        {
+          "label": "D",
+          "text": "Level 3 — detailed task instructions"
+        }
+      ],
+      "correct": "C",
+      "explanation": "Level 1 documented information describes the governance framework — policies, the Statement of Applicability, the AIMS scope, and other strategic documents. Level 2 covers processes and procedures. Level 3 covers detailed task instructions. Level 4 covers evidence of conformity to the standard."
+    },
+    {
+      "id": 7,
+      "category": "AIMS Fundamentals",
+      "question": "Which clauses of ISO/IEC 42001 sit outside the PDCA cycle and support it, such that removing any one of them would jeopardise the whole system?",
+      "options": [
+        {
+          "label": "A",
+          "text": "Clauses 6, 8 and 10"
+        },
+        {
+          "label": "B",
+          "text": "Clauses 4, 5 and 7"
+        },
+        {
+          "label": "C",
+          "text": "Clauses 4, 6 and 9"
+        },
+        {
+          "label": "D",
+          "text": "Clauses 5, 8 and 10"
+        }
+      ],
+      "correct": "B",
+      "explanation": "Clauses 4 (context), 5 (leadership) and 7 (support) are the enabling/supporting clauses that sit on the outside of the PDCA cycle. Clauses 6 (Plan), 8 (Do), 9 (Check) and 10 (Act) form the core cycle. Remove context, leadership or support resources and the whole cycle is jeopardised."
+    },
+    {
+      "id": 8,
+      "category": "AIMS Fundamentals",
+      "question": "A manager argues that their organisation has developed AI controls that are more appropriate to their context than those in Annex A, and therefore they do not need to consult Annex A at all. Is this correct?",
+      "options": [
+        {
+          "label": "A",
+          "text": "No — the risk treatment process requires comparing chosen controls against Annex A to verify no necessary controls have been omitted, even if additional controls are designed"
+        },
+        {
+          "label": "B",
+          "text": "Yes — Annex A is informative and organisations can ignore it if they have better controls"
+        },
+        {
+          "label": "C",
+          "text": "Yes — once an organisation designs its own controls, Annex A no longer applies"
+        },
+        {
+          "label": "D",
+          "text": "No — Annex A controls must all be implemented; custom controls are only permitted in addition to them"
+        }
+      ],
+      "correct": "A",
+      "explanation": "Clause 6.1.3 requires organisations to compare their chosen controls with Annex A to verify no necessary controls have been omitted, regardless of whether they design additional controls. Annex A is a normative reference checklist. However, not all Annex A controls need to be implemented — those not selected must be justified in the Statement of Applicability. Organisations can and do design additional controls."
+    },
+    {
+      "id": 9,
+      "category": "AIMS Fundamentals",
+      "question": "What is the correct definition of an AIMS per ISO/IEC 42001?",
+      "options": [
+        {
+          "label": "A",
+          "text": "A software platform for managing AI systems and their associated risks within an organisation"
+        },
+        {
+          "label": "B",
+          "text": "A set of interrelated or interacting elements intended to establish policies and objectives, and processes to support those objectives, in relation to responsible development, provision or use of AI systems"
+        },
+        {
+          "label": "C",
+          "text": "A governance framework mandated by the EU AI Act for high-risk AI system providers"
+        },
+        {
+          "label": "D",
+          "text": "The collection of AI systems, datasets and algorithms operated by an organisation"
+        }
+      ],
+      "correct": "B",
+      "explanation": "The ISO/IEC 42001 definition of an AIMS is: a set of interrelated or interacting elements intended to establish policies and objectives, and processes to support those objectives, in relation to the responsible development, provision or use of AI systems. It is a management system — not software, not a regulatory obligation per se, and not the AI systems themselves."
+    },
+    {
+      "id": 10,
+      "category": "AI Concepts",
+      "question": "A company uses an AI system that learns from a dataset of medical images that have all been labelled by radiologists as 'tumour' or 'no tumour'. Which type of machine learning is this?",
+      "options": [
+        {
+          "label": "A",
+          "text": "Unsupervised machine learning"
+        },
+        {
+          "label": "B",
+          "text": "Reinforcement learning"
+        },
+        {
+          "label": "C",
+          "text": "Supervised machine learning"
+        },
+        {
+          "label": "D",
+          "text": "Semi-supervised machine learning"
+        }
+      ],
+      "correct": "C",
+      "explanation": "Supervised machine learning uses only labelled data during training. All images in the scenario have been labelled by radiologists — making this supervised ML. Unsupervised ML uses only unlabelled data. Semi-supervised uses a mix of both. Reinforcement learning learns through interaction with an environment to maximise reward, with no pre-labelled dataset."
+    },
+    {
+      "id": 11,
+      "category": "AI Concepts",
+      "question": "Which of the following correctly describes the relationship between deep learning and machine learning?",
+      "options": [
+        {
+          "label": "A",
+          "text": "Deep learning is an alternative to machine learning that does not require training data"
+        },
+        {
+          "label": "B",
+          "text": "Machine learning is a subset of deep learning"
+        },
+        {
+          "label": "C",
+          "text": "Deep learning is a subset of machine learning that uses neural networks with many hidden layers"
+        },
+        {
+          "label": "D",
+          "text": "Deep learning and machine learning are different names for the same process"
+        }
+      ],
+      "correct": "C",
+      "explanation": "Deep learning is a subset of machine learning — not the other way round. Deep learning specifically uses neural networks with many hidden layers to create hierarchical representations. It can reduce the need for feature engineering and requires significant computational resources. ML is the broader field; deep learning is one advanced approach within it."
+    },
+    {
+      "id": 12,
+      "category": "AI Concepts",
+      "question": "An AI system is designed to control a chess engine and responds solely based on the current board state, with no memory of previous games. Based on the types of AI systems by functionality, this is best described as:",
+      "options": [
+        {
+          "label": "A",
+          "text": "Reactive machine AI"
+        },
+        {
+          "label": "B",
+          "text": "Limited memory AI"
+        },
+        {
+          "label": "C",
+          "text": "Theory of mind AI"
+        },
+        {
+          "label": "D",
+          "text": "Self-aware AI"
+        }
+      ],
+      "correct": "A",
+      "explanation": "Reactive machines respond to stimulus, input and experience in the moment — they have no memory of past events. A chess engine that only considers the current board state is a classic example of a reactive machine. Limited memory AI responds to recent events using a smaller pool of stored data. Theory of mind and self-aware AI are theoretical/future categories."
+    },
+    {
+      "id": 13,
+      "category": "AI Concepts",
+      "question": "The EU AI Act Article 10 places specific obligations on providers of high-risk AI systems with respect to data. Which of the following best summarises those obligations?",
+      "options": [
+        {
+          "label": "A",
+          "text": "Providers must store all training data for a minimum of five years"
+        },
+        {
+          "label": "B",
+          "text": "Providers must implement measures to manage data quality, relevance and potential biases throughout the AI system lifecycle"
+        },
+        {
+          "label": "C",
+          "text": "Providers must obtain explicit consent from all data subjects before using their data in any AI system"
+        },
+        {
+          "label": "D",
+          "text": "Providers must use only anonymised datasets to train high-risk AI systems"
+        }
+      ],
+      "correct": "B",
+      "explanation": "Article 10 of the EU AI Act mandates that high-risk AI systems use high-quality datasets. Providers must implement measures to manage data quality (including data sources), ensure data relevance, and assess potential biases throughout the AI system lifecycle. The aim is to ensure systems operate accurately, robustly and without bias."
+    },
+    {
+      "id": 14,
+      "category": "Clause 4 - Context",
+      "question": "An organisation is beginning its AIMS implementation. The project lead says they should define the scope first, then figure out the organisational context. What does ISO/IEC 42001 say about this sequence?",
+      "options": [
+        {
+          "label": "A",
+          "text": "The standard is flexible — either order is acceptable as long as scope is documented"
+        },
+        {
+          "label": "B",
+          "text": "This is correct — scope definition always precedes context analysis in ISO standards"
+        },
+        {
+          "label": "C",
+          "text": "Clause 4.3 requires scope to be determined after considering the issues from 4.1 and requirements from 4.2 — context and interested parties come first"
+        },
+        {
+          "label": "D",
+          "text": "Scope and context must be determined simultaneously by the same working group"
+        }
+      ],
+      "correct": "C",
+      "explanation": "Clause 4.3 explicitly states that when determining scope, the organisation shall consider the external and internal issues from 4.1 and the requirements of interested parties from 4.2. Context (4.1) and interested parties (4.2) must therefore be determined before or alongside scope (4.3). The project lead has the sequence backwards."
+    },
+    {
+      "id": 15,
+      "category": "Clause 4 - Context",
+      "question": "Which of the following is NOT explicitly listed as an example of an internal issue relevant to Clause 4.1 of ISO/IEC 42001?",
+      "options": [
+        {
+          "label": "A",
+          "text": "Competitive landscape and trends for new AI products"
+        },
+        {
+          "label": "B",
+          "text": "Contractual obligations"
+        },
+        {
+          "label": "C",
+          "text": "Organisational governance, objectives and policies"
+        },
+        {
+          "label": "D",
+          "text": "Intended purpose of the AI system to be developed or used"
+        }
+      ],
+      "correct": "A",
+      "explanation": "The competitive landscape and trends for new AI products and services is an external issue, not an internal one. Internal issues include organisational context, governance, objectives, policies and procedures; contractual obligations; and the intended purpose of the AI system. External issues include legal requirements, regulatory guidelines, competitive landscape, and cultural/ethical norms."
+    },
+    {
+      "id": 16,
+      "category": "Clause 4 - Context",
+      "question": "An organisation's AIMS scope document is currently stored on a restricted internal server accessible only to senior management. Does this meet the requirements of ISO/IEC 42001?",
+      "options": [
+        {
+          "label": "A",
+          "text": "Yes — the scope only needs to be available as documented information"
+        },
+        {
+          "label": "B",
+          "text": "No — the scope must be available as documented information, which the standard implies should be accessible to relevant parties, not restricted to senior management only"
+        },
+        {
+          "label": "C",
+          "text": "No — the scope must be published externally on the organisation's public website"
+        },
+        {
+          "label": "D",
+          "text": "Yes — restricting access protects commercially sensitive information, which the standard permits"
+        }
+      ],
+      "correct": "B",
+      "explanation": "Clause 4.3 states the scope must be made available as documented information. Clause 7.5.3 further requires that documented information is available and suitable for use where and when needed. Restricting the scope to senior management only would likely prevent relevant parties (employees, auditors, interested parties) from accessing it, conflicting with these requirements. It does not need to be on a public website, but must be appropriately accessible."
+    },
+    {
+      "id": 17,
+      "category": "Clause 4 - Context",
+      "question": "Which AI objective correctly reflects what ISO/IEC 42001 requires of objectives established under Clause 6.2?",
+      "options": [
+        {
+          "label": "A",
+          "text": "'We aim to be a responsible AI organisation' — documented in the board minutes"
+        },
+        {
+          "label": "B",
+          "text": "'Ensure our AI systems are fair and transparent' — included in the AI policy"
+        },
+        {
+          "label": "C",
+          "text": "'Improve AI performance across all departments' — reviewed annually by the CEO"
+        },
+        {
+          "label": "D",
+          "text": "'Reduce AI-related incidents by 20% by Q4 2025, measured monthly via the incident log' — communicated to all staff and reviewed quarterly"
+        }
+      ],
+      "correct": "D",
+      "explanation": "Clause 6.2 requires AI objectives to be consistent with the AI policy, measurable (if practicable), monitored, communicated, updated as appropriate, and available as documented information. Option B is specific, measurable, has a timeframe, a measurement method, and a communication plan. Options A, C and D are vague aspirations without measurability or monitoring mechanisms."
+    },
+    {
+      "id": 18,
+      "category": "Clause 5 - Leadership",
+      "question": "Under Clause 5.2, which of the following is NOT a requirement for the AI policy?",
+      "options": [
+        {
+          "label": "A",
+          "text": "It must be appropriate to the organisation"
+        },
+        {
+          "label": "B",
+          "text": "It must include specific AI risk treatment options"
+        },
+        {
+          "label": "C",
+          "text": "It must include a commitment to continual improvement of the AIMS"
+        },
+        {
+          "label": "D",
+          "text": "It must provide a framework for setting AI objectives"
+        }
+      ],
+      "correct": "B",
+      "explanation": "The AI policy must: be appropriate to the organisation; provide a framework for setting AI objectives; include a commitment to meet applicable requirements; and include a commitment to continual improvement. Specific risk treatment options are determined through the risk treatment process (Clause 6.1.3), not the AI policy itself. The policy sets direction; risk treatment translates that into specific controls."
+    },
+    {
+      "id": 19,
+      "category": "Clause 5 - Leadership",
+      "question": "An organisation's AIMS manager has been given the responsibility for 'ensuring the AIMS conforms to ISO/IEC 42001 requirements'. Which clause assigns this responsibility?",
+      "options": [
+        {
+          "label": "A",
+          "text": "Clause 5.1 — Leadership and commitment"
+        },
+        {
+          "label": "B",
+          "text": "Clause 5.2 — AI policy"
+        },
+        {
+          "label": "C",
+          "text": "Clause 6.1 — Actions to address risks and opportunities"
+        },
+        {
+          "label": "D",
+          "text": "Clause 5.3 — Roles, responsibilities and authorities"
+        }
+      ],
+      "correct": "D",
+      "explanation": "Clause 5.3 requires top management to ensure that responsibilities and authorities are assigned and communicated, specifically: (1) ensuring the AIMS conforms to 42001 requirements; and (2) reporting on AIMS performance to top management. Clause 5.1 concerns broader leadership commitment. Clause 5.2 concerns the AI policy itself."
+    },
+    {
+      "id": 20,
+      "category": "Clause 5 - Leadership",
+      "question": "A company's AI Ethics Officer reports a concern that a new AI deployment may cause harm to a specific group of users. Which Annex A control area is most directly relevant to providing a formal mechanism for this concern to be raised?",
+      "options": [
+        {
+          "label": "A",
+          "text": "A.3 — Internal organisation (reporting of concerns)"
+        },
+        {
+          "label": "B",
+          "text": "A.5 — Assessing impacts of AI systems"
+        },
+        {
+          "label": "C",
+          "text": "A.9 — Use of AI systems"
+        },
+        {
+          "label": "D",
+          "text": "A.7 — Data for AI systems"
+        }
+      ],
+      "correct": "A",
+      "explanation": "Control A.3.3 specifically requires the organisation to define and put in place a process to report concerns about the organisation's role with respect to an AI system throughout its lifecycle. This is the whistleblowing/concern-reporting mechanism. A.5 covers impact assessment, which is a proactive process. A.9 covers responsible use. The concern-reporting mechanism sits under A.3 (Internal organisation)."
+    },
+    {
+      "id": 21,
+      "category": "Clause 6 - Planning",
+      "question": "An organisation conducts an AI risk assessment and identifies a risk with very high impact but negligible likelihood. It decides to accept the risk without any treatment. Under what condition would ISO/IEC 42001 consider this acceptable?",
+      "options": [
+        {
+          "label": "A",
+          "text": "It is never acceptable to retain a high-impact risk without treatment under ISO/IEC 42001"
+        },
+        {
+          "label": "B",
+          "text": "It is acceptable provided the risk owner is aware of and accepts responsibility for the residual risk, and designated management approves the risk treatment plan"
+        },
+        {
+          "label": "C",
+          "text": "It is acceptable as long as the risk is documented in the risk register"
+        },
+        {
+          "label": "D",
+          "text": "It is acceptable only if the risk was not identified in the AI system impact assessment"
+        }
+      ],
+      "correct": "B",
+      "explanation": "'Retaining the risk by informed decision' is one of the valid risk treatment options per ISO 31000 (referenced in 42001's planning process). However, clause 6.1.3 requires designated management to approve acceptance of residual risks. The risk owner must be aware of and accept responsibility for residual risks. Simply documenting it in a register without management approval does not meet the standard's requirements."
+    },
+    {
+      "id": 22,
+      "category": "Clause 6 - Planning",
+      "question": "What is the primary purpose of the Statement of Applicability in ISO/IEC 42001?",
+      "options": [
+        {
+          "label": "A",
+          "text": "To list all AI systems in use within the organisation"
+        },
+        {
+          "label": "B",
+          "text": "To document all AI risks identified and their treatment status"
+        },
+        {
+          "label": "C",
+          "text": "To list all necessary Annex A controls with justification for their inclusion and exclusion"
+        },
+        {
+          "label": "D",
+          "text": "To define the scope and boundaries of the AIMS"
+        }
+      ],
+      "correct": "C",
+      "explanation": "The Statement of Applicability (SoA) is produced as part of the risk treatment process (6.1.3) and lists the necessary Annex A controls, providing justification for both their inclusion and exclusion. It is not a list of AI systems (that would be an AI asset register), a risk register, or the scope document — though all of those are separate required artefacts."
+    },
+    {
+      "id": 23,
+      "category": "Clause 6 - Planning",
+      "question": "How does an AI system impact assessment (6.1.4) relate to an AI risk assessment (6.1.2)?",
+      "options": [
+        {
+          "label": "A",
+          "text": "They are the same process described using different terminology"
+        },
+        {
+          "label": "B",
+          "text": "The impact assessment replaces the risk assessment for AI systems deployed externally"
+        },
+        {
+          "label": "C",
+          "text": "The impact assessment results must be fed into and considered within the risk assessment"
+        },
+        {
+          "label": "D",
+          "text": "The risk assessment is only required once; the impact assessment is repeated throughout the lifecycle"
+        }
+      ],
+      "correct": "C",
+      "explanation": "Clause 6.1.4 explicitly states that the organisation shall consider the results of the AI system impact assessment in the risk assessment (6.1.2). They are related but distinct processes. The impact assessment focuses on consequences for individuals and society; the risk assessment focuses on risks to the AIMS objectives. The impact assessment results feed into the risk assessment — they do not replace it."
+    },
+    {
+      "id": 24,
+      "category": "Clause 6 - Planning",
+      "question": "An organisation identifies a risk arising from its AI system's potential for biased output. It decides to redesign the AI system's training data pipeline to remove the source of bias. Which risk treatment option does this represent?",
+      "options": [
+        {
+          "label": "A",
+          "text": "Sharing the risk"
+        },
+        {
+          "label": "B",
+          "text": "Retaining the risk"
+        },
+        {
+          "label": "C",
+          "text": "Removing the risk source"
+        },
+        {
+          "label": "D",
+          "text": "Avoiding the risk"
+        }
+      ],
+      "correct": "C",
+      "explanation": "Removing the risk source — in this case the biased training data pipeline — is one of the seven valid risk treatment options. 'Avoiding the risk' would mean not proceeding with the AI system at all. 'Sharing the risk' would involve insurance or contractual transfer. 'Retaining the risk' would mean accepting it. Redesigning the source of the problem directly targets and removes the risk source."
+    },
+    {
+      "id": 25,
+      "category": "Clause 6 - Planning",
+      "question": "Which of the following most accurately distinguishes between inherent risk, treated risk and residual risk?",
+      "options": [
+        {
+          "label": "A",
+          "text": "Inherent risk exists before any controls; treated risk has controls applied; residual risk remains after treatment"
+        },
+        {
+          "label": "B",
+          "text": "Inherent risk is identified risk; treated risk is documented risk; residual risk is accepted risk"
+        },
+        {
+          "label": "C",
+          "text": "Inherent risk is external; treated risk is internal; residual risk is shared with a third party"
+        },
+        {
+          "label": "D",
+          "text": "All three terms describe the same risk at different points in the documentation process"
+        }
+      ],
+      "correct": "A",
+      "explanation": "Inherent risk is the level of risk without any controls applied. Once controls are applied, you have treated risk. The risk that remains after treatment is residual risk. Risk owners must be aware of and accept responsibility for residual risks, and designated management must approve their acceptance in the risk treatment plan."
+    },
+    {
+      "id": 26,
+      "category": "Clause 6 - Planning",
+      "question": "ISO/IEC 42001 requires the organisation to establish AI risk criteria. What two things must these criteria support?",
+      "options": [
+        {
+          "label": "A",
+          "text": "Classifying AI systems by capability and functionality"
+        },
+        {
+          "label": "B",
+          "text": "Distinguishing acceptable from non-acceptable risks, and performing AI risk assessments and treatment"
+        },
+        {
+          "label": "C",
+          "text": "Mapping risks to Annex A controls and generating the Statement of Applicability"
+        },
+        {
+          "label": "D",
+          "text": "Setting AI objectives and reporting to top management"
+        }
+      ],
+      "correct": "B",
+      "explanation": "Clause 6.1.1 requires the organisation to establish and maintain AI risk criteria that support: distinguishing acceptable from non-acceptable risks; performing AI risk assessments; conducting AI risk treatment; and assessing AI risk impacts. Without defined criteria, the organisation cannot consistently evaluate whether a risk is acceptable or requires treatment."
+    },
+    {
+      "id": 27,
+      "category": "Clause 7 - Support",
+      "question": "An employee joins the AI governance team. Under Clause 7.3, which of the following must the employee be made aware of?",
+      "options": [
+        {
+          "label": "A",
+          "text": "The AI policy, their contribution to AIMS effectiveness, and the implications of not conforming with the AIMS"
+        },
+        {
+          "label": "B",
+          "text": "The full text of ISO/IEC 42001, all Annex A controls, and the organisation's risk register"
+        },
+        {
+          "label": "C",
+          "text": "The organisation's AI system impact assessments and Statement of Applicability"
+        },
+        {
+          "label": "D",
+          "text": "The AI objectives and budget allocation for the AIMS"
+        }
+      ],
+      "correct": "A",
+      "explanation": "Clause 7.3 requires persons doing work under the organisation's control to be aware of: (1) the AI policy; (2) their contribution to AIMS effectiveness, including the benefits of improved AI performance; and (3) the implications of not conforming with the AIMS requirements. This is the minimum awareness requirement — additional awareness content may be appropriate but these three are mandated."
+    },
+    {
+      "id": 28,
+      "category": "Clause 7 - Support",
+      "question": "An auditor finds that an organisation's AIMS documented information contains records of competency assessments for AI staff but cannot locate the underlying evidence of their qualifications. Is this a problem under ISO/IEC 42001?",
+      "options": [
+        {
+          "label": "A",
+          "text": "No — competency records are sufficient; the standard does not require underlying evidence"
+        },
+        {
+          "label": "B",
+          "text": "Yes — Clause 7.2 requires appropriate documented information to be available as evidence of competence"
+        },
+        {
+          "label": "C",
+          "text": "No — competence evidence is only required for persons directly developing AI systems, not governance staff"
+        },
+        {
+          "label": "D",
+          "text": "Yes — but only if the organisation is being audited by a third-party certification body"
+        }
+      ],
+      "correct": "B",
+      "explanation": "Clause 7.2 explicitly states: 'Appropriate documented information shall be available as evidence of competence.' This applies to all persons doing work that affects the organisation's AI performance, not just developers. Without the underlying evidence (qualifications, training records, experience records), the organisation cannot demonstrate compliance with this clause."
+    },
+    {
+      "id": 29,
+      "category": "Clause 7 - Support",
+      "question": "Which of the following best reflects ISO/IEC 42001's requirements regarding how organisations should document their AIMS processes and controls?",
+      "options": [
+        {
+          "label": "A",
+          "text": "All processes must be documented using the same template to ensure consistency"
+        },
+        {
+          "label": "B",
+          "text": "The standard specifies a minimum page count for process documentation to ensure completeness"
+        },
+        {
+          "label": "C",
+          "text": "The standard does not specify how to document processes or which types to use — this is left to the organisation based on its size, complexity and personnel competence"
+        },
+        {
+          "label": "D",
+          "text": "All documented information must be paper-based to ensure it cannot be altered"
+        }
+      ],
+      "correct": "C",
+      "explanation": "ISO/IEC 42001 does not specify how to document processes or the types of documents to use. The extent of documentation depends on the organisation's size and activities, the complexity of processes and their interactions, and the competence of persons. Common documents include policies, procedures, guidelines, security manuals, forms and data sheets."
+    },
+    {
+      "id": 30,
+      "category": "Clause 7 - Support",
+      "question": "An organisation determines that an external supplier's technical specification is necessary for planning its AI management system. What does Clause 7.5.3 require regarding this document?",
+      "options": [
+        {
+          "label": "A",
+          "text": "The specification must be reproduced in full in the organisation's documented information system"
+        },
+        {
+          "label": "B",
+          "text": "It must be identified as appropriate and controlled as external documented information"
+        },
+        {
+          "label": "C",
+          "text": "External documents are outside the scope of Clause 7.5 and require no special treatment"
+        },
+        {
+          "label": "D",
+          "text": "The supplier must be asked to certify the specification against ISO/IEC 42001 before it can be used"
+        }
+      ],
+      "correct": "B",
+      "explanation": "Clause 7.5.3 states that documented information of external origin that the organisation determines is necessary for planning and operation of the AIMS shall be identified as appropriate and controlled. This means the organisation must have a record of it and ensure it is managed (e.g. version controlled, access managed) — not that it must be reproduced verbatim."
+    },
+    {
+      "id": 31,
+      "category": "Clause 8 - Operation",
+      "question": "An organisation's AI risk assessment identifies a new significant risk during a routine operational review. What must the organisation do per Clause 8.3?",
+      "options": [
+        {
+          "label": "A",
+          "text": "Wait until the next planned risk assessment cycle before treating the new risk"
+        },
+        {
+          "label": "B",
+          "text": "Report the new risk to the certification body before taking any action"
+        },
+        {
+          "label": "C",
+          "text": "Perform a risk treatment process for the new risk immediately and update the treatment plan if existing options prove ineffective"
+        },
+        {
+          "label": "D",
+          "text": "Document the new risk in the risk register and treat it at the next management review"
+        }
+      ],
+      "correct": "C",
+      "explanation": "Clause 8.3 states that when risk assessments identify new risks requiring treatment, a risk treatment process shall be performed for those risks. It also states that when treatment options prove ineffective, they shall be reviewed, revalidated and the treatment plan updated. New risks cannot be deferred to the next cycle — the requirement is to act on them through the established risk treatment process."
+    },
+    {
+      "id": 32,
+      "category": "Clause 8 - Operation",
+      "question": "What is the key distinction between Clause 8.3 (AI risk treatment) and Clause 8.4 (AI system impact assessment)?",
+      "options": [
+        {
+          "label": "A",
+          "text": "8.3 applies to providers of AI systems; 8.4 applies to users of AI systems"
+        },
+        {
+          "label": "B",
+          "text": "8.3 focuses on treating risks to the organisation's AIMS objectives; 8.4 focuses on determining potential consequences of AI deployment on individuals and societies"
+        },
+        {
+          "label": "C",
+          "text": "8.3 is required only for high-risk AI systems; 8.4 applies to all AI systems regardless of risk level"
+        },
+        {
+          "label": "D",
+          "text": "8.3 and 8.4 are different terms for the same operational process"
+        }
+      ],
+      "correct": "B",
+      "explanation": "Clause 8.3 (AI risk treatment) implements the risk treatment plan to address risks to the organisation's AIMS. Clause 8.4 (AI system impact assessment) requires the organisation to perform the process defined in 6.1.4, which assesses consequences for individuals, groups and societies from the deployment, intended use and foreseeable misuse of AI systems. These are distinct in focus: organisational risk vs. societal impact."
+    },
+    {
+      "id": 33,
+      "category": "Clause 8 - Operation",
+      "question": "Under Clause 8.1, when an organisation makes an unplanned change to an AI system in production, what does the standard require?",
+      "options": [
+        {
+          "label": "A",
+          "text": "Unplanned changes are prohibited under ISO/IEC 42001 — all changes must be pre-approved"
+        },
+        {
+          "label": "B",
+          "text": "Unplanned changes only need to be documented if they affect security controls"
+        },
+        {
+          "label": "C",
+          "text": "Unplanned changes must be controlled to mitigate their consequences and adverse effects"
+        },
+        {
+          "label": "D",
+          "text": "The organisation must immediately halt the change and revert to the previous state"
+        }
+      ],
+      "correct": "C",
+      "explanation": "Clause 8.1 requires that planned and unplanned changes are controlled to mitigate their consequences and adverse effects. The standard does not prohibit unplanned changes — operational reality means they occur. What it requires is that they are managed, their consequences assessed and mitigated, and appropriate documented information retained. Good change management practice also recommends communication plans and staged rollout."
+    },
+    {
+      "id": 34,
+      "category": "Clause 9 - Performance Evaluation",
+      "question": "An internal auditor at an AI-focused company is asked to audit the division in which they normally work. Is this appropriate under ISO/IEC 42001?",
+      "options": [
+        {
+          "label": "A",
+          "text": "No — Clause 9.2 requires auditors to be selected to ensure objectivity and impartiality, which is compromised when auditing one's own work area"
+        },
+        {
+          "label": "B",
+          "text": "Yes — internal auditors are always independent because they work for the same organisation"
+        },
+        {
+          "label": "C",
+          "text": "Yes — internal auditors must have deep domain knowledge of the area they audit"
+        },
+        {
+          "label": "D",
+          "text": "No — only external auditors may conduct audits of operational divisions"
+        }
+      ],
+      "correct": "A",
+      "explanation": "Clause 9.2 requires the organisation to select auditors and conduct audits in a way that ensures objectivity and impartiality. An internal auditor auditing their own division cannot be considered impartial — this is a conflict of interest. Note that internal auditors must be independent of the audited activities (though not of the organisation as a whole). External auditors must be independent of the organisation entirely."
+    },
+    {
+      "id": 35,
+      "category": "Clause 9 - Performance Evaluation",
+      "question": "Which of the following is an input to a management review per Clause 9.3.2?",
+      "options": [
+        {
+          "label": "A",
+          "text": "Decisions on which Annex A controls to include in the SoA"
+        },
+        {
+          "label": "B",
+          "text": "The initial AIMS scope definition and preliminary risk assessment"
+        },
+        {
+          "label": "C",
+          "text": "Trends in nonconformities and corrective actions, and audit results"
+        },
+        {
+          "label": "D",
+          "text": "Marketing materials promoting the organisation's AI governance credentials"
+        }
+      ],
+      "correct": "C",
+      "explanation": "Clause 9.3.2 specifies that management review inputs must include information on AIMS performance including trends in nonconformities and corrective actions, monitoring and measurement results, and audit results. It also includes status of actions from previous reviews, changes in external/internal issues, and opportunities for improvement. SoA decisions and scope definition are planning activities (Clause 6), not management review inputs."
+    },
+    {
+      "id": 36,
+      "category": "Clause 9 - Performance Evaluation",
+      "question": "A second-party audit in the context of ISO/IEC 42001 is best described as:",
+      "options": [
+        {
+          "label": "A",
+          "text": "A certification audit conducted by an accredited certification body"
+        },
+        {
+          "label": "B",
+          "text": "An organisation auditing its suppliers or providers to verify they are meeting contractual obligations"
+        },
+        {
+          "label": "C",
+          "text": "An organisation auditing its own AIMS processes"
+        },
+        {
+          "label": "D",
+          "text": "A joint audit conducted by two organisations simultaneously"
+        }
+      ],
+      "correct": "B",
+      "explanation": "A second-party audit is conducted by one organisation of its suppliers or providers, typically to assess whether contractual obligations are being met. A first-party audit is internal (the organisation audits itself). A third-party audit is conducted by an independent external body for certification purposes. A joint audit by two organisations simultaneously is not a standard category in this framework."
+    },
+    {
+      "id": 37,
+      "category": "Clause 9 - Performance Evaluation",
+      "question": "ISO/IEC 42001 does not specify how frequently monitoring and measurement activities should take place. What does the standard require instead?",
+      "options": [
+        {
+          "label": "A",
+          "text": "Monthly reporting to the board for all AIMS metrics"
+        },
+        {
+          "label": "B",
+          "text": "Continuous real-time monitoring of all AI systems in scope"
+        },
+        {
+          "label": "C",
+          "text": "The organisation must determine the appropriate methods and frequency of monitoring and measurement, and retain documented information of results"
+        },
+        {
+          "label": "D",
+          "text": "Annual performance evaluation aligned with the management review cycle"
+        }
+      ],
+      "correct": "C",
+      "explanation": "Clause 9.1 requires the organisation to determine what to monitor and measure, the methods to use, when to perform monitoring and measurement, and when to analyse and evaluate results. It does not prescribe frequency. Best practice is to use dashboards with performance indicators showing actual vs. target performance. The key obligation is to determine the approach and retain documented information of results."
+    },
+    {
+      "id": 38,
+      "category": "Clause 10 - Improvement",
+      "question": "Following a system failure caused by an AI model producing biased outputs, an organisation updates its model validation procedure to include bias testing before deployment. What type of action is this?",
+      "options": [
+        {
+          "label": "A",
+          "text": "Corrective action — it eliminates the root cause to prevent recurrence"
+        },
+        {
+          "label": "B",
+          "text": "Preventive action — it prevents future occurrences before they arise"
+        },
+        {
+          "label": "C",
+          "text": "Correction — it eliminates the immediate nonconformity"
+        },
+        {
+          "label": "D",
+          "text": "Management review output — it is a decision made at management level"
+        }
+      ],
+      "correct": "A",
+      "explanation": "Corrective action eliminates the root cause of a nonconformity to prevent it recurring. Updating the validation procedure addresses the root cause (insufficient bias testing) so the same failure cannot recur. Correction would be fixing the specific biased output already produced. Preventive action would address a potential nonconformity that has not yet occurred. The failure has already happened, so this is corrective, not preventive."
+    },
+    {
+      "id": 39,
+      "category": "Clause 10 - Improvement",
+      "question": "What is the correct sequence of steps when a nonconformity occurs, per Clause 10.2?",
+      "options": [
+        {
+          "label": "A",
+          "text": "Document it → Report to certification body → Conduct root cause analysis → Implement corrective action"
+        },
+        {
+          "label": "B",
+          "text": "Identify nonconformity → Implement corrective action → Update risk register → Notify certification body"
+        },
+        {
+          "label": "C",
+          "text": "Halt all related operations → Inform interested parties → Conduct management review → Implement corrective action"
+        },
+        {
+          "label": "D",
+          "text": "React and correct it → Evaluate need to eliminate root causes → Implement action → Review effectiveness → Make AIMS changes if needed"
+        }
+      ],
+      "correct": "D",
+      "explanation": "Clause 10.2 specifies this sequence: (1) React to and correct the nonconformity; (2) Evaluate the need to eliminate root causes to prevent recurrence; (3) Implement any needed action; (4) Review effectiveness of corrective action taken; (5) Make changes to the AIMS if necessary. Documented information must be retained. There is no requirement to notify a certification body — that obligation depends on the certification agreement."
+    },
+    {
+      "id": 40,
+      "category": "Clause 10 - Improvement",
+      "question": "An organisation wants to put a firewall in place to prevent a type of cyber-attack that has not yet been experienced but has been identified as a risk. What type of action is this?",
+      "options": [
+        {
+          "label": "A",
+          "text": "Preventive action — it eliminates the cause of a potential future nonconformity"
+        },
+        {
+          "label": "B",
+          "text": "Correction — it eliminates a detected nonconformity"
+        },
+        {
+          "label": "C",
+          "text": "Corrective action — it addresses a known root cause"
+        },
+        {
+          "label": "D",
+          "text": "Risk sharing — it transfers the risk to a third party"
+        }
+      ],
+      "correct": "A",
+      "explanation": "Preventive action eliminates the cause of a potential nonconformity or undesirable event before it occurs. Installing a firewall against a threat that has not yet materialised is a proactive measure — a preventive action. Corrective action addresses causes of nonconformities that have already occurred. Correction fixes an existing problem. Risk sharing would involve insurance or contractual transfer."
+    },
+    {
+      "id": 41,
+      "category": "Annex A Controls",
+      "question": "An organisation is implementing its AIMS and must decide which Annex A controls to apply. It has selected 28 of the 38 controls. What must it do regarding the 10 controls it has not selected?",
+      "options": [
+        {
+          "label": "A",
+          "text": "Nothing — Annex A controls are optional by nature so exclusions require no justification"
+        },
+        {
+          "label": "B",
+          "text": "Design equivalent custom controls to replace each excluded Annex A control"
+        },
+        {
+          "label": "C",
+          "text": "Submit a formal request to the certification body for each excluded control"
+        },
+        {
+          "label": "D",
+          "text": "Provide justification for their exclusion in the Statement of Applicability"
+        }
+      ],
+      "correct": "D",
+      "explanation": "Clause 6.1.3 requires the Statement of Applicability to contain justification for both the inclusion and exclusion of controls. Exclusion can be justified where controls are not deemed necessary by the risk assessment, or where they are not required by applicable external requirements. No formal submission to a certification body is required — justification in the SoA is sufficient. Custom controls may be added, but are not mandatory replacements for excluded controls."
+    },
+    {
+      "id": 42,
+      "category": "Annex A Controls",
+      "question": "Annex A control A.5 requires AI system impact assessments to take place 'throughout the lifecycle'. At a minimum, when should these assessments occur?",
+      "options": [
+        {
+          "label": "A",
+          "text": "Once at the beginning of the AI project only"
+        },
+        {
+          "label": "B",
+          "text": "Only when a significant incident has occurred"
+        },
+        {
+          "label": "C",
+          "text": "Annually, aligned with the internal audit cycle"
+        },
+        {
+          "label": "D",
+          "text": "At the beginning of a project and when significant changes occur throughout the lifecycle"
+        }
+      ],
+      "correct": "D",
+      "explanation": "Annex A.5 requires impact assessments throughout the AI system lifecycle — not just at inception. This means at project commencement and at points of significant change (e.g. new use cases, deployment to new regions, model updates). They must be documented and recorded. Waiting for incidents or only conducting them annually would likely miss critical lifecycle events."
+    },
+    {
+      "id": 43,
+      "category": "Annex A Controls",
+      "question": "Which Annex A control area specifically addresses an organisation's responsibilities when using an external AI platform provider at any stage of the AI system lifecycle?",
+      "options": [
+        {
+          "label": "A",
+          "text": "A.6 — AI system life cycle"
+        },
+        {
+          "label": "B",
+          "text": "A.9 — Use of AI systems"
+        },
+        {
+          "label": "C",
+          "text": "A.10 — Third-party and customer relationships"
+        },
+        {
+          "label": "D",
+          "text": "A.4 — Resources for AI systems"
+        }
+      ],
+      "correct": "C",
+      "explanation": "A.10 (Third-party and customer relationships) specifically addresses the organisation's responsibilities and accountability when third parties — including external AI platform providers — are involved at any stage of the AI system lifecycle, with risks appropriately apportioned. A.9 covers the organisation's own use of AI systems. A.4 covers resource planning. A.6 covers the lifecycle management process."
+    },
+    {
+      "id": 44,
+      "category": "Annex A Controls",
+      "question": "An organisation's AI policy was written two years ago. Under which Annex A control would the requirement to review this policy be found?",
+      "options": [
+        {
+          "label": "A",
+          "text": "A.2.4 — Review of the AI policy"
+        },
+        {
+          "label": "B",
+          "text": "A.3.2 — AI roles and responsibilities"
+        },
+        {
+          "label": "C",
+          "text": "A.9.3 — AI objectives"
+        },
+        {
+          "label": "D",
+          "text": "A.6.1 — AI system life cycle objectives"
+        }
+      ],
+      "correct": "A",
+      "explanation": "Control A.2.4 requires the AI policy to be reviewed at planned intervals or additionally as needed to ensure its continuing suitability, adequacy and effectiveness. This maps to the broader requirement in Clause 5.2 for the policy to remain appropriate. A policy unchanged after two years would need to be reviewed, particularly if regulatory, technological or operational context has changed."
+    },
+    {
+      "id": 45,
+      "category": "Annex A Controls",
+      "question": "Why is Annex C of ISO/IEC 42001 useful even though it is informative and not mandatory?",
+      "options": [
+        {
+          "label": "A",
+          "text": "It contains the controls that must be implemented for high-risk AI systems"
+        },
+        {
+          "label": "B",
+          "text": "It maps ISO/IEC 42001 requirements to the EU AI Act for compliance purposes"
+        },
+        {
+          "label": "C",
+          "text": "It replaces the need for the organisation to conduct its own AI risk identification"
+        },
+        {
+          "label": "D",
+          "text": "It provides a non-exhaustive list of potential AI-related organisational objectives and risk sources to prompt the organisation's thinking during context and risk activities"
+        }
+      ],
+      "correct": "D",
+      "explanation": "Annex C (informative) provides possible AI-related organisational objectives and risk sources as a prompt — it is not exhaustive and may not suit all organisations. Its value is in stimulating thinking during context analysis and risk identification activities. The organisation must still identify the objectives and risk sources applicable to its own context. ISO/IEC 23894 can provide further detail on these objectives and risk sources."
+    },
+    {
+      "id": 46,
+      "category": "AIMS Fundamentals",
+      "question": "An organisation already holds ISO/IEC 27001 certification and wants to implement ISO/IEC 42001. Which statement best describes how the shared clause structure helps?",
+      "options": [
+        {
+          "label": "A",
+          "text": "The organisation can skip clauses 4–7 of 42001 because 27001 already covers them"
+        },
+        {
+          "label": "B",
+          "text": "The organisation only needs to implement the AI-specific controls in Annex A of 42001"
+        },
+        {
+          "label": "C",
+          "text": "Holding 27001 certification automatically grants 42001 certification"
+        },
+        {
+          "label": "D",
+          "text": "The shared high-level structure (Annex SL) means common elements like leadership, objectives, documented information, internal audit and management review can be aligned and integrated across both standards"
+        }
+      ],
+      "correct": "D",
+      "explanation": "The ISO Annex SL high-level structure means both standards share common clause concepts: leadership and commitment (5.1), policy (5.2), objectives (6.2), documented information (7.5), internal audit (9.2), management review (9.3) and continual improvement (10.1). This allows an integrated management system where these elements are aligned, reducing duplication. However, the organisation must still fulfil all of 42001's specific requirements — 27001 certification does not substitute for 42001 compliance."
+    },
+    {
+      "id": 47,
+      "category": "AI Concepts",
+      "question": "A public sector organisation is deploying an AI system to assist with benefit eligibility decisions. From an ISO/IEC 42001 perspective, which AI principle is most directly at risk if the training data reflects historical demographic disparities?",
+      "options": [
+        {
+          "label": "A",
+          "text": "Fairness"
+        },
+        {
+          "label": "B",
+          "text": "Shared benefit"
+        },
+        {
+          "label": "C",
+          "text": "Human control"
+        },
+        {
+          "label": "D",
+          "text": "Reliability and safety"
+        }
+      ],
+      "correct": "A",
+      "explanation": "Fairness is the principle most directly threatened when training data reflects historical demographic disparities — the AI system may perpetuate or amplify existing inequalities in benefit decisions, treating certain groups unfairly. The EU AI Act and ISO/IEC 42001 both highlight the risk of bias in AI decision-making (especially in contexts like credit scoring, CV reviewing and public services). The impact assessment process (6.1.4) is specifically designed to surface this type of concern."
+    },
+    {
+      "id": 48,
+      "category": "Clause 4 - Context",
+      "question": "The term 'interested party' in ISO/IEC 42001 is synonymous with which other term?",
+      "options": [
+        {
+          "label": "A",
+          "text": "Customer"
+        },
+        {
+          "label": "B",
+          "text": "Regulator"
+        },
+        {
+          "label": "C",
+          "text": "Shareholder"
+        },
+        {
+          "label": "D",
+          "text": "Stakeholder"
+        }
+      ],
+      "correct": "D",
+      "explanation": "ISO/IEC 42001 explicitly states that 'interested party' is synonymous with 'stakeholder'. Customers, regulators and shareholders are all examples of interested parties/stakeholders, but the term itself is broader than any single category. Understanding interested parties is required by Clause 4.2."
+    },
+    {
+      "id": 49,
+      "category": "Clause 5 - Leadership",
+      "question": "Which of the following best reflects the distinction between an AI provider, an AI producer and an AI customer per ISO/IEC 22989?",
+      "options": [
+        {
+          "label": "A",
+          "text": "Provider builds the AI; producer funds it; customer regulates it"
+        },
+        {
+          "label": "B",
+          "text": "These terms are specific to the EU AI Act and not used in ISO/IEC 42001"
+        },
+        {
+          "label": "C",
+          "text": "Provider and producer are the same entity; customer is always an end user"
+        },
+        {
+          "label": "D",
+          "text": "Provider makes the platform or service available; producer develops the AI system; customer uses the AI system"
+        }
+      ],
+      "correct": "D",
+      "explanation": "Per the ISO/IEC 22989 stakeholder framework used in 42001 training: the AI provider makes the platform, product or service available; the AI producer (developer) develops the AI system; and the AI customer is the user of the AI system. These distinctions matter because ISO/IEC 42001's obligations differ depending on whether an organisation is developing, providing or using AI systems."
+    },
+    {
+      "id": 50,
+      "category": "Clause 6 - Planning",
+      "question": "An organisation identifies a risk that an AI system could malfunction in ways that harm individual users. It conducts an impact assessment. Which aspects must the impact assessment take into account?",
+      "options": [
+        {
+          "label": "A",
+          "text": "Only the financial cost of potential harm to the organisation"
+        },
+        {
+          "label": "B",
+          "text": "The consequences for the organisation only, since the risk assessment separately covers individuals"
+        },
+        {
+          "label": "C",
+          "text": "Only the probability of malfunction, not the consequences"
+        },
+        {
+          "label": "D",
+          "text": "The potential consequences of deployment, intended use and foreseeable misuse on individuals, groups and societies, taking into account the specific technical and societal context and applicable jurisdictions"
+        }
+      ],
+      "correct": "D",
+      "explanation": "Clause 6.1.4 requires the AI system impact assessment to determine the potential consequences of the AI system's deployment, intended use AND foreseeable misuse on individuals, groups of individuals and societies. It must take into account the specific technical and societal context where the system is deployed and applicable jurisdictions. It is broader than a pure organisational risk calculation."
+    },
+    {
+      "id": 51,
+      "category": "Clause 7 - Support",
+      "question": "A small organisation argues it does not need extensive AIMS documentation because its processes are simple and staff are highly experienced. Is there a basis for this in ISO/IEC 42001?",
+      "options": [
+        {
+          "label": "A",
+          "text": "No — the standard requires the same documentation from all organisations regardless of size"
+        },
+        {
+          "label": "B",
+          "text": "Yes — Clause 7.5 acknowledges that the extent of documented information can vary based on organisational size, process complexity and personnel competence"
+        },
+        {
+          "label": "C",
+          "text": "Yes — small organisations are exempt from Clause 7.5 requirements entirely"
+        },
+        {
+          "label": "D",
+          "text": "No — the standard requires more documentation from smaller organisations to compensate for reduced personnel redundancy"
+        }
+      ],
+      "correct": "B",
+      "explanation": "Clause 7.5 explicitly states that the extent of documented information can differ depending on the size and type of the organisation's activities; the complexity of processes and their interactions; and the competence of persons. A small, highly competent team with simple processes may legitimately need less documentation than a large complex organisation. However, all mandatory documented information requirements (those specified as 'shall') must still be met."
+    },
+    {
+      "id": 52,
+      "category": "Clause 8 - Operation",
+      "question": "An organisation has outsourced its AI model training to a third-party vendor. Under Clause 8.1, what must the organisation do?",
+      "options": [
+        {
+          "label": "A",
+          "text": "Nothing — outsourced activities are outside the AIMS scope by definition"
+        },
+        {
+          "label": "B",
+          "text": "Transfer all AIMS responsibilities to the vendor for the outsourced processes"
+        },
+        {
+          "label": "C",
+          "text": "Adequately identify and control the outsourced processes"
+        },
+        {
+          "label": "D",
+          "text": "Require the vendor to obtain ISO/IEC 42001 certification before the contract can proceed"
+        }
+      ],
+      "correct": "C",
+      "explanation": "Clause 8.1 requires the organisation to determine and control outsourced processes. Outsourcing a process does not transfer the organisation's AIMS responsibilities — it must still ensure those processes are identified and controlled. This typically involves supplier due diligence, contractual obligations and monitoring. Requiring vendor certification may be one approach but is not mandated by the standard."
+    },
+    {
+      "id": 53,
+      "category": "Clause 9 - Performance Evaluation",
+      "question": "Which of the following correctly describes a major nonconformity as opposed to a minor one?",
+      "options": [
+        {
+          "label": "A",
+          "text": "A major nonconformity is systemic or significantly impacts the AIMS; a minor one is isolated or has low impact"
+        },
+        {
+          "label": "B",
+          "text": "A major nonconformity involves a financial penalty; a minor one does not"
+        },
+        {
+          "label": "C",
+          "text": "A major nonconformity must be reported to the board; a minor one can be resolved at team level"
+        },
+        {
+          "label": "D",
+          "text": "The terms major and minor are not used in ISO/IEC 42001 — only ISO 9000 uses this distinction"
+        }
+      ],
+      "correct": "A",
+      "explanation": "ISO 9000 (referenced in 42001 training) defines nonconformity as non-fulfilment of a requirement, categorised into minor (isolated or low-impact) and major (systemic, significant or critical). While ISO/IEC 42001 itself references ISO 9000 for these definitions, the distinction is important for determining the urgency and scale of corrective action required. The distinction does not automatically trigger specific reporting requirements under the standard."
+    },
+    {
+      "id": 54,
+      "category": "Clause 10 - Improvement",
+      "question": "Which of the following best describes the relationship between corrective action and preventive action in ISO/IEC 42001?",
+      "options": [
+        {
+          "label": "A",
+          "text": "Corrective action is for major nonconformities; preventive action is for minor ones"
+        },
+        {
+          "label": "B",
+          "text": "Corrective action eliminates the root cause of a nonconformity that has already occurred; preventive action eliminates the cause of a potential nonconformity before it occurs"
+        },
+        {
+          "label": "C",
+          "text": "Corrective action and preventive action are the same process applied at different timescales"
+        },
+        {
+          "label": "D",
+          "text": "Preventive action is only required if corrective action has failed"
+        }
+      ],
+      "correct": "B",
+      "explanation": "Per ISO 9000 definitions: corrective action eliminates the root cause of a nonconformity to prevent recurrence (reactive); preventive action eliminates the cause of a potential nonconformity before it occurs (proactive). Both are distinct from correction, which merely fixes the immediate symptom. Resources allocated to preventive action should be proportional to the severity of the potential nonconformity being prevented."
+    },
+    {
+      "id": 55,
+      "category": "Related Standards",
+      "question": "ISO/IEC 42005 and ISO/IEC 42001 both address AI system impact assessment. What is the key difference in their roles?",
+      "options": [
+        {
+          "label": "A",
+          "text": "42005 is certifiable; 42001 is not"
+        },
+        {
+          "label": "B",
+          "text": "42001 covers impact assessment at lifecycle inception; 42005 covers ongoing operational monitoring"
+        },
+        {
+          "label": "C",
+          "text": "42005 applies only to AI providers; 42001 applies only to AI users"
+        },
+        {
+          "label": "D",
+          "text": "42001 sets requirements for an AIMS including impact assessment processes; 42005 provides detailed guidance on conducting and documenting AI system impact assessments"
+        }
+      ],
+      "correct": "D",
+      "explanation": "ISO/IEC 42001 is the certifiable management system standard that includes requirements for an impact assessment process (clause 6.1.4 and Annex A.5). ISO/IEC 42005 is a separate guidance standard that organisations can use to understand how to conduct and document those assessments in detail — but it is not certifiable. They complement each other. Neither is restricted to providers or users exclusively."
+    },
+    {
+      "id": 56,
+      "category": "AI Concepts",
+      "question": "Which statement about knowledge in AI systems is most accurate from an ISO/IEC 42001 perspective?",
+      "options": [
+        {
+          "label": "A",
+          "text": "AI systems store knowledge identically to how human memory works"
+        },
+        {
+          "label": "B",
+          "text": "AI knowledge is exclusively derived from internet data sources"
+        },
+        {
+          "label": "C",
+          "text": "Knowledge in AI systems is irrelevant to governance because only data matters"
+        },
+        {
+          "label": "D",
+          "text": "Knowledge in AI refers to structured information that enables AI systems to make decisions, solve problems and exhibit intelligent behaviour, often organised to enable automated reasoning"
+        }
+      ],
+      "correct": "D",
+      "explanation": "In the context of AI concepts covered in the PECB 42001 Foundation course, knowledge in AI refers to structured information that AI systems use to make decisions, solve problems and exhibit intelligent behaviour. It is often organised to enable automated reasoning. This is distinct from raw data — knowledge represents processed, structured understanding. Governance of how AI systems use and apply knowledge is relevant to both Annex A.7 (data) and the broader responsible AI principles."
+    },
+    {
+      "id": 57,
+      "category": "Clause 4 - Context",
+      "question": "An organisation conducting a PESTLE analysis for its AIMS context review identifies a new national AI regulation expected to pass into law next year. Under which category does this sit, and which clause does it inform?",
+      "options": [
+        {
+          "label": "A",
+          "text": "Internal issue; informs Clause 4.2"
+        },
+        {
+          "label": "B",
+          "text": "Internal issue; informs Clause 5.2"
+        },
+        {
+          "label": "C",
+          "text": "External issue; informs Clause 6.2 directly"
+        },
+        {
+          "label": "D",
+          "text": "External issue; informs Clause 4.1"
+        }
+      ],
+      "correct": "D",
+      "explanation": "An upcoming national AI regulation is an external issue — specifically a Legal factor in PESTLE analysis. External issues include applicable legal requirements, regulatory policies and guidelines. These inform Clause 4.1 (understanding the organisation and its context). The output of 4.1 then feeds into scope determination (4.3) and risk and opportunity planning (6.1)."
+    },
+    {
+      "id": 58,
+      "category": "Clause 5 - Leadership",
+      "question": "An AI policy contains the following statement: 'We commit to responsible use of AI systems'. Is this sufficient to meet the Clause 5.2 requirements for an AI policy?",
+      "options": [
+        {
+          "label": "A",
+          "text": "No — the policy must also provide a framework for setting AI objectives, commit to meeting applicable requirements, and commit to continual improvement"
+        },
+        {
+          "label": "B",
+          "text": "Yes — as long as the statement is communicated to all staff"
+        },
+        {
+          "label": "C",
+          "text": "Yes — Clause 5.2 only requires a general commitment statement"
+        },
+        {
+          "label": "D",
+          "text": "No — the policy must list all Annex A controls that the organisation has selected"
+        }
+      ],
+      "correct": "A",
+      "explanation": "Clause 5.2 requires the AI policy to: (1) be appropriate to the organisation; (2) provide a framework for setting AI objectives; (3) include a commitment to meet applicable requirements; and (4) include a commitment to continual improvement of the AIMS. A single general statement about responsible use does not meet any of these four requirements substantively. Annex A controls are not required in the policy itself — they belong in the Statement of Applicability."
+    },
+    {
+      "id": 59,
+      "category": "Clause 9 - Performance Evaluation",
+      "question": "How frequently must management reviews be conducted under ISO/IEC 42001?",
+      "options": [
+        {
+          "label": "A",
+          "text": "Monthly, as specified in Clause 9.3"
+        },
+        {
+          "label": "B",
+          "text": "Annually, aligned with the certification renewal cycle"
+        },
+        {
+          "label": "C",
+          "text": "Bi-annually — twice per year at minimum"
+        },
+        {
+          "label": "D",
+          "text": "The standard requires reviews at planned intervals but does not specify frequency — quarterly is common practice"
+        }
+      ],
+      "correct": "D",
+      "explanation": "Clause 9.3 requires top management to perform reviews of the AIMS at planned intervals to ensure its suitability, adequacy and effectiveness. The standard does not specify the frequency. Common practice is quarterly, though monthly, semi-annual or annual are all used. Management reviews can be incorporated into regular management meetings. The key requirements are that they are planned, conducted as scheduled, and produce documented outputs."
+    },
+    {
+      "id": 60,
+      "category": "Clause 6 - Planning",
+      "question": "An AI risk treatment plan has been approved and implemented. Monitoring shows that one treatment option is not achieving the expected risk reduction. What does Clause 8.3 require the organisation to do?",
+      "options": [
+        {
+          "label": "A",
+          "text": "Accept the remaining risk as residual and document it in the risk register"
+        },
+        {
+          "label": "B",
+          "text": "Escalate to the certification body for guidance on alternative controls"
+        },
+        {
+          "label": "C",
+          "text": "Suspend the AI system until an effective treatment option can be confirmed"
+        },
+        {
+          "label": "D",
+          "text": "Review and revalidate the ineffective treatment options following the risk treatment process, and update the risk treatment plan"
+        }
+      ],
+      "correct": "D",
+      "explanation": "Clause 8.3 explicitly states: when risk treatment options as defined by the risk treatment plan are not effective, these treatment options shall be reviewed and revalidated following the risk treatment process (6.1.3) and the risk treatment plan shall be updated. The standard provides a clear mechanism for dealing with ineffective controls — review, revalidate and update the plan. There is no requirement to suspend the system or contact the certification body."
+    }
+  ]
+}

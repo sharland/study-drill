@@ -1,0 +1,664 @@
+{
+  "cards": [
+    {
+      "id": 1,
+      "category": "Related Standards",
+      "question": "What does ISO/IEC 42001:2023 specify, and what is its key distinguishing feature compared to other AI-related ISO standards?",
+      "answer": "It specifies requirements for establishing, implementing, maintaining and continually improving an AI Management System (AIMS) within an organisation. Its key distinguishing feature is that organisations can obtain certification against it — unlike most other AI-related ISO standards which are guidance-only."
+    },
+    {
+      "id": 2,
+      "category": "Related Standards",
+      "question": "What is the purpose of ISO/IEC 42005, and can organisations certify against it?",
+      "answer": "ISO/IEC 42005 guides organisations in assessing the impact of AI systems on individuals and societies, and provides guidance on documenting AI system impact assessments. It is applicable to all organisations that develop, provide or use AI systems. Organisations cannot obtain certification against it."
+    },
+    {
+      "id": 3,
+      "category": "Related Standards",
+      "question": "What is the role of ISO/IEC 42006?",
+      "answer": "ISO/IEC 42006 is the specification for auditing and certifying conformity to ISO/IEC 42001."
+    },
+    {
+      "id": 4,
+      "category": "Related Standards",
+      "question": "What is ISO/IEC 22989:2022 and why is it referenced within 42001 training?",
+      "answer": "ISO/IEC 22989:2022 provides a comprehensive set of AI concepts and terminology. It is referenced in 42001 training because it supplies the definitions underpinning 42001 (e.g. the definition of an AI system, AI stakeholder categories). Organisations cannot certify against it."
+    },
+    {
+      "id": 5,
+      "category": "Related Standards",
+      "question": "What is ISO/IEC 23894:2023 and who is it relevant to?",
+      "answer": "ISO/IEC 23894:2023 provides guidance on AI risk management for organisations working with AI products and services. It is relevant to all organisations regardless of size, and provides the risk management principles that underpin 42001's planning clause. Organisations cannot certify against it."
+    },
+    {
+      "id": 6,
+      "category": "Related Standards",
+      "question": "What does ISO/IEC TR 24028 focus on?",
+      "answer": "ISO/IEC TR 24028 focuses on evaluating the trustworthiness of AI systems, considering factors such as transparency, explainability and controllability. It discusses approaches to mitigate vulnerabilities and techniques to address engineering pitfalls, threats and associated risks. Not certifiable."
+    },
+    {
+      "id": 7,
+      "category": "Related Standards",
+      "question": "What are the four core functions of the NIST AI Risk Management Framework?",
+      "answer": "Govern, Map, Measure, Manage. The framework was developed by NIST in collaboration with private and public sectors. Part 1 frames AI risks; Part 2 defines the four functions."
+    },
+    {
+      "id": 8,
+      "category": "Related Standards",
+      "question": "What is ISO/IEC 23053 concerned with?",
+      "answer": "ISO/IEC 23053 introduces a framework for describing AI systems that use machine learning, providing common terms and concepts. It is relevant to all organisations that implement or use AI systems. Organisations cannot certify against it."
+    },
+    {
+      "id": 9,
+      "category": "Related Standards",
+      "question": "What is the EU AI Act and when was it approved?",
+      "answer": "The EU AI Act was approved in 2024. It introduces a risk-based approach to regulating AI, categorising AI systems by the risks and challenges they pose and imposing requirements accordingly."
+    },
+    {
+      "id": 10,
+      "category": "Related Standards",
+      "question": "Of the AI-related ISO standards covered in the PECB course, which is the only one organisations can certify against?",
+      "answer": "ISO/IEC 42001:2023. All others (22989, 23894, 42005, 23053, TR 24028, 38507) are guidance documents with no certification pathway."
+    },
+    {
+      "id": 11,
+      "category": "AIMS Fundamentals",
+      "question": "What does AIMS stand for and how does ISO/IEC 42001 define it?",
+      "answer": "AIMS stands for Artificial Intelligence Management System. Per ISO/IEC 42001, it is a set of interrelated or interacting elements of an organisation intended to establish policies and objectives, and processes to support those objectives, in relation to the responsible development, provision or use of AI systems."
+    },
+    {
+      "id": 12,
+      "category": "AIMS Fundamentals",
+      "question": "What does the word 'shall' signify in ISO/IEC 42001?",
+      "answer": "'Shall' indicates a mandatory requirement. Every 'shall' statement in clauses 4–10 must be fulfilled for an organisation to conform to the standard. This distinguishes requirements from guidance (which uses 'should')."
+    },
+    {
+      "id": 13,
+      "category": "AIMS Fundamentals",
+      "question": "What is a management system as defined in ISO/IEC Directives, Annex SL?",
+      "answer": "A set of interrelated or interacting elements of an organisation to establish policies and objectives, as well as processes to achieve those objectives. All organisations have a form of management system; they can range from informal to well-defined and structured."
+    },
+    {
+      "id": 14,
+      "category": "AIMS Fundamentals",
+      "question": "Which clauses of ISO/IEC 42001 must an organisation comply with to achieve certification?",
+      "answer": "Clauses 4 to 10. The annexes provide supporting controls and guidance but certification is assessed against clauses 4–10."
+    },
+    {
+      "id": 15,
+      "category": "AIMS Fundamentals",
+      "question": "What is the difference between a normative and an informative annex in ISO/IEC 42001?",
+      "answer": "A normative annex forms a fundamental part of the standard — its content is required. An informative annex provides guidance and additional context but is not mandatory. Failing to comply with a normative annex constitutes non-conformity; failing to follow an informative annex does not."
+    },
+    {
+      "id": 16,
+      "category": "AIMS Fundamentals",
+      "question": "Which annexes of ISO/IEC 42001 are normative, and which are informative?",
+      "answer": "Normative: Annex A (reference control objectives and controls) and Annex B (implementation guidance for AI controls). Informative: Annex C (potential AI-related organisational objectives and risk sources) and Annex D (use of AIMS across domains and sectors)."
+    },
+    {
+      "id": 17,
+      "category": "AIMS Fundamentals",
+      "question": "Map the PDCA cycle to the clause structure of ISO/IEC 42001.",
+      "answer": "Plan = Clause 6 (setting objectives and risk management). Do = Clause 8 (implementing controls and processes). Check = Clause 9 (monitoring, audit, management review). Act = Clause 10 (continual improvement and corrective action). Clauses 4 (context), 5 (leadership) and 7 (support) sit outside the cycle and underpin it — removing any one of them jeopardises the whole cycle."
+    },
+    {
+      "id": 18,
+      "category": "AIMS Fundamentals",
+      "question": "What is the purpose of Annex A of ISO/IEC 42001?",
+      "answer": "Annex A (normative) provides reference control objectives and controls for organisations to manage risks and achieve AI objectives. Organisations select applicable controls based on their risk assessment. They can also design their own controls. Controls not selected must be justified in the Statement of Applicability."
+    },
+    {
+      "id": 19,
+      "category": "AIMS Fundamentals",
+      "question": "What is the purpose of Annex B of ISO/IEC 42001, and are organisations required to justify their use of it?",
+      "answer": "Annex B (normative) provides implementation guidance for each control in Annex A. It is a foundational reference, but organisations may adapt, extend or replace the guidance. Crucially, organisations are NOT required to document or justify inclusion or exclusion of Annex B guidance in the Statement of Applicability — only Annex A controls require that justification."
+    },
+    {
+      "id": 20,
+      "category": "AIMS Fundamentals",
+      "question": "What is the Statement of Applicability (SoA)?",
+      "answer": "A required document produced as part of the risk treatment process (clause 6.1.3) that lists all necessary Annex A controls with justification for both their inclusion and exclusion. Justification for exclusion can include: controls not deemed necessary by the risk assessment, or controls not required by applicable external requirements."
+    },
+    {
+      "id": 21,
+      "category": "AIMS Fundamentals",
+      "question": "Name four management system standards that share a common high-level structure with ISO/IEC 42001 and could be integrated with it.",
+      "answer": "ISO/IEC 27001 (information security), ISO/IEC 27701 (privacy), ISO 9001 (quality management), ISO 14001 (environmental management). The shared Annex SL structure means common clauses (leadership, objectives, documented information, internal audit, management review, continual improvement) can be aligned across standards."
+    },
+    {
+      "id": 22,
+      "category": "AIMS Fundamentals",
+      "question": "What are the four key advantages of implementing an AIMS?",
+      "answer": "(1) Commitment to trustworthiness — demonstrating responsible AI use. (2) Accountability and responsibility — clarity over who owns key elements. (3) Improved decision making — based on evidence rather than guesswork. (4) Continuous learning — through monitoring, performance evaluation and metrics."
+    },
+    {
+      "id": 23,
+      "category": "AIMS Fundamentals",
+      "question": "What important AI-specific topics does an AIMS enable an organisation to address systematically?",
+      "answer": "Transparency, fairness, bias, security and privacy. These topics are central to responsible AI use and are embedded throughout 42001's requirements and Annex A controls."
+    },
+    {
+      "id": 24,
+      "category": "AI Concepts",
+      "question": "What is the ISO/IEC 22989 definition of an AI system?",
+      "answer": "An engineered system that generates outputs such as content, forecasts, recommendations or decisions for a given set of human-defined objectives."
+    },
+    {
+      "id": 25,
+      "category": "AI Concepts",
+      "question": "What is machine learning?",
+      "answer": "A process of optimising model parameters through computational techniques such that the model's behaviour reflects the data or experience. It is a key sub-field of AI."
+    },
+    {
+      "id": 26,
+      "category": "AI Concepts",
+      "question": "Distinguish between supervised, semi-supervised, and unsupervised machine learning.",
+      "answer": "Supervised ML uses only labelled data during training. Semi-supervised ML uses both labelled and unlabelled data. Unsupervised ML uses only unlabelled data, seeking patterns or structures within it. A fourth type, reinforcement learning, learns an optimal sequence of actions through interaction with an environment to maximise reward."
+    },
+    {
+      "id": 27,
+      "category": "AI Concepts",
+      "question": "What is deep learning and how does it relate to machine learning?",
+      "answer": "Deep learning is a subset of machine learning that creates rich hierarchical representations by training neural networks with many hidden layers. It can reduce or eliminate the need for manual feature engineering, as relevant features are identified automatically. It typically requires significant time and computational resources."
+    },
+    {
+      "id": 28,
+      "category": "AI Concepts",
+      "question": "What is a neural network?",
+      "answer": "A network of one or more layers of neurons connected by weighted links with adjustable weights, which takes input data and produces an output. Neural networks form the basis of deep learning and are modelled loosely on the structure of the human brain."
+    },
+    {
+      "id": 29,
+      "category": "AI Concepts",
+      "question": "Distinguish between narrow AI, general AI and strong AI based on capability.",
+      "answer": "Narrow AI is designed for a specific task (e.g. predictive text). General AI can conduct multiple tasks and learn new ones. Strong AI can focus on deeply complex specific tasks. Note: 'Strong AI' in some frameworks is used differently — know the course material's definitions for exam purposes."
+    },
+    {
+      "id": 30,
+      "category": "AI Concepts",
+      "question": "What are the four types of AI systems based on functionality, in order of increasing sophistication?",
+      "answer": "(1) Reactive machines — respond to stimulus and experience (e.g. self-driving cars). (2) Limited memory — respond quickly to immediate events with a smaller data pool. (3) Theory of mind — hypothetically capable of human-like emotions and experiences. (4) Self-aware AI — highly theoretical; the most advanced conceptual level."
+    },
+    {
+      "id": 31,
+      "category": "AI Concepts",
+      "question": "Why is data governance so central to ISO/IEC 42001?",
+      "answer": "Data is central to AI systems — poor quality data produces poor AI outputs. High-risk AI systems require appropriate data governance and management. The EU AI Act (Article 10) mandates high-quality datasets for high-risk systems. Providers must manage data quality, relevance and potential biases throughout the AI system lifecycle."
+    },
+    {
+      "id": 32,
+      "category": "AI Concepts",
+      "question": "List the broad AI principles relevant to ISO/IEC 42001.",
+      "answer": "Fairness, transparency, accountability, reliability and safety, privacy and security, ethical values, human control, trustworthiness, responsibility, and shared benefit."
+    },
+    {
+      "id": 33,
+      "category": "AI Concepts",
+      "question": "What are the five OECD AI principles?",
+      "answer": "(1) Inclusive growth, sustainable development and well-being. (2) Human-centred values and fairness. (3) Transparency and explainability. (4) Fostering a digital ecosystem for AI. (5) Accountability."
+    },
+    {
+      "id": 34,
+      "category": "AI Concepts",
+      "question": "Distinguish between symbolic AI and subsymbolic AI.",
+      "answer": "Symbolic AI uses explicitly defined rules to manipulate symbols and structures to obtain inferences. Subsymbolic AI uses an implicit encoding of information that can be derived from experience or raw data — modern neural networks are a prime example of subsymbolic AI."
+    },
+    {
+      "id": 35,
+      "category": "AI Concepts",
+      "question": "What four features are common to AI systems per ISO/IEC 22989?",
+      "answer": "Interactive, contextual, subject to oversight (human oversight provisions), and adaptive."
+    },
+    {
+      "id": 36,
+      "category": "AI Concepts",
+      "question": "Which governance concerns apply across ALL stages of the AI system lifecycle, from inception through to retirement?",
+      "answer": "Transparency and accountability, security and privacy, risk management, and governance. These apply at every stage — inception, design and development, verification and validation, deployment, operation and monitoring, re-evaluation, and retirement."
+    },
+    {
+      "id": 37,
+      "category": "AI Concepts",
+      "question": "What is cognitive computing in AI?",
+      "answer": "A complex AI approach that mirrors the functioning of the human brain. It aims to enable computers to handle complex situations by using advanced AI concepts, natural language processing and computer vision."
+    },
+    {
+      "id": 38,
+      "category": "Clause 4 - Context",
+      "question": "What does Clause 4.1 of ISO/IEC 42001 require the organisation to do?",
+      "answer": "Determine the external and internal issues that are relevant to its purpose and that affect its ability to achieve the intended results of its AI management system."
+    },
+    {
+      "id": 39,
+      "category": "Clause 4 - Context",
+      "question": "What does Clause 4.2 require?",
+      "answer": "The organisation shall determine: the interested parties relevant to the AIMS; their relevant requirements; and which of those requirements will be addressed through the AIMS."
+    },
+    {
+      "id": 40,
+      "category": "Clause 4 - Context",
+      "question": "What does Clause 4.3 require, and what must the resulting output be?",
+      "answer": "The organisation shall determine the boundaries and applicability of the AIMS to establish its scope, considering issues from 4.1 and requirements from 4.2. The scope must be made available as documented information."
+    },
+    {
+      "id": 41,
+      "category": "Clause 4 - Context",
+      "question": "What does Clause 4.4 require?",
+      "answer": "The organisation shall establish, implement, maintain, continually improve and document an AIMS, including the processes needed and their interactions."
+    },
+    {
+      "id": 42,
+      "category": "Clause 4 - Context",
+      "question": "Give two examples of external issues relevant to Clause 4.1.",
+      "answer": "Any two of: applicable legal requirements and restrictions; regulatory policies and guidelines affecting AI development or use; cultural, ethical values and norms regarding AI; competitive landscape and trends; incentives or consequences associated with AI systems' intended purpose."
+    },
+    {
+      "id": 43,
+      "category": "Clause 4 - Context",
+      "question": "Give two examples of internal issues relevant to Clause 4.1.",
+      "answer": "Any two of: organisational context, governance, objectives, policies and procedures; contractual obligations; intended purpose of the AI system to be developed or used."
+    },
+    {
+      "id": 44,
+      "category": "Clause 4 - Context",
+      "question": "What are the four steps for establishing AIMS scope?",
+      "answer": "(1) Determine preliminary scope — by a small representative management group. (2) Determine improved scope — review functional units inside and outside preliminary scope to reduce boundary interfaces. (3) Determine final scope — top management evaluates, adjusts and precisely explains it. (4) Approve scope — top management approves the documented scope."
+    },
+    {
+      "id": 45,
+      "category": "Clause 4 - Context",
+      "question": "What four factors should be considered when establishing preliminary AIMS scope?",
+      "answer": "(1) Mandates and obligations (internal mandates and external obligations related to AI). (2) Management and responsibility (whether AIMS spans multiple management teams or subsidiaries). (3) Communication and documentation (how AIMS documents will be communicated throughout the organisation). (4) System capabilities (whether existing management systems can support AI-related needs)."
+    },
+    {
+      "id": 46,
+      "category": "Clause 4 - Context",
+      "question": "Name four tools organisations can use to analyse their internal and external environment for Clause 4.1.",
+      "answer": "Any four of: PESTLE (Political, Economic, Sociological, Technological, Legal, Environmental); SWOT; Micro/Macro external environment analysis; mapping of organisational structure and key players (strategic, steering, operational levels)."
+    },
+    {
+      "id": 47,
+      "category": "Clause 4 - Context",
+      "question": "Name six examples of interested parties relevant to an AIMS.",
+      "answer": "Any six of: board of directors, employees, customers, suppliers/providers, legislators, shareholders, media, unions, general public, management team, financial institutions."
+    },
+    {
+      "id": 48,
+      "category": "Clause 4 - Context",
+      "question": "What must AI objectives be consistent with, and what six characteristics must they have?",
+      "answer": "Must be consistent with the AI policy. They must also: be measurable (if practicable); take into account applicable requirements; be monitored; be communicated; be updated as appropriate; and be available as documented information. (Clause 6.2)"
+    },
+    {
+      "id": 49,
+      "category": "Clause 4 - Context",
+      "question": "When planning to achieve AI objectives, what four things must the organisation determine? (Clause 6.2)",
+      "answer": "What will be done; what resources will be required; who will be responsible; when it will be completed; and how the results will be evaluated. (Note: the standard lists five items — 'who' is included in the actual clause text, though sometimes summarised as four.)"
+    },
+    {
+      "id": 50,
+      "category": "Clause 5 - Leadership",
+      "question": "List six ways top management must demonstrate leadership and commitment per Clause 5.1.",
+      "answer": "Any six of: ensuring AI policy and objectives are compatible with strategic direction; integrating AIMS into business processes; ensuring resources are available; communicating importance of effective AI management; ensuring AIMS achieves its intended results; directing and supporting persons to contribute to AIMS effectiveness; promoting continual improvement; supporting other relevant roles in demonstrating leadership."
+    },
+    {
+      "id": 51,
+      "category": "Clause 5 - Leadership",
+      "question": "What four things must the AI policy include per Clause 5.2?",
+      "answer": "It must: (1) be appropriate to the organisation; (2) provide a framework for setting AI objectives; (3) include a commitment to meet applicable requirements; (4) include a commitment to continual improvement of the AIMS."
+    },
+    {
+      "id": 52,
+      "category": "Clause 5 - Leadership",
+      "question": "How must the AI policy be made available?",
+      "answer": "It must be available as documented information; communicated within the organisation; and available to interested parties as appropriate."
+    },
+    {
+      "id": 53,
+      "category": "Clause 5 - Leadership",
+      "question": "What specifically does Clause 5.3 require top management to ensure?",
+      "answer": "That responsibilities and authorities for relevant roles are assigned and communicated within the organisation — specifically: (1) ensuring the AIMS conforms to 42001's requirements; and (2) reporting on AIMS performance to top management."
+    },
+    {
+      "id": 54,
+      "category": "Clause 5 - Leadership",
+      "question": "What are the four steps of the AI policy drafting process?",
+      "answer": "(1) Define policy components; (2) Draft policy sections; (3) Validate content and format; (4) Validate with interested parties."
+    },
+    {
+      "id": 55,
+      "category": "Clause 5 - Leadership",
+      "question": "Name the four key management committees relevant to the AIMS.",
+      "answer": "Executive committee, Steering committee, AI committee, and Operational committee."
+    },
+    {
+      "id": 56,
+      "category": "Clause 5 - Leadership",
+      "question": "According to ISO/IEC 22989 Figure 2, what are the main AI stakeholder categories?",
+      "answer": "AI provider (platform, product or service provider); AI producer (developer); AI customer (user); AI partner (system integrator, data provider, AI evaluator, AI auditor); AI subject (data subject); and relevant authorities (policy makers)."
+    },
+    {
+      "id": 57,
+      "category": "Clause 5 - Leadership",
+      "question": "What areas of the AIMS typically require defined roles and responsibilities per Annex A control B.3.2?",
+      "answer": "Risk management; AI system impact assessments; asset and resource management; security; safety; privacy; development; performance; human oversight; supplier relationships; and data quality management throughout the lifecycle."
+    },
+    {
+      "id": 58,
+      "category": "Clause 5 - Leadership",
+      "question": "What benefits does management commitment bring to the AIMS?",
+      "answer": "Increased knowledge of applicable laws, regulations, contractual obligations and standards; adequate allocation of resources; monitoring and review of processes; and access to reliable information on the organisation's risk exposure to support appropriate decisions."
+    },
+    {
+      "id": 59,
+      "category": "Clause 6 - Planning",
+      "question": "What three outcomes must Clause 6.1.1 risk and opportunity actions be designed to achieve?",
+      "answer": "(1) Give assurance that the AIMS achieves its intended results. (2) Prevent or reduce undesired effects. (3) Achieve continual improvement."
+    },
+    {
+      "id": 60,
+      "category": "Clause 6 - Planning",
+      "question": "What must the AI risk assessment process produce per Clause 6.1.2?",
+      "answer": "Consistent, valid and comparable results when repeated; identification of risks; analysis of potential consequences, realistic likelihood and risk levels; evaluation comparing results with risk criteria; and prioritisation of assessed risks for risk treatment. Results must be retained as documented information."
+    },
+    {
+      "id": 61,
+      "category": "Clause 6 - Planning",
+      "question": "What is an AI system impact assessment (Clause 6.1.4) and how does it differ from an AI risk assessment (Clause 6.1.2)?",
+      "answer": "The risk assessment (6.1.2) focuses on risks to the organisation's AIMS objectives — likelihood and consequences for the organisation. The impact assessment (6.1.4) focuses specifically on consequences for individuals, groups of individuals and societies arising from the deployment, intended use and foreseeable misuse of AI systems. Both must take into account the specific technical and societal context and applicable jurisdictions. The impact assessment results must feed into the risk assessment."
+    },
+    {
+      "id": 62,
+      "category": "Clause 6 - Planning",
+      "question": "What seven steps must the AI risk treatment process include per Clause 6.1.3?",
+      "answer": "(1) Select appropriate risk treatment options. (2) Determine all controls needed. (3) Compare controls with Annex A to verify no necessary controls are omitted. (4) Consider additional controls beyond Annex A if needed. (5) Consider Annex B guidance for implementing controls. (6) Produce a Statement of Applicability with justification for inclusions and exclusions. (7) Formulate an AI risk treatment plan."
+    },
+    {
+      "id": 63,
+      "category": "Clause 6 - Planning",
+      "question": "List the seven risk treatment options.",
+      "answer": "(1) Avoid the risk by not starting or continuing the activity. (2) Take or increase the risk to pursue an opportunity. (3) Remove the risk source. (4) Change the likelihood. (5) Change the consequences. (6) Share the risk (e.g. contracts, insurance). (7) Retain the risk by informed decision."
+    },
+    {
+      "id": 64,
+      "category": "Clause 6 - Planning",
+      "question": "What are the eight principles that should characterise AI risk management?",
+      "answer": "Integrated; structured and comprehensive; customised; inclusive; dynamic (responsive to change); based on best available information; considers human and cultural factors; supports continual improvement."
+    },
+    {
+      "id": 65,
+      "category": "Clause 6 - Planning",
+      "question": "What is residual risk, and who must accept it?",
+      "answer": "Residual risk is the risk remaining after treatment controls have been applied. It follows from inherent risk (all risks before any controls) through to treated risk (controls applied) leaving residual risk. Risk owners must be aware of residual risks and accept responsibility for them. The designated management must approve acceptance of residual risks."
+    },
+    {
+      "id": 66,
+      "category": "Clause 6 - Planning",
+      "question": "Distinguish between the three types of consequence assessed in AI risk analysis.",
+      "answer": "Business impact assessment — the degree to which the organisation itself is affected. Individual impact assessment — effects on specific persons or groups. Societal impact assessment — broader effects on communities and society. An organisation should identify where the groups who benefit from AI differ from those who experience negative consequences."
+    },
+    {
+      "id": 67,
+      "category": "Clause 6 - Planning",
+      "question": "What should the risk identification process consider when identifying risk sources?",
+      "answer": "Risk sources can be identified from: the organisation itself; processes and procedures; management routines; personnel; physical environment; data; AI system configuration; deployment environment; hardware, software, network resources and services; and dependencies on external parties."
+    },
+    {
+      "id": 68,
+      "category": "Clause 6 - Planning",
+      "question": "What does Clause 6.3 require?",
+      "answer": "When the organisation determines the need for changes to the AIMS, the changes shall be carried out in a planned manner. The need for changes must be documented."
+    },
+    {
+      "id": 69,
+      "category": "Clause 7 - Support",
+      "question": "What does Clause 7.1 require?",
+      "answer": "The organisation shall determine and provide the resources needed for the establishment, implementation, maintenance and continual improvement of the AIMS. Resources include budget, qualified personnel and required tools."
+    },
+    {
+      "id": 70,
+      "category": "Clause 7 - Support",
+      "question": "What four things does Clause 7.2 require the organisation to do regarding competence?",
+      "answer": "(1) Determine the necessary competence of persons whose work affects AI performance. (2) Ensure those persons are competent based on appropriate education, training or experience. (3) Where applicable, take actions to acquire necessary competence and evaluate the effectiveness of those actions. (4) Retain documented information as evidence of competence."
+    },
+    {
+      "id": 71,
+      "category": "Clause 7 - Support",
+      "question": "What three things must persons doing work under the organisation's control be aware of per Clause 7.3?",
+      "answer": "(1) The AI policy. (2) Their contribution to the effectiveness of the AIMS, including the benefits of improved AI performance. (3) The implications of not conforming with the AIMS requirements."
+    },
+    {
+      "id": 72,
+      "category": "Clause 7 - Support",
+      "question": "What four things must the organisation determine for its AIMS communications per Clause 7.4?",
+      "answer": "What it will communicate; when to communicate; with whom to communicate; and how to communicate."
+    },
+    {
+      "id": 73,
+      "category": "Clause 7 - Support",
+      "question": "What are the five principles of effective communication?",
+      "answer": "Transparency, appropriateness, credibility, responsiveness, and clarity."
+    },
+    {
+      "id": 74,
+      "category": "Clause 7 - Support",
+      "question": "What are the four levels of AIMS documented information?",
+      "answer": "Level 1: governance framework documents (policies, SoA, AIMS scope, strategic documents). Level 2: processes, AI controls and procedures (who, what, when, how, where, why). Level 3: detailed task and activity instructions (how tasks are conducted). Level 4: evidence of conformity with standard requirements."
+    },
+    {
+      "id": 75,
+      "category": "Clause 7 - Support",
+      "question": "What three factors affect the extent of documentation required for an AIMS per Clause 7.5?",
+      "answer": "(1) Size and type of the organisation's activities, processes, products and services. (2) Complexity of processes and their interactions. (3) Competence of persons."
+    },
+    {
+      "id": 76,
+      "category": "Clause 7 - Support",
+      "question": "What must be ensured when creating and updating documented information per Clause 7.5.2?",
+      "answer": "Appropriate identification and description (e.g. title, date, author or reference number); appropriate format (language, software version, graphics) and media (paper, electronic); and review and approval for suitability and adequacy."
+    },
+    {
+      "id": 77,
+      "category": "Clause 7 - Support",
+      "question": "What two requirements must documented information control meet per Clause 7.5.3?",
+      "answer": "(1) It must be available and suitable for use, where and when needed. (2) It must be adequately protected — from loss of confidentiality, improper use or loss of integrity."
+    },
+    {
+      "id": 78,
+      "category": "Clause 7 - Support",
+      "question": "Name five areas that an AIMS awareness programme should address.",
+      "answer": "Any five of: AI policy; adversarial attacks; model stealing; data poisoning; hardware-focused threats to confidentiality and integrity; bias and unpredictability; model query attacks; data pre-processing and modelling; data acquisition; explainability and transparency; bias mitigation and fairness; system reliability and robustness."
+    },
+    {
+      "id": 79,
+      "category": "Clause 8 - Operation",
+      "question": "What does Clause 8.1 require?",
+      "answer": "The organisation shall plan, implement and control the processes needed to meet requirements and implement the actions determined in Clause 6, by establishing criteria for processes and implementing controls in accordance with those criteria. Documented information shall be available as evidence that processes have been carried out as planned. Planned and unplanned changes must be controlled."
+    },
+    {
+      "id": 80,
+      "category": "Clause 8 - Operation",
+      "question": "What does Clause 8.2 require regarding AI risk assessment?",
+      "answer": "The organisation shall perform AI risk assessments at planned intervals or when significant changes are proposed or occur. The organisation shall retain documented information of the results of all AI risk assessments."
+    },
+    {
+      "id": 81,
+      "category": "Clause 8 - Operation",
+      "question": "What does Clause 8.3 require regarding AI risk treatment?",
+      "answer": "The organisation shall implement the AI risk treatment plan and verify its effectiveness. When new risks are identified, a risk treatment process shall be performed for those risks. When treatment options prove ineffective, they shall be reviewed and revalidated. Documented information of all risk treatment results must be retained."
+    },
+    {
+      "id": 82,
+      "category": "Clause 8 - Operation",
+      "question": "What does Clause 8.4 require regarding AI system impact assessment?",
+      "answer": "The organisation shall perform the AI system impact assessment process (defined in 6.1.4) to determine the potential consequences of AI system deployment, intended use and foreseeable misuse on individuals, groups and societies. The assessment must take into account the specific technical and societal context and applicable jurisdictions. Results must be documented and, where appropriate, made available to relevant interested parties."
+    },
+    {
+      "id": 83,
+      "category": "Clause 8 - Operation",
+      "question": "What three steps does good change management practice suggest when rolling out AIMS changes?",
+      "answer": "(1) Provide a communication plan for users before transferring to normal operations. (2) Avoid implementing too many new processes simultaneously. (3) Conduct staff training before transferring to an operational mode where required."
+    },
+    {
+      "id": 84,
+      "category": "Clause 9 - Performance Evaluation",
+      "question": "What four things must the organisation determine for monitoring and measurement per Clause 9.1?",
+      "answer": "What needs to be monitored and measured; methods for monitoring, measurement, analysis and evaluation that ensure valid results; when monitoring and measuring shall be performed; and when results shall be analysed and evaluated. Documented information must be available as evidence."
+    },
+    {
+      "id": 85,
+      "category": "Clause 9 - Performance Evaluation",
+      "question": "What is the definition of an audit per ISO 19011?",
+      "answer": "A systematic, independent and documented process for obtaining objective evidence and evaluating it objectively to determine the extent to which audit criteria are fulfilled."
+    },
+    {
+      "id": 86,
+      "category": "Clause 9 - Performance Evaluation",
+      "question": "Distinguish between first-party, second-party and third-party audits.",
+      "answer": "First-party: the organisation audits its own processes (internal audit). Second-party: an organisation audits its suppliers or providers to verify they are meeting contractual obligations. Third-party: an independent external organisation audits to certify conformity to a specified standard."
+    },
+    {
+      "id": 87,
+      "category": "Clause 9 - Performance Evaluation",
+      "question": "Distinguish between internal and external audits on the dimensions of independence, scope, advisory role and timing.",
+      "answer": "Internal: independent of the audited activities (but not of the organisation); considers both effectiveness and efficiency; has an advisory role; may be conducted on an ongoing basis. External: independent of the organisation and its activities; considers only effectiveness; has no advisory role within the organisation; always conducted in a planned and timely manner."
+    },
+    {
+      "id": 88,
+      "category": "Clause 9 - Performance Evaluation",
+      "question": "What must the internal audit programme include per Clause 9.2?",
+      "answer": "Frequency, methods, responsibilities, planning requirements and reporting. It must take into account the importance of the processes concerned and the results of previous audits. Each audit must define objectives, criteria and scope; use impartial auditors; report results to relevant managers; and retain documented information as evidence."
+    },
+    {
+      "id": 89,
+      "category": "Clause 9 - Performance Evaluation",
+      "question": "What inputs must a management review include per Clause 9.3.2?",
+      "answer": "Status of actions from previous management reviews; changes in external and internal issues relevant to the AIMS; changes in interested parties' needs and expectations; AIMS performance information including trends in nonconformities and corrective actions, monitoring and measurement results, and audit results; and opportunities for continual improvement."
+    },
+    {
+      "id": 90,
+      "category": "Clause 9 - Performance Evaluation",
+      "question": "What must management review outputs include per Clause 9.3.3?",
+      "answer": "Decisions related to continual improvement opportunities and any need for changes to the AIMS. Documented information must be retained as evidence of the management review results."
+    },
+    {
+      "id": 91,
+      "category": "Clause 9 - Performance Evaluation",
+      "question": "How does ISO 9000 define a nonconformity, and how are nonconformities categorised?",
+      "answer": "A nonconformity is the non-fulfilment of a requirement. Nonconformities are categorised as minor (isolated or low-impact failure) or major (systemic, significant or critical failure)."
+    },
+    {
+      "id": 92,
+      "category": "Clause 9 - Performance Evaluation",
+      "question": "Distinguish between the four monitoring and measurement activities: monitoring, measurement, analysis and evaluation.",
+      "answer": "Monitoring: observing a system, process or product to determine performance levels. Measurement: determining the value and traits of a system, process or product. Analysis: examining a system to understand it better. Evaluation: assessing the effectiveness of a system, process or product."
+    },
+    {
+      "id": 93,
+      "category": "Clause 10 - Improvement",
+      "question": "What does Clause 10.1 require?",
+      "answer": "The organisation shall continually improve the suitability, adequacy and effectiveness of the AIMS. Continual improvement is a recurring activity to enhance performance and help the organisation fulfil its policies and objectives."
+    },
+    {
+      "id": 94,
+      "category": "Clause 10 - Improvement",
+      "question": "When a nonconformity occurs, what must the organisation do per Clause 10.2?",
+      "answer": "React to and correct the nonconformity; evaluate the need to eliminate its root causes to prevent recurrence; implement any needed action; review the effectiveness of corrective action taken; make changes to the AIMS if necessary. Documented information must be retained."
+    },
+    {
+      "id": 95,
+      "category": "Clause 10 - Improvement",
+      "question": "Distinguish between correction, corrective action and preventive action.",
+      "answer": "Correction: action to eliminate a detected nonconformity (fix the symptom). Corrective action: action to eliminate the root cause of a nonconformity to prevent recurrence (fix the cause). Preventive action: action to eliminate the cause of a potential nonconformity before it occurs (proactive prevention)."
+    },
+    {
+      "id": 96,
+      "category": "Clause 10 - Improvement",
+      "question": "What are the four steps of the corrective action process?",
+      "answer": "(1) Identify and document the nonconformity. (2) Conduct a situation analysis to identify root causes, evaluate options and select a solution. (3) Implement the corrective action. (4) Follow up, review the corrective action as part of continual improvement, and determine preventive actions."
+    },
+    {
+      "id": 97,
+      "category": "Clause 10 - Improvement",
+      "question": "What four characteristics must an action plan for nonconformity have?",
+      "answer": "It must ensure correction of the nonconformity; be based on both preventive and corrective approaches; include an implementation timeframe; and allow the obtaining of verifiable results."
+    },
+    {
+      "id": 98,
+      "category": "Clause 10 - Improvement",
+      "question": "What four benefits does continual improvement bring to an organisation?",
+      "answer": "Increased efficiency and productivity (improvement changes lead to long-term positive outputs); strengthened team relationships (collaborative working towards common goals); increased customer satisfaction (through improved products and services); and error reduction (fewer errors in continuously improved processes)."
+    },
+    {
+      "id": 99,
+      "category": "Annex A Controls",
+      "question": "What is the objective of Annex A section A.2 (Policies related to AI)?",
+      "answer": "To provide management direction and support for AI systems according to business requirements. Policies must align with other company policies and must be reviewed at planned intervals or when incidents, legislation changes or technology changes warrant it. Controls include A.2.2 (AI policy document), A.2.3 (alignment with other policies) and A.2.4 (AI policy review)."
+    },
+    {
+      "id": 100,
+      "category": "Annex A Controls",
+      "question": "What is the objective of Annex A section A.3 (Internal organisation) and what specific mechanism does it highlight?",
+      "answer": "To establish accountability within the organisation for the responsible implementation, operation and management of AI systems. Specifically, it requires an adequate internal mechanism for reporting concerns, properly communicated and protecting anonymity (i.e. whistleblowing). Controls include A.3.2 (roles and responsibilities) and A.3.3 (reporting of concerns)."
+    },
+    {
+      "id": 101,
+      "category": "Annex A Controls",
+      "question": "What is the objective of Annex A section A.4 (Resources for AI systems)?",
+      "answer": "To ensure the organisation accounts for all resources (including AI system components and assets) throughout the entire AI lifecycle to fully understand and address risks and impacts. This amounts to capacity planning for all aspects — including human aspects. Controls cover resource documentation, data resources and tooling resources."
+    },
+    {
+      "id": 102,
+      "category": "Annex A Controls",
+      "question": "What is the objective of Annex A section A.5 (Assessing impacts of AI systems)?",
+      "answer": "To assess AI system impacts on individuals, groups of individuals and societies throughout the AI system lifecycle. Impact assessments should occur at the beginning of a project and throughout the lifecycle — especially when changes occur — and must be documented and recorded."
+    },
+    {
+      "id": 103,
+      "category": "Annex A Controls",
+      "question": "What is the dual objective of Annex A section A.6 (AI system life cycle)?",
+      "answer": "(1) To ensure the organisation identifies and documents objectives and implements processes for responsible design and development of AI systems. (2) To define the criteria and requirements for each stage of the AI system lifecycle."
+    },
+    {
+      "id": 104,
+      "category": "Annex A Controls",
+      "question": "What is the objective of Annex A section A.7 (Data for AI systems)?",
+      "answer": "To ensure the organisation understands the role and impacts of data in AI systems throughout their lifecycle — including in application, development, provision and use."
+    },
+    {
+      "id": 105,
+      "category": "Annex A Controls",
+      "question": "What is the objective of Annex A section A.8 (Information for interested parties of AI systems)?",
+      "answer": "To ensure relevant interested parties have the necessary information to understand and assess both the positive and negative risks and impacts of AI systems."
+    },
+    {
+      "id": 106,
+      "category": "Annex A Controls",
+      "question": "What is the objective of Annex A section A.9 (Use of AI systems)?",
+      "answer": "To ensure the organisation uses AI systems responsibly and in accordance with organisational policies."
+    },
+    {
+      "id": 107,
+      "category": "Annex A Controls",
+      "question": "What is the objective of Annex A section A.10 (Third-party and customer relationships)?",
+      "answer": "To ensure the organisation understands its responsibilities and remains accountable when third parties are involved at any stage of the AI system lifecycle, with risks appropriately apportioned."
+    },
+    {
+      "id": 108,
+      "category": "Annex A Controls",
+      "question": "Can an organisation design its own controls beyond those listed in Annex A?",
+      "answer": "Yes. Annex A is a reference list, not an exhaustive mandatory set. Organisations may design and implement their own controls. Controls not selected from Annex A must be justified in the Statement of Applicability. Additional controls beyond Annex A may also be required and do not need Annex A justification."
+    },
+    {
+      "id": 109,
+      "category": "Annex A Controls",
+      "question": "What is the relationship between the risk treatment process (Clause 6.1.3) and Annex A?",
+      "answer": "Once risk treatment options are selected, the organisation must compare its chosen controls against Annex A to verify that no necessary controls have been omitted. Annex A acts as a checklist against which the organisation verifies completeness. The result is captured in the Statement of Applicability."
+    },
+    {
+      "id": 110,
+      "category": "Annex A Controls",
+      "question": "Annex C is informative — what does this mean in practice, and what purpose does it serve?",
+      "answer": "Being informative means Annex C is guidance only and does not contain requirements. In practice, organisations are not obliged to follow it. Annex C provides a non-exhaustive list of potential AI-related organisational objectives and risk sources to prompt thinking. Organisations must still identify the objectives and risks applicable to their own context."
+    }
+  ]
+}
