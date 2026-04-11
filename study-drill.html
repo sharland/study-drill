@@ -274,11 +274,23 @@ function MCQQuiz(){
   const [selected,setSelected]=useState(null);
   const [locked,setLocked]=useState(false);
   const [results,setResults]=useState([]);
-  const [sess,setSess]=useState(0);
+  const [sess,setSess]=useState(()=>{
+    try{
+      const id=localStorage.getItem("mcq_deck_id");
+      if(!id)return 0;
+      return JSON.parse(localStorage.getItem(`mcq_history_${id}`)||"[]").length;
+    }catch{return 0;}
+  });
   const [err,setErr]=useState(null);
   const [deckId,setDeckId]=useState(()=>localStorage.getItem("mcq_deck_id")||null);
   const [selCat,setSelCat]=useState(null);
-  const [history,setHistory]=useState([]);
+  const [history,setHistory]=useState(()=>{
+    try{
+      const id=localStorage.getItem("mcq_deck_id");
+      if(!id)return[];
+      return JSON.parse(localStorage.getItem(`mcq_history_${id}`)||"[]").map((rec,i)=>({...rec,sess:i+1}));
+    }catch{return[];}
+  });
 
   const handleImport=useCallback((e)=>{
     const f=e.target.files?.[0];if(!f)return;setErr(null);
@@ -332,10 +344,16 @@ function MCQQuiz(){
     if(idx+1<quizQs.length){setIdx(i=>i+1);setSelected(null);setLocked(false);}
     else{
       const okCount=results.filter(r=>r.correct).length;
-      setHistory(h=>[...h,{sess,pct:Math.round(okCount/results.length*100),ok:okCount,miss:results.length-okCount,tot:results.length,cat:selCat}]);
+      const record={ts:Date.now(),cat:selCat,pct:Math.round(okCount/results.length*100),ok:okCount,miss:results.length-okCount,tot:results.length};
+      if(deckId){
+        const key=`mcq_history_${deckId}`;
+        const stored=JSON.parse(localStorage.getItem(key)||"[]");
+        localStorage.setItem(key,JSON.stringify([...stored,record].slice(-20)));
+      }
+      setHistory(h=>[...h,{...record,sess}]);
       setPhase("review");
     }
-  },[idx,quizQs,results,sess,selCat]);
+  },[idx,quizQs,results,sess,selCat,deckId]);
 
   useEffect(()=>{
     if(phase!=="quiz")return;
