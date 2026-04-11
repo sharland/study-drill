@@ -447,6 +447,7 @@ function MCQQuiz(){
         <div style={ms.ws}><span style={ms.sn}>3</span><span><strong>Import</strong> the JSON and test yourself</span></div>
       </div>
       <button style={ms.pri} onClick={()=>startQuiz()}>{selCat?`Exam: ${selCat}`:"Begin Exam"}</button>
+      <HistoryPanel history={history} isSample={questions===SAMPLE_MCQ}/>
     </div></div>);
   }
 
