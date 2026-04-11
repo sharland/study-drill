@@ -16,7 +16,7 @@ Everything lives in `study-drill.html` inside a single `<script type="text/babel
 - **Style objects** (`fs`, `ms`, `appS`) — all styling is inline React style objects; one CSS class (`.md`) scopes markdown output styles
 - **Templates** (`FC_TEMPLATE`, `MCQ_TEMPLATE`) — JSON schemas with embedded Claude prompting instructions; downloaded by the user, filled by Claude with study content, then imported back
 
-Data flow: JSON files are imported via `FileReader`, validated, stored in component state, and optionally re-exported. No backend. Decks persist via `localStorage`; session history is ephemeral per page load.
+Data flow: JSON files are imported via `FileReader`, validated, stored in component state, and optionally re-exported. No backend. Decks persist via `localStorage`; MCQ session history persists per deck UUID (`mcq_history_<uuid>`); flashcard history is still ephemeral per page load.
 
 ## Specs and plans
 
@@ -26,9 +26,13 @@ Implementation specs live in `docs/superpowers/specs/`. Start there when picking
 
 Add new items as dated bullet points under a `### DD Month YYYY` heading. Claude converts bullets to numbers and tracks them here. Bugs prefix with `[Bug]`, features with `[Feature]`. Completed items are removed (history is in git).
 
+### 11th April 2026
+
+4. **[Feature] Flashcard history panel** — Roll out the MCQ history panel pattern to FlashcardDrill. Identical data model (`fc_deck_id`, `fc_history_<uuid>`). Verify MCQ history in use before starting.
+
 ### 7th April 2026
 
-1. **[Feature] History panel on front page** — Accessible once a JSON is loaded, not only after completing a session. Shows list of recent tests and an aggregated view per section (times taken, average score). Roll out to flashcards after MCQ is verified.
+1. ~~**[Feature] History panel on front page**~~ — **Done (MCQ).** UUID deck identity, localStorage persistence capped at 20 records, start-screen panel with Recent + By Section views. Known limitations: (a) missed-only retry sessions are indistinguishable from full sessions in history; (b) importing deck A → deck B → deck A again orphans deck A's original history (name-match identity limit — acceptable at local scope).
 2. **[Feature] Exit active session** — Allow user to exit a flashcard or MCQ session without recording it. Currently only achievable by switching tabs.
 3. **[Feature, low priority] Customisable template instructions** — Ability to customise the AI instructions embedded in the template JSON for different AI systems or quiz approaches. May require architectural rethink first (see below).
 
