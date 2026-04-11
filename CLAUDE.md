@@ -8,7 +8,7 @@ A single-file, zero-build study app: `study-drill.html`. Open it directly in a b
 
 ## Architecture
 
-Everything lives in `study-drill.html` inside a single `<script type="text/babel">` block (~510 lines):
+Everything lives in `study-drill.html` inside a single `<script type="text/babel">` block (~590 lines):
 
 - **`App`** — top-level component; tab switcher between `FlashcardDrill` and `MCQQuiz`
 - **`FlashcardDrill`** — open-recall drill; three phases: `start → quiz → review`; user self-marks each card as "Got It" / "Missed It"; 3-box Leitner SRS persisted to `localStorage` as `"fc_srs"`
@@ -40,7 +40,7 @@ Add new items as dated bullet points under a `### DD Month YYYY` heading. Claude
 
 ### 7th April 2026
 
-The single-file app is growing large. A structural plan is needed before adding more substantial features — the concern is load time and maintainability as the file grows beyond ~600 lines of inlined JSX and style objects.
+The single-file app is growing large (~590 lines as of 11 Apr 2026). A structural plan is needed before adding more substantial features — the concern is load time and maintainability as the file approaches and exceeds 600 lines of inlined JSX and style objects.
 
 ## JSON data files
 
