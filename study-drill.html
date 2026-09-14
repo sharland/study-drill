@@ -115,6 +115,17 @@ function downloadJSON(data,filename){
   URL.revokeObjectURL(u);
 }
 
+/* ===== HOOKS ===== */
+function useKeys(active,handler){
+  const ref=useRef(handler);ref.current=handler;
+  useEffect(()=>{
+    if(!active)return;
+    const onKey=e=>{if(e.repeat||e.target.tagName==="INPUT"||e.target.tagName==="TEXTAREA")return;ref.current(e);};
+    window.addEventListener("keydown",onKey);
+    return()=>window.removeEventListener("keydown",onKey);
+  },[active]);
+}
+
 /* ===== TEMPLATES ===== */
 const FC_TEMPLATE={
   _instructions:{
@@ -236,19 +247,13 @@ function FlashcardDrill(){
     }
   },[quizCards,ci,results,sess,selCat,srs]);
 
-  useEffect(()=>{
-    if(phase!=="quiz")return;
-    const onKey=(e)=>{
-      if(e.repeat||e.target.tagName==="INPUT"||e.target.tagName==="TEXTAREA")return;
-      if(!showAns){if(e.code==="Space"){e.preventDefault();setShowAns(true);}}
-      else{
-        if(e.key==="y"||e.key==="Y"||e.key==="ArrowRight")mark(true);
-        if(e.key==="n"||e.key==="N"||e.key==="ArrowLeft")mark(false);
-      }
-    };
-    window.addEventListener("keydown",onKey);
-    return()=>window.removeEventListener("keydown",onKey);
-  },[phase,showAns,mark]);
+  useKeys(phase==="quiz",e=>{
+    if(!showAns){if(e.code==="Space"){e.preventDefault();setShowAns(true);}}
+    else{
+      if(e.key==="y"||e.key==="Y"||e.key==="ArrowRight")mark(true);
+      if(e.key==="n"||e.key==="N"||e.key==="ArrowLeft")mark(false);
+    }
+  });
 
   const card=quizCards[ci];
   const {ok,miss}=summarise(results);
@@ -429,23 +434,17 @@ function MCQQuiz(){
     }
   },[idx,quizQs,results,sess,selCat,deckId]);
 
-  useEffect(()=>{
-    if(phase!=="quiz")return;
-    const onKey=(e)=>{
-      if(e.repeat||e.target.tagName==="INPUT"||e.target.tagName==="TEXTAREA")return;
-      // preventDefault stops a focused button from also firing its native click on Enter
-      if(e.key==="Enter")e.preventDefault();
-      if(!locked){
-        const map={a:"A",b:"B",c:"C",d:"D","1":"A","2":"B","3":"C","4":"D"};
-        if(map[e.key])setSelected(map[e.key]);
-        if(e.key==="Enter"&&selected!==null)confirmAns();
-      }else{
-        if(e.key==="Enter")nextQ();
-      }
-    };
-    window.addEventListener("keydown",onKey);
-    return()=>window.removeEventListener("keydown",onKey);
-  },[phase,locked,selected,confirmAns,nextQ]);
+  useKeys(phase==="quiz",e=>{
+    // preventDefault stops a focused button from also firing its native click on Enter
+    if(e.key==="Enter")e.preventDefault();
+    if(!locked){
+      const map={a:"A",b:"B",c:"C",d:"D","1":"A","2":"B","3":"C","4":"D"};
+      if(map[e.key])setSelected(map[e.key]);
+      if(e.key==="Enter"&&selected!==null)confirmAns();
+    }else{
+      if(e.key==="Enter")nextQ();
+    }
+  });
 
   const q=quizQs[idx];
   const {ok,miss}=summarise(results);
