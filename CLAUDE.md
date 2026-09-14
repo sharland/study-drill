@@ -14,12 +14,12 @@ Everything lives in `study-drill.html` inside a single `<script type="text/babel
 - **`store`** — `createStore(localStorage)`. The only place that touches `localStorage`; keys `fc_deck`, `fc_deck_id`, `fc_srs`, `mcq_deck`, `mcq_deck_id`, `mcq_history_<uuid>`. Writes return `false` on failure (surfaced as `STORAGE_ERR`). Phase 2 of the commercialisation plan swaps this object for a Supabase-backed one.
 - **DOM utilities** — `renderMd` (marked + DOMPurify), `downloadJSON`.
 - **Hooks** — `useKeys(active, handler)`, `useDeck(kind, sample, validate, onImport)`, `useHistory(deckId, {persist})`.
+- **Templates** (`FC_TEMPLATE`, `MCQ_TEMPLATE`) — JSON schemas with embedded Claude prompting instructions.
 - **Theme** — `makeTheme({accent, onAccent})`; `T_FC` (orange) and `T_MCQ` (blue). Greys and widths are shared; only the accent differs.
-- **Shared components** — `Toolbar`, `StartScreen`, `SessionList`, `HistoryPanel`, `ReviewScreen`. Presentational; take the theme as `t`.
+- **Shared components** — `Toolbar`, `StartScreen`, `SessionList`, `ReviewScreen`, `HistoryPanel`. Presentational; take the theme as `t`.
 - **`FlashcardDrill`** — quiz-phase JSX, `mark`, 3-box Leitner box transitions (`fc_srs`), local styles `fsQ`. History is ephemeral (`persist:false`).
 - **`MCQQuiz`** — quiz-phase JSX, `confirmAns`/`nextQ`, local styles `msQ`. History persists per deck UUID (`persist:true`).
 - **`App`** — tab switcher.
-- **Templates** (`FC_TEMPLATE`, `MCQ_TEMPLATE`) — JSON schemas with embedded Claude prompting instructions.
 
 Data flow: JSON files are imported via `Toolbar` → `useDeck.importFile` → validator → `store.saveDeck`. Sessions end via `useHistory.endSession`, which stamps `ts` and `sess` and, when persisting, appends through the store (capped at 20).
 
