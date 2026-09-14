@@ -126,6 +126,59 @@ function useKeys(active,handler){
   },[active]);
 }
 
+const DEFAULT_NAME={fc:"No deck loaded",mcq:"No quiz loaded"};
+const EXPORT_SHAPE={fc:{name:"deck_name",items:"cards",suffix:"-deck.json"},mcq:{name:"quiz_name",items:"questions",suffix:"-quiz.json"}};
+
+function useDeck(kind,sample,validate,onImport){
+  const [deck,setDeck]=useState(()=>{
+    const d=store.loadDeck(kind);
+    return d?{items:d.items,name:d.name||DEFAULT_NAME[kind],deckId:store.loadDeckId(kind)}:{items:sample,name:DEFAULT_NAME[kind],deckId:null};
+  });
+  const [err,setErr]=useState(null);
+  const importFile=useCallback(f=>{
+    setErr(null);
+    const r=new FileReader();
+    r.onload=ev=>{
+      let d;try{d=JSON.parse(ev.target.result);}catch{setErr("Invalid JSON.");return;}
+      const v=validate(d,f.name.replace(/\.json$/,""));
+      if(!v.ok){setErr(v.error);return;}
+      const stored=store.loadDeck(kind),storedId=store.loadDeckId(kind);
+      const deckId=(storedId&&stored&&stored.name===v.name)?storedId:generateUUID();
+      if(!store.saveDeck(kind,{name:v.name,items:v.items})||!store.saveDeckId(kind,deckId)){setErr(STORAGE_ERR);return;}
+      setDeck({items:v.items,name:v.name,deckId});
+      if(onImport)onImport(deckId);
+    };
+    r.readAsText(f);
+  },[kind,validate,onImport]);
+  const clear=useCallback(()=>{
+    store.clearDeck(kind);store.clearDeckId(kind);
+    setDeck({items:sample,name:DEFAULT_NAME[kind],deckId:null});
+  },[kind,sample]);
+  const exportDeck=useCallback(()=>{
+    const S=EXPORT_SHAPE[kind];
+    downloadJSON({[S.name]:deck.name,[S.items]:deck.items},deck.name.replace(/\s+/g,"-").toLowerCase()+S.suffix);
+  },[kind,deck]);
+  return{items:deck.items,name:deck.name,deckId:deck.deckId,isSample:deck.items===sample,err,setErr,importFile,clear,exportDeck};
+}
+
+function useHistory(deckId,{persist}){
+  const load=()=>persist&&deckId?store.loadHistory(deckId).map((r,i)=>({...r,sess:i+1})):[];
+  const [history,setHistory]=useState(load);
+  const [sess,setSess]=useState(()=>load().length);
+  const first=useRef(true);
+  useEffect(()=>{
+    if(first.current){first.current=false;return;}
+    const h=load();setHistory(h);setSess(h.length);
+  },[deckId,persist]);
+  const startSession=useCallback(()=>setSess(s=>s+1),[]);
+  const endSession=useCallback(rec=>{
+    const full={...rec,ts:Date.now(),sess};
+    if(persist&&deckId)store.appendHistory(deckId,full);
+    setHistory(h=>[...h,full]);
+  },[deckId,persist,sess]);
+  return{history,sess,startSession,endSession};
+}
+
 /* ===== TEMPLATES ===== */
 const FC_TEMPLATE={
   _instructions:{
@@ -280,43 +333,25 @@ function HistoryPanel({t,history,isSample,wrongLabel}){
 /* ===== FLASHCARD COMPONENT ===== */
 function FlashcardDrill(){
   const t=T_FC;
-  const [cards,setCards]=useState(()=>{const d=store.loadDeck("fc");return d?d.items:SAMPLE_FC;});
-  const [deckName,setDeckName]=useState(()=>{const d=store.loadDeck("fc");return (d&&d.name)||"No deck loaded";});
   const [phase,setPhase]=useState("start");
+  const [selCat,setSelCat]=useState(null);
+  const [srs,setSrs]=useState(()=>store.loadSrs());
   const [quizCards,setQuizCards]=useState([]);
   const [ci,setCi]=useState(0);
   const [showAns,setShowAns]=useState(false);
   const [results,setResults]=useState([]);
-  const [sess,setSess]=useState(0);
-  const [err,setErr]=useState(null);
-  const [selCat,setSelCat]=useState(null);
-  const [history,setHistory]=useState([]);
-  const [srs,setSrs]=useState(()=>store.loadSrs());
 
-  const handleImport=useCallback((f)=>{
-    setErr(null);
-    const r=new FileReader();
-    r.onload=(ev)=>{
-      let d;try{d=JSON.parse(ev.target.result);}catch{setErr("Invalid JSON.");return;}
-      const v=validateFlashcards(d,f.name.replace(/\.json$/,""));
-      if(!v.ok){setErr(v.error);return;}
-      if(!store.saveDeck("fc",{name:v.name,items:v.items})){setErr(STORAGE_ERR);return;}
-      setCards(v.items);setDeckName(v.name);setPhase("start");setSess(0);setSelCat(null);
-      store.clearSrs();setSrs({});
-    };
-    r.readAsText(f);
-  },[]);
+  const onImport=useCallback(()=>{store.clearSrs();setSrs({});setPhase("start");setSelCat(null);},[]);
+  const deck=useDeck("fc",SAMPLE_FC,validateFlashcards,onImport);
+  const cards=deck.items;
+  const {history,sess,startSession,endSession}=useHistory(deck.deckId,{persist:false});
 
-  const clearDeck=useCallback(()=>{
-    store.clearDeck("fc");store.clearSrs();
-    setCards(SAMPLE_FC);setDeckName("No deck loaded");setPhase("start");setSess(0);setSelCat(null);setHistory([]);setSrs({});
-  },[]);
+  const clearAll=useCallback(()=>{deck.clear();store.clearSrs();setSrs({});setPhase("start");setSelCat(null);},[deck.clear]);
 
   const startQuiz=useCallback((sub)=>{
     const pool=sub||(selCat?cards.filter(c=>(c.category||"Uncategorised")===selCat):cards);
-    const sorted=orderByBox(pool,srs);
-    setQuizCards(sorted);setCi(0);setShowAns(false);setResults([]);setSess(c=>c+1);setPhase("quiz");
-  },[cards,selCat,srs]);
+    setQuizCards(orderByBox(pool,srs));setCi(0);setShowAns(false);setResults([]);startSession();setPhase("quiz");
+  },[cards,selCat,srs,startSession]);
 
   const startMissed=useCallback(()=>{
     const ids=results.filter(r=>!r.correct).map(r=>r.cardId);
@@ -327,16 +362,12 @@ function FlashcardDrill(){
     const cardId=quizCards[ci].id;
     const newBox=correct?Math.min((srs[cardId]||1)+1,3):1;
     const newSrs={...srs,[cardId]:newBox};
-    setSrs(newSrs);if(!store.saveSrs(newSrs))setErr(STORAGE_ERR);
+    setSrs(newSrs);if(!store.saveSrs(newSrs))deck.setErr(STORAGE_ERR);
     const newResults=[...results,{cardId,correct}];
     setResults(newResults);
     if(ci+1<quizCards.length){setCi(i=>i+1);setShowAns(false);}
-    else{
-      const s=summarise(newResults);
-      setHistory(h=>[...h,{sess,pct:s.pct,ok:s.ok,miss:s.miss,tot:s.tot,cat:selCat}]);
-      setPhase("review");
-    }
-  },[quizCards,ci,results,sess,selCat,srs]);
+    else{const s=summarise(newResults);endSession({cat:selCat,pct:s.pct,ok:s.ok,miss:s.miss,tot:s.tot});setPhase("review");}
+  },[quizCards,ci,results,selCat,srs,endSession,deck.setErr]);
 
   useKeys(phase==="quiz",e=>{
     if(!showAns){if(e.code==="Space"){e.preventDefault();setShowAns(true);}}
@@ -349,15 +380,14 @@ function FlashcardDrill(){
   const card=quizCards[ci];
   const {ok,miss}=summarise(results);
 
-  const tb=<Toolbar t={t} name={deckName} countLabel={`${cards.length} cards`} isSample={cards===SAMPLE_FC}
-    onTemplate={()=>downloadJSON(FC_TEMPLATE,"flashcard-template.json")} onImport={handleImport}
-    onExport={()=>downloadJSON({deck_name:deckName,cards},deckName.replace(/\s+/g,"-").toLowerCase()+"-deck.json")} onClear={clearDeck}/>;
+  const tb=<Toolbar t={t} name={deck.name} countLabel={`${cards.length} cards`} isSample={deck.isSample}
+    onTemplate={()=>downloadJSON(FC_TEMPLATE,"flashcard-template.json")} onImport={deck.importFile} onExport={deck.exportDeck} onClear={clearAll}/>;
 
   if(phase==="start"){
     const cats=[...new Set(cards.map(c=>c.category||"Uncategorised"))];
     const boxCounts=[1,2,3].map(b=>cards.filter(c=>(srs[c.id]||1)===b).length);
-    return(<div style={t.page}>{tb}{err&&<div style={t.err}>{err}</div>}
-      <StartScreen t={t} badge="FLASHCARD DRILL" title={deckName} subtitle={`${cards.length} cards · ${cats.length} categories`}
+    return(<div style={t.page}>{tb}{deck.err&&<div style={t.err}>{deck.err}</div>}
+      <StartScreen t={t} badge="FLASHCARD DRILL" title={deck.name} subtitle={`${cards.length} cards · ${cats.length} categories`}
         extra={<p style={t.extra}><span style={{color:"#e74c3c"}}>■ {boxCounts[0]}</span>{" · "}<span style={{color:"#f39c12"}}>■ {boxCounts[1]}</span>{" · "}<span style={{color:"#2ecc71"}}>■ {boxCounts[2]}</span>{" box 1 / 2 / 3"}</p>}
         cats={cats} total={cards.length} catCount={c=>cards.filter(x=>(x.category||"Uncategorised")===c).length}
         selCat={selCat} onSelCat={setSelCat} steps={FC_STEPS}
@@ -411,49 +441,25 @@ const fsQ={
 /* ===== MCQ COMPONENT ===== */
 function MCQQuiz(){
   const t=T_MCQ;
-  const [questions,setQuestions]=useState(()=>{const d=store.loadDeck("mcq");return d?d.items:SAMPLE_MCQ;});
-  const [deckName,setDeckName]=useState(()=>{const d=store.loadDeck("mcq");return (d&&d.name)||"No quiz loaded";});
   const [phase,setPhase]=useState("start");
+  const [selCat,setSelCat]=useState(null);
   const [quizQs,setQuizQs]=useState([]);
   const [idx,setIdx]=useState(0);
   const [selected,setSelected]=useState(null);
   const [locked,setLocked]=useState(false);
   const [results,setResults]=useState([]);
-  const [sess,setSess]=useState(()=>{const id=store.loadDeckId("mcq");return id?store.loadHistory(id).length:0;});
-  const [err,setErr]=useState(null);
-  const [deckId,setDeckId]=useState(()=>store.loadDeckId("mcq"));
-  const [selCat,setSelCat]=useState(null);
-  const [history,setHistory]=useState(()=>{const id=store.loadDeckId("mcq");return id?store.loadHistory(id).map((rec,i)=>({...rec,sess:i+1})):[];});
 
-  const handleImport=useCallback((f)=>{
-    setErr(null);
-    const r=new FileReader();
-    r.onload=(ev)=>{
-      let d;try{d=JSON.parse(ev.target.result);}catch{setErr("Invalid JSON.");return;}
-      const v=validateMcq(d,f.name.replace(/\.json$/,""));
-      if(!v.ok){setErr(v.error);return;}
-      const a=v.items,name=v.name;
-      const storedId=store.loadDeckId("mcq");
-      const storedDeck=store.loadDeck("mcq");
-      const id=(storedId&&storedDeck&&storedDeck.name===name)?storedId:generateUUID();
-      const stored=store.loadHistory(id);
-      if(!store.saveDeck("mcq",{name,items:a})||!store.saveDeckId("mcq",id)){setErr(STORAGE_ERR);return;}
-      setQuestions(a);setDeckName(name);setDeckId(id);setPhase("start");setSess(stored.length);setSelCat(null);
-      setHistory(stored.map((rec,i)=>({...rec,sess:i+1})));
-    };
-    r.readAsText(f);
-  },[]);
+  const onImport=useCallback(()=>{setPhase("start");setSelCat(null);},[]);
+  const deck=useDeck("mcq",SAMPLE_MCQ,validateMcq,onImport);
+  const questions=deck.items;
+  const {history,sess,startSession,endSession}=useHistory(deck.deckId,{persist:true});
 
-  const clearDeck=useCallback(()=>{
-    store.clearDeck("mcq");store.clearDeckId("mcq");if(deckId)store.clearHistory(deckId);
-    setQuestions(SAMPLE_MCQ);setDeckName("No quiz loaded");setDeckId(null);setPhase("start");setSess(0);setSelCat(null);setHistory([]);
-  },[deckId]);
+  const clearAll=useCallback(()=>{if(deck.deckId)store.clearHistory(deck.deckId);deck.clear();setPhase("start");setSelCat(null);},[deck.deckId,deck.clear]);
 
   const startQuiz=useCallback((sub)=>{
     const pool=sub||(selCat?questions.filter(q=>(q.category||"General")===selCat):questions);
-    const shuffled=shuffleArray(pool).map(shuffleMcqOptions);
-    setQuizQs(shuffled);setIdx(0);setSelected(null);setLocked(false);setResults([]);setSess(c=>c+1);setPhase("quiz");
-  },[questions,selCat]);
+    setQuizQs(shuffleArray(pool).map(shuffleMcqOptions));setIdx(0);setSelected(null);setLocked(false);setResults([]);startSession();setPhase("quiz");
+  },[questions,selCat,startSession]);
 
   const startMissed=useCallback(()=>{
     const ids=results.filter(r=>!r.correct).map(r=>r.qId);
@@ -468,13 +474,8 @@ function MCQQuiz(){
 
   const nextQ=useCallback(()=>{
     if(idx+1<quizQs.length){setIdx(i=>i+1);setSelected(null);setLocked(false);}
-    else{
-      const s=summarise(results);const record={ts:Date.now(),cat:selCat,pct:s.pct,ok:s.ok,miss:s.miss,tot:s.tot};
-      if(deckId)store.appendHistory(deckId,record);
-      setHistory(h=>[...h,{...record,sess}]);
-      setPhase("review");
-    }
-  },[idx,quizQs,results,sess,selCat,deckId]);
+    else{const s=summarise(results);endSession({cat:selCat,pct:s.pct,ok:s.ok,miss:s.miss,tot:s.tot});setPhase("review");}
+  },[idx,quizQs,results,selCat,endSession]);
 
   useKeys(phase==="quiz",e=>{
     // preventDefault stops a focused button from also firing its native click on Enter
@@ -491,18 +492,17 @@ function MCQQuiz(){
   const q=quizQs[idx];
   const {ok,miss}=summarise(results);
 
-  const tb=<Toolbar t={t} name={deckName} countLabel={`${questions.length} Qs`} isSample={questions===SAMPLE_MCQ}
-    onTemplate={()=>downloadJSON(MCQ_TEMPLATE,"mcq-template.json")} onImport={handleImport}
-    onExport={()=>downloadJSON({quiz_name:deckName,questions},deckName.replace(/\s+/g,"-").toLowerCase()+"-quiz.json")} onClear={clearDeck}/>;
+  const tb=<Toolbar t={t} name={deck.name} countLabel={`${questions.length} Qs`} isSample={deck.isSample}
+    onTemplate={()=>downloadJSON(MCQ_TEMPLATE,"mcq-template.json")} onImport={deck.importFile} onExport={deck.exportDeck} onClear={clearAll}/>;
 
   if(phase==="start"){
     const cats=[...new Set(questions.map(q=>q.category||"General"))];
-    return(<div style={t.page}>{tb}{err&&<div style={t.err}>{err}</div>}
-      <StartScreen t={t} badge="MULTIPLE CHOICE" title={deckName} subtitle={`${questions.length} questions · ${cats.length} categories`}
+    return(<div style={t.page}>{tb}{deck.err&&<div style={t.err}>{deck.err}</div>}
+      <StartScreen t={t} badge="MULTIPLE CHOICE" title={deck.name} subtitle={`${questions.length} questions · ${cats.length} categories`}
         cats={cats} total={questions.length} catCount={c=>questions.filter(x=>(x.category||"General")===c).length}
         selCat={selCat} onSelCat={setSelCat} steps={MCQ_STEPS}
         startLabel={selCat?`Exam: ${selCat}`:"Begin Exam"} onStart={()=>startQuiz()}>
-        <HistoryPanel t={t} history={history} isSample={questions===SAMPLE_MCQ} wrongLabel="wrong"/>
+        <HistoryPanel t={t} history={history} isSample={deck.isSample} wrongLabel="wrong"/>
       </StartScreen>
     </div>);
   }
@@ -529,7 +529,6 @@ function MCQQuiz(){
     </div>);
   }
 
-  // Quiz
   return(<div style={t.page}>{tb}
     <div style={t.topb}><span style={t.prog}>{idx+1} / {quizQs.length}</span><span style={t.cat}>{q?.category}</span><span style={t.rs}><span style={{color:"#2ecc71"}}>✓{ok}</span>{" · "}<span style={{color:"#e74c3c"}}>✗{miss}</span></span></div>
     <div style={t.pb}><div style={{...t.pf,width:`${(idx+1)/quizQs.length*100}%`}}/></div>
