@@ -164,19 +164,21 @@ function useDeck(kind,sample,validate,onImport){
 function useHistory(deckId,{persist}){
   const load=()=>persist&&deckId?store.loadHistory(deckId).map((r,i)=>({...r,sess:i+1})):[];
   const [history,setHistory]=useState(load);
-  const [sess,setSess]=useState(()=>load().length);
+  const [sess,setSess]=useState(()=>history.length);
   const first=useRef(true);
   useEffect(()=>{
     if(first.current){first.current=false;return;}
     const h=load();setHistory(h);setSess(h.length);
   },[deckId,persist]);
+  const reset=useCallback(()=>{const h=load();setHistory(h);setSess(h.length);},[deckId,persist]);
   const startSession=useCallback(()=>setSess(s=>s+1),[]);
   const endSession=useCallback(rec=>{
     const full={...rec,ts:Date.now(),sess};
-    if(persist&&deckId)store.appendHistory(deckId,full);
+    const wrote=persist&&deckId?store.appendHistory(deckId,full):true;
     setHistory(h=>[...h,full]);
+    return wrote;
   },[deckId,persist,sess]);
-  return{history,sess,startSession,endSession};
+  return{history,sess,startSession,endSession,reset};
 }
 
 /* ===== TEMPLATES ===== */
@@ -218,8 +220,8 @@ function makeTheme({accent,onAccent}){
     hero:{textAlign:"center",maxWidth:560,marginTop:16},
     badge:{display:"inline-block",fontSize:10,fontWeight:700,letterSpacing:"0.16em",color:accent,border:`1px solid ${accent}33`,borderRadius:4,padding:"3px 10px",marginBottom:14},
     title:{fontSize:28,fontWeight:800,margin:"0 0 6px",color:"#fff",letterSpacing:"-0.02em"},
-    sub:{fontSize:13,color:"#555",margin:"0 0 16px"},
-    extra:{fontSize:11,color:"#555",margin:"-10px 0 16px"},
+    sub:{fontSize:13,color:"#555",margin:"0 0 18px"},
+    extra:{fontSize:11,color:"#555",margin:"-12px 0 16px"}, // offsets sub's bottom margin to preserve the old net gap
     cats:{display:"flex",flexWrap:"wrap",gap:6,justifyContent:"center",marginBottom:28},
     pill:{fontSize:11,color:"#666",background:"#0e0e16",border:"1px solid #1a1a24",borderRadius:20,padding:"4px 10px",cursor:"pointer"},
     pillOn:{color:accent,background:`${accent}11`,borderColor:`${accent}55`},
@@ -227,10 +229,10 @@ function makeTheme({accent,onAccent}){
     ws:{display:"flex",alignItems:"center",gap:12,fontSize:13,color:"#888",lineHeight:1.5},
     sn:{width:24,height:24,borderRadius:"50%",background:`${accent}18`,color:accent,display:"flex",alignItems:"center",justifyContent:"center",fontSize:12,fontWeight:800,flexShrink:0},
     pri:{...btn,background:accent,color:onAccent,border:"none",padding:"12px 32px"},
-    sec:{...btn,background:"transparent",color:accent,border:`1px solid ${accent}55`,padding:"12px 24px",fontSize:12,fontWeight:600,letterSpacing:0},
+    sec:{...btn,background:"transparent",color:accent,border:`1px solid ${accent}44`,padding:"12px 24px",fontSize:12,fontWeight:600,letterSpacing:0},
     ghost:{background:"transparent",color:"#444",border:"none",padding:"12px 16px",fontSize:12,fontFamily:"inherit",cursor:"pointer"},
     rev:{maxWidth:660,width:"100%",textAlign:"center"},
-    strip:{display:"flex",justifyContent:"center",alignItems:"center",gap:24,margin:"20px 0 28px"},
+    strip:{display:"flex",justifyContent:"center",alignItems:"center",gap:24,marginBottom:28},
     ss:{display:"flex",flexDirection:"column",alignItems:"center",gap:3},
     snum:{fontSize:28,fontWeight:800,color:"#fff"},slbl:{fontSize:10,color:"#555",fontWeight:600,letterSpacing:"0.1em",textTransform:"uppercase"},
     sdiv:{width:1,height:40,background:"#1a1a24"},
@@ -341,17 +343,18 @@ function FlashcardDrill(){
   const [showAns,setShowAns]=useState(false);
   const [results,setResults]=useState([]);
 
-  const onImport=useCallback(()=>{store.clearSrs();setSrs({});setPhase("start");setSelCat(null);},[]);
+  const {history,sess,startSession,endSession,reset}=useHistory(store.loadDeckId("fc"),{persist:false});
+  const onImport=useCallback(()=>{store.clearSrs();setSrs({});setPhase("start");setSelCat(null);reset();},[reset]);
   const deck=useDeck("fc",SAMPLE_FC,validateFlashcards,onImport);
   const cards=deck.items;
-  const {history,sess,startSession,endSession}=useHistory(deck.deckId,{persist:false});
 
-  const clearAll=useCallback(()=>{deck.clear();store.clearSrs();setSrs({});setPhase("start");setSelCat(null);},[deck.clear]);
+  const clearAll=useCallback(()=>{deck.clear();store.clearSrs();setSrs({});setPhase("start");setSelCat(null);reset();},[deck.clear,reset]);
 
   const startQuiz=useCallback((sub)=>{
+    deck.setErr(null);
     const pool=sub||(selCat?cards.filter(c=>(c.category||"Uncategorised")===selCat):cards);
     setQuizCards(orderByBox(pool,srs));setCi(0);setShowAns(false);setResults([]);startSession();setPhase("quiz");
-  },[cards,selCat,srs,startSession]);
+  },[cards,selCat,srs,startSession,deck.setErr]);
 
   const startMissed=useCallback(()=>{
     const ids=results.filter(r=>!r.correct).map(r=>r.cardId);
@@ -396,10 +399,10 @@ function FlashcardDrill(){
   }
 
   if(phase==="review"){
-    const {tot,pct}=summarise(results);const hm=miss>0;
+    const {pct}=summarise(results);const hm=miss>0;
     const missed=hm&&<div style={t.ml}><h3 style={t.mt}>Missed</h3>{results.filter(r=>!r.correct).map(r=>{const c=cards.find(x=>x.id===r.cardId);
       return(<div key={r.cardId} style={fsQ.mi}><div style={fsQ.mc}>{c?.category}</div><div style={fsQ.mq}>{c?.question}</div><div className="md" style={fsQ.ma} dangerouslySetInnerHTML={{__html:renderMd(c?.answer)}}/></div>);})}</div>;
-    return(<div style={t.page}>{tb}
+    return(<div style={t.page}>{tb}{deck.err&&<div style={t.err}>{deck.err}</div>}
       <ReviewScreen t={t} sess={sess} history={history} wrongLabel="missed" missed={missed}
         stats={[{value:ok,label:"Correct"},{value:miss,label:"Missed",color:miss?"#e74c3c":"#2ecc71"},{value:`${pct}%`,label:"Score"}]}
         actions={<>
@@ -410,7 +413,7 @@ function FlashcardDrill(){
     </div>);
   }
 
-  return(<div style={t.page}>{tb}
+  return(<div style={t.page}>{tb}{deck.err&&<div style={t.err}>{deck.err}</div>}
     <div style={t.topb}><span style={t.prog}>{ci+1} / {quizCards.length}</span><span style={t.cat}>{card?.category}</span><span style={{...t.cat,color:["","#e74c3c","#f39c12","#2ecc71"][srs[card?.id]||1]}}>BOX {srs[card?.id]||1}</span><span style={t.rs}><span style={{color:"#2ecc71"}}>✓{ok}</span>{" · "}<span style={{color:"#e74c3c"}}>✗{miss}</span></span></div>
     <div style={t.pb}><div style={{...t.pf,width:`${(ci+1)/quizCards.length*100}%`}}/></div>
     <div style={fsQ.co}><div style={fsQ.qs}><p style={fsQ.qt}>{card?.question}</p></div>
@@ -449,17 +452,18 @@ function MCQQuiz(){
   const [locked,setLocked]=useState(false);
   const [results,setResults]=useState([]);
 
-  const onImport=useCallback(()=>{setPhase("start");setSelCat(null);},[]);
+  const {history,sess,startSession,endSession,reset}=useHistory(store.loadDeckId("mcq"),{persist:true});
+  const onImport=useCallback(()=>{setPhase("start");setSelCat(null);reset();},[reset]);
   const deck=useDeck("mcq",SAMPLE_MCQ,validateMcq,onImport);
   const questions=deck.items;
-  const {history,sess,startSession,endSession}=useHistory(deck.deckId,{persist:true});
 
-  const clearAll=useCallback(()=>{if(deck.deckId)store.clearHistory(deck.deckId);deck.clear();setPhase("start");setSelCat(null);},[deck.deckId,deck.clear]);
+  const clearAll=useCallback(()=>{if(deck.deckId)store.clearHistory(deck.deckId);deck.clear();setPhase("start");setSelCat(null);reset();},[deck.deckId,deck.clear,reset]);
 
   const startQuiz=useCallback((sub)=>{
+    deck.setErr(null);
     const pool=sub||(selCat?questions.filter(q=>(q.category||"General")===selCat):questions);
     setQuizQs(shuffleArray(pool).map(shuffleMcqOptions));setIdx(0);setSelected(null);setLocked(false);setResults([]);startSession();setPhase("quiz");
-  },[questions,selCat,startSession]);
+  },[questions,selCat,startSession,deck.setErr]);
 
   const startMissed=useCallback(()=>{
     const ids=results.filter(r=>!r.correct).map(r=>r.qId);
@@ -474,8 +478,8 @@ function MCQQuiz(){
 
   const nextQ=useCallback(()=>{
     if(idx+1<quizQs.length){setIdx(i=>i+1);setSelected(null);setLocked(false);}
-    else{const s=summarise(results);endSession({cat:selCat,pct:s.pct,ok:s.ok,miss:s.miss,tot:s.tot});setPhase("review");}
-  },[idx,quizQs,results,selCat,endSession]);
+    else{const s=summarise(results);if(!endSession({cat:selCat,pct:s.pct,ok:s.ok,miss:s.miss,tot:s.tot}))deck.setErr(STORAGE_ERR);setPhase("review");}
+  },[idx,quizQs,results,selCat,endSession,deck.setErr]);
 
   useKeys(phase==="quiz",e=>{
     // preventDefault stops a focused button from also firing its native click on Enter
@@ -517,7 +521,7 @@ function MCQQuiz(){
       return(<div key={r.qId} style={msQ.mc2}><div style={msQ.mcat}>{qo.category}</div><div style={msQ.mqt}>{qo.question}</div>
         <div style={msQ.ac}><div style={msQ.ya}><span style={{fontWeight:800}}>✗</span> You: <strong>{r.chose}</strong> — {ch?.text}</div><div style={msQ.ca}><span style={{fontWeight:800}}>✓</span> Correct: <strong>{qo.correct}</strong> — {co?.text}</div></div>
         {qo.explanation&&<div className="md" style={msQ.exp} dangerouslySetInnerHTML={{__html:renderMd(qo.explanation)}}/>}</div>);})}</div>;
-    return(<div style={t.page}>{tb}
+    return(<div style={t.page}>{tb}{deck.err&&<div style={t.err}>{deck.err}</div>}
       <ReviewScreen t={t} sess={sess} history={history} wrongLabel="wrong" missed={missed}
         header={<div style={msQ.gc}><span style={{...msQ.gl,color:gc}}>{grade}</span><span style={msQ.gp}>{pct}%</span></div>}
         stats={[{value:ok,label:"Correct"},{value:miss,label:"Wrong",color:miss?"#e74c3c":"#2ecc71"},{value:tot,label:"Total"}]}
@@ -529,7 +533,7 @@ function MCQQuiz(){
     </div>);
   }
 
-  return(<div style={t.page}>{tb}
+  return(<div style={t.page}>{tb}{deck.err&&<div style={t.err}>{deck.err}</div>}
     <div style={t.topb}><span style={t.prog}>{idx+1} / {quizQs.length}</span><span style={t.cat}>{q?.category}</span><span style={t.rs}><span style={{color:"#2ecc71"}}>✓{ok}</span>{" · "}<span style={{color:"#e74c3c"}}>✗{miss}</span></span></div>
     <div style={t.pb}><div style={{...t.pf,width:`${(idx+1)/quizQs.length*100}%`}}/></div>
     <div style={msQ.qcard}>

@@ -14,12 +14,16 @@ function load() {
   // literals the pure functions return share Object/Array prototypes with this file's
   // realm — otherwise assert.deepStrictEqual reports "not reference-equal" even when
   // structurally identical, because a fresh vm context has its own intrinsics.
+  // Because this runs in this realm, the pure block's function declarations land on
+  // Node's `global` for the lifetime of this test process (not just on the returned object).
   const names = [];
   const nameRe = /^function\s+(\w+)/gm;
   let mm;
   while ((mm = nameRe.exec(m[1]))) names.push(mm[1]);
   const wrapped = m[1] + "\n;({" + names.join(",") + "});";
-  return vm.runInThisContext(wrapped, { filename: "study-drill.html(pure)" });
+  const P = vm.runInThisContext(wrapped, { filename: "study-drill.html(pure)" });
+  P.__source = m[1];
+  return P;
 }
 
 function memStorage(opts = {}) {
@@ -195,7 +199,14 @@ test("writes return false instead of throwing when the backend throws", () => {
   assert.strictEqual(s.saveSrs({}), false);
 });
 
-module.exports = { load, test, memStorage, P, assert };
+console.log("pure block invariants");
+test("pure block declares no top-level const/let and references no React/DOM/localStorage identifiers", () => {
+  const noComments = P.__source.replace(/\/\*[\s\S]*?\*\//g, "");
+  assert.ok(!/^(const|let)\s/m.test(noComments), "pure block must not declare top-level const/let");
+  for (const id of ["React", "document", "window", "localStorage"]) {
+    assert.ok(!new RegExp("\\b" + id + "\\b").test(noComments), "pure block must not reference " + id);
+  }
+});
 
 if (require.main === module) {
   console.log(`\n${results.pass} passed, ${results.fail} failed`);
