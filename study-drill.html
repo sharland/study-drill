@@ -24,31 +24,34 @@
 <body>
 <div id="root"></div>
 <script type="text/babel">
-const {useState,useCallback,useEffect} = React;
+const {useState,useCallback,useEffect,useRef} = React;
 
-/* ===== SHARED UTILITIES ===== */
+/* PURE-START */
+/* Plain JS only: function declarations and var. No JSX, React, DOM or localStorage.
+   tests/run.js slices this region out of the HTML and runs it under Node. */
 function shuffleArray(arr){
   const s=[...arr];
   for(let i=s.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[s[i],s[j]]=[s[j],s[i]];}
   return s;
 }
-function renderMd(text){
-  if(!text)return"";
-  return DOMPurify.sanitize(marked.parse(String(text)));
-}
-
-function downloadJSON(data,filename){
-  const b=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
-  const u=URL.createObjectURL(b);
-  const a=document.createElement("a");a.href=u;a.download=filename;a.click();
-  URL.revokeObjectURL(u);
-}
-
 function generateUUID(){
   return'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,c=>{
     const r=Math.random()*16|0;
     return(c==='x'?r:(r&0x3|0x8)).toString(16);
   });
+}
+/* PURE-END */
+
+/* ===== DOM UTILITIES ===== */
+function renderMd(text){
+  if(!text)return"";
+  return DOMPurify.sanitize(marked.parse(String(text)));
+}
+function downloadJSON(data,filename){
+  const b=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
+  const u=URL.createObjectURL(b);
+  const a=document.createElement("a");a.href=u;a.download=filename;a.click();
+  URL.revokeObjectURL(u);
 }
 
 /* ===== TEMPLATES ===== */
