@@ -150,45 +150,87 @@ const MCQ_TEMPLATE={
 const SAMPLE_FC=[{id:1,category:"Sample",question:"Import your own JSON flashcards to get started.",answer:"Use the toolbar to download the template, then import your deck."}];
 const SAMPLE_MCQ=[{id:1,category:"Sample",question:"Import your own JSON quiz to get started.",options:[{label:"A",text:"Download template"},{label:"B",text:"Give to Claude with notes"},{label:"C",text:"Import generated JSON"},{label:"D",text:"All of the above"}],correct:"A",explanation:"Start by downloading the template."}];
 
-function HistoryPanel({history,isSample}){
+/* ===== THEME ===== */
+function makeTheme({accent,onAccent}){
+  const btn={borderRadius:6,fontSize:13,fontWeight:700,fontFamily:"inherit",cursor:"pointer",letterSpacing:"0.04em"};
+  const row={display:"flex",alignItems:"center",gap:12,padding:"5px 0",borderBottom:"1px solid #151520",fontSize:12};
+  return{
+    accent,
+    page:{minHeight:"100vh",background:"#06060b",color:"#e8e6e1",fontFamily:"inherit",display:"flex",flexDirection:"column",alignItems:"center",padding:"0 16px 48px"},
+    toolbar:{width:"100%",maxWidth:660,display:"flex",justifyContent:"space-between",alignItems:"center",padding:"14px 0",borderBottom:"1px solid #151520",marginBottom:24,flexWrap:"wrap",gap:8},
+    tl:{display:"flex",alignItems:"center",gap:10},tr:{display:"flex",gap:6,flexWrap:"wrap"},
+    dk:{fontSize:13,fontWeight:700,color:"#bbb"},cc:{fontSize:11,color:"#444",fontWeight:600},
+    tb:{background:"#10101a",color:"#777",border:"1px solid #1a1a28",borderRadius:5,padding:"6px 12px",fontSize:11,fontWeight:600,fontFamily:"inherit",cursor:"pointer",whiteSpace:"nowrap"},
+    err:{width:"100%",maxWidth:660,background:"#e74c3c14",border:"1px solid #e74c3c33",color:"#e74c3c",borderRadius:6,padding:"10px 16px",fontSize:12,marginBottom:16},
+    hero:{textAlign:"center",maxWidth:560,marginTop:16},
+    badge:{display:"inline-block",fontSize:10,fontWeight:700,letterSpacing:"0.16em",color:accent,border:`1px solid ${accent}33`,borderRadius:4,padding:"3px 10px",marginBottom:14},
+    title:{fontSize:28,fontWeight:800,margin:"0 0 6px",color:"#fff",letterSpacing:"-0.02em"},
+    sub:{fontSize:13,color:"#555",margin:"0 0 16px"},
+    extra:{fontSize:11,color:"#555",margin:"-10px 0 16px"},
+    cats:{display:"flex",flexWrap:"wrap",gap:6,justifyContent:"center",marginBottom:28},
+    pill:{fontSize:11,color:"#666",background:"#0e0e16",border:"1px solid #1a1a24",borderRadius:20,padding:"4px 10px",cursor:"pointer"},
+    pillOn:{color:accent,background:`${accent}11`,borderColor:`${accent}55`},
+    wf:{textAlign:"left",background:"#0a0a12",border:"1px solid #151520",borderRadius:10,padding:"18px 20px",marginBottom:28,display:"flex",flexDirection:"column",gap:12},
+    ws:{display:"flex",alignItems:"center",gap:12,fontSize:13,color:"#888",lineHeight:1.5},
+    sn:{width:24,height:24,borderRadius:"50%",background:`${accent}18`,color:accent,display:"flex",alignItems:"center",justifyContent:"center",fontSize:12,fontWeight:800,flexShrink:0},
+    pri:{...btn,background:accent,color:onAccent,border:"none",padding:"12px 32px"},
+    sec:{...btn,background:"transparent",color:accent,border:`1px solid ${accent}55`,padding:"12px 24px",fontSize:12,fontWeight:600,letterSpacing:0},
+    ghost:{background:"transparent",color:"#444",border:"none",padding:"12px 16px",fontSize:12,fontFamily:"inherit",cursor:"pointer"},
+    rev:{maxWidth:660,width:"100%",textAlign:"center"},
+    strip:{display:"flex",justifyContent:"center",alignItems:"center",gap:24,margin:"20px 0 28px"},
+    ss:{display:"flex",flexDirection:"column",alignItems:"center",gap:3},
+    snum:{fontSize:28,fontWeight:800,color:"#fff"},slbl:{fontSize:10,color:"#555",fontWeight:600,letterSpacing:"0.1em",textTransform:"uppercase"},
+    sdiv:{width:1,height:40,background:"#1a1a24"},
+    ml:{textAlign:"left",background:"#0a0a12",border:"1px solid #151520",borderRadius:8,padding:"20px",marginBottom:24},
+    mt:{fontSize:11,fontWeight:700,letterSpacing:"0.12em",color:"#e74c3c",margin:"0 0 16px",textTransform:"uppercase"},
+    hl:{textAlign:"left",background:"#0a0a12",border:"1px solid #151520",borderRadius:8,padding:"14px 20px",marginBottom:24},
+    ht:{fontSize:10,fontWeight:700,letterSpacing:"0.12em",color:"#444",margin:"0 0 10px",textTransform:"uppercase"},
+    hi:row,hn:{color:"#444",fontWeight:600,width:40,flexShrink:0},hp:{fontWeight:700,color:accent,width:40,flexShrink:0},hd:{color:"#555",fontSize:11,flex:1},
+    br:{display:"flex",gap:10,justifyContent:"center",flexWrap:"wrap"},
+    hpWrap:{width:"100%",maxWidth:560,background:"#0a0a12",border:"1px solid #151520",borderRadius:10,padding:"18px 20px",marginTop:20},
+    hpTitle:{fontSize:10,fontWeight:700,letterSpacing:"0.16em",color:accent,marginBottom:14,textTransform:"uppercase"},
+    hpSub:{fontSize:10,fontWeight:700,letterSpacing:"0.12em",color:"#444",marginBottom:8,textTransform:"uppercase"},
+    hpEmpty:{fontSize:12,color:"#444",textAlign:"center",padding:"8px 0"},
+    hpCat:{color:"#ccc",fontWeight:600,flex:1},
+    topb:{width:"100%",maxWidth:660,display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8,fontSize:12},
+    prog:{color:"#444",fontWeight:600},cat:{color:accent,fontSize:10,fontWeight:700,letterSpacing:"0.12em",textTransform:"uppercase"},
+    rs:{fontSize:12,fontWeight:600},
+    pb:{width:"100%",maxWidth:660,height:3,background:"#151520",borderRadius:2,marginBottom:20,overflow:"hidden"},
+    pf:{height:"100%",background:accent,borderRadius:2,transition:"width 0.3s ease"},
+    kh:{opacity:0.45,fontSize:10,fontWeight:400,marginLeft:5},
+  };
+}
+const T_FC=makeTheme({accent:"#f39c12",onAccent:"#08080d"});
+const T_MCQ=makeTheme({accent:"#3b82f6",onAccent:"#fff"});
+
+function HistoryPanel({t,history,isSample}){
   if(isSample)return null;
   const recent=[...history].reverse().slice(0,5);
   const sections=sectionStats(history);
-  return(<div style={hpS.wrap}>
-    <div style={hpS.title}>SESSION HISTORY</div>
+  return(<div style={t.hpWrap}>
+    <div style={t.hpTitle}>SESSION HISTORY</div>
     {!history.length
-      ?<p style={hpS.empty}>No sessions recorded yet.</p>
+      ?<p style={t.hpEmpty}>No sessions recorded yet.</p>
       :<>
-        <div style={hpS.sub}>RECENT</div>
-        {recent.map((h)=><div key={h.ts} style={hpS.row}>
-          <span style={hpS.num}>#{h.sess}</span>
-          <span style={hpS.pct}>{h.pct}%</span>
-          <span style={hpS.detail}>{h.cat||"All"} · {h.ok} correct · {h.miss} wrong</span>
+        <div style={t.hpSub}>RECENT</div>
+        {recent.map((h)=><div key={h.ts} style={t.hi}>
+          <span style={t.hn}>#{h.sess}</span>
+          <span style={t.hp}>{h.pct}%</span>
+          <span style={t.hd}>{h.cat||"All"} · {h.ok} correct · {h.miss} wrong</span>
         </div>)}
-        <div style={{...hpS.sub,marginTop:14}}>BY SECTION</div>
-        {sections.map((s)=><div key={s.cat} style={hpS.row}>
-          <span style={hpS.cat}>{s.cat}</span>
-          <span style={hpS.pct}>{s.avg}%</span>
-          <span style={hpS.detail}>{s.count} session{s.count!==1?"s":""}</span>
+        <div style={{...t.hpSub,marginTop:14}}>BY SECTION</div>
+        {sections.map((s)=><div key={s.cat} style={t.hi}>
+          <span style={t.hpCat}>{s.cat}</span>
+          <span style={t.hp}>{s.avg}%</span>
+          <span style={t.hd}>{s.count} session{s.count!==1?"s":""}</span>
         </div>)}
       </>}
   </div>);
 }
 
-const hpS={
-  wrap:{width:"100%",maxWidth:560,background:"#0a0a12",border:"1px solid #151520",borderRadius:10,padding:"18px 20px",marginTop:20},
-  title:{fontSize:10,fontWeight:700,letterSpacing:"0.16em",color:"#3b82f6",marginBottom:14,textTransform:"uppercase"},
-  sub:{fontSize:10,fontWeight:700,letterSpacing:"0.12em",color:"#444",marginBottom:8,textTransform:"uppercase"},
-  row:{display:"flex",alignItems:"center",gap:12,padding:"5px 0",borderBottom:"1px solid #0e0e16",fontSize:12},
-  empty:{fontSize:12,color:"#444",textAlign:"center",padding:"8px 0"},
-  num:{color:"#444",fontWeight:600,width:32,flexShrink:0},
-  pct:{fontWeight:700,color:"#3b82f6",width:40,flexShrink:0},
-  detail:{color:"#555",fontSize:11,flex:1},
-  cat:{color:"#ccc",fontWeight:600,flex:1},
-};
-
 /* ===== FLASHCARD COMPONENT ===== */
 function FlashcardDrill(){
+  const t=T_FC;
   const [cards,setCards]=useState(()=>{const d=store.loadDeck("fc");return d?d.items:SAMPLE_FC;});
   const [deckName,setDeckName]=useState(()=>{const d=store.loadDeck("fc");return (d&&d.name)||"No deck loaded";});
   const [phase,setPhase]=useState("start");
@@ -258,117 +300,78 @@ function FlashcardDrill(){
   const card=quizCards[ci];
   const {ok,miss}=summarise(results);
 
-  const tb=(<div style={fs.toolbar}>
-    <div style={fs.tl}><span style={fs.dk}>{deckName}</span><span style={fs.cc}>{cards.length} cards</span></div>
-    <div style={fs.tr}>
-      <button style={fs.tb} onClick={()=>downloadJSON(FC_TEMPLATE,"flashcard-template.json")}>↓ Template</button>
-      <label style={fs.tb}>↑ Import<input type="file" accept=".json" onChange={handleImport} style={{display:"none"}}/></label>
-      {cards!==SAMPLE_FC&&<button style={fs.tb} onClick={()=>downloadJSON({deck_name:deckName,cards},deckName.replace(/\s+/g,"-").toLowerCase()+"-deck.json")}>↓ Export</button>}
-      {cards!==SAMPLE_FC&&<button style={fs.tb} onClick={clearDeck}>✕ Clear</button>}
+  const tb=(<div style={t.toolbar}>
+    <div style={t.tl}><span style={t.dk}>{deckName}</span><span style={t.cc}>{cards.length} cards</span></div>
+    <div style={t.tr}>
+      <button style={t.tb} onClick={()=>downloadJSON(FC_TEMPLATE,"flashcard-template.json")}>↓ Template</button>
+      <label style={t.tb}>↑ Import<input type="file" accept=".json" onChange={handleImport} style={{display:"none"}}/></label>
+      {cards!==SAMPLE_FC&&<button style={t.tb} onClick={()=>downloadJSON({deck_name:deckName,cards},deckName.replace(/\s+/g,"-").toLowerCase()+"-deck.json")}>↓ Export</button>}
+      {cards!==SAMPLE_FC&&<button style={t.tb} onClick={clearDeck}>✕ Clear</button>}
     </div>
   </div>);
 
   if(phase==="start"){
     const cats=[...new Set(cards.map(c=>c.category||"Uncategorised"))];
     const boxCounts=[1,2,3].map(b=>cards.filter(c=>(srs[c.id]||1)===b).length);
-    return(<div style={fs.page}>{tb}{err&&<div style={fs.err}>{err}</div>}<div style={fs.hero}>
-      <div style={fs.badge}>FLASHCARD DRILL</div><h1 style={fs.title}>{deckName}</h1>
-      <p style={fs.sub}>{cards.length} cards · {cats.length} categories</p>
-      <p style={fs.srsBar}><span style={{color:"#e74c3c"}}>■ {boxCounts[0]}</span>{" · "}<span style={{color:"#f39c12"}}>■ {boxCounts[1]}</span>{" · "}<span style={{color:"#2ecc71"}}>■ {boxCounts[2]}</span>{" box 1 / 2 / 3"}</p>
-      <div style={fs.cats}>
-        <span style={selCat===null?{...fs.pill,...fs.pillOn}:fs.pill} onClick={()=>setSelCat(null)}>All ({cards.length})</span>
-        {cats.map(c=><span key={c} style={selCat===c?{...fs.pill,...fs.pillOn}:fs.pill} onClick={()=>setSelCat(selCat===c?null:c)}>{c} ({cards.filter(x=>(x.category||"Uncategorised")===c).length})</span>)}
+    return(<div style={t.page}>{tb}{err&&<div style={t.err}>{err}</div>}<div style={t.hero}>
+      <div style={t.badge}>FLASHCARD DRILL</div><h1 style={t.title}>{deckName}</h1>
+      <p style={t.sub}>{cards.length} cards · {cats.length} categories</p>
+      <p style={t.extra}><span style={{color:"#e74c3c"}}>■ {boxCounts[0]}</span>{" · "}<span style={{color:"#f39c12"}}>■ {boxCounts[1]}</span>{" · "}<span style={{color:"#2ecc71"}}>■ {boxCounts[2]}</span>{" box 1 / 2 / 3"}</p>
+      <div style={t.cats}>
+        <span style={selCat===null?{...t.pill,...t.pillOn}:t.pill} onClick={()=>setSelCat(null)}>All ({cards.length})</span>
+        {cats.map(c=><span key={c} style={selCat===c?{...t.pill,...t.pillOn}:t.pill} onClick={()=>setSelCat(selCat===c?null:c)}>{c} ({cards.filter(x=>(x.category||"Uncategorised")===c).length})</span>)}
       </div>
-      <div style={fs.wf}>
-        <div style={fs.ws}><span style={fs.sn}>1</span><span>Download the <strong>Template</strong> JSON</span></div>
-        <div style={fs.ws}><span style={fs.sn}>2</span><span>Give it to Claude with your notes</span></div>
-        <div style={fs.ws}><span style={fs.sn}>3</span><span><strong>Import</strong> the JSON back here and drill</span></div>
+      <div style={t.wf}>
+        <div style={t.ws}><span style={t.sn}>1</span><span>Download the <strong>Template</strong> JSON</span></div>
+        <div style={t.ws}><span style={t.sn}>2</span><span>Give it to Claude with your notes</span></div>
+        <div style={t.ws}><span style={t.sn}>3</span><span><strong>Import</strong> the JSON back here and drill</span></div>
       </div>
-      <button style={fs.pri} onClick={()=>startQuiz()}>{selCat?`Drill: ${selCat}`:"Start Drill"}</button>
+      <button style={t.pri} onClick={()=>startQuiz()}>{selCat?`Drill: ${selCat}`:"Start Drill"}</button>
     </div></div>);
   }
 
   if(phase==="review"){
     const {tot,pct}=summarise(results);const hm=miss>0;
-    return(<div style={fs.page}>{tb}<div style={fs.rev}>
-      <div style={fs.badge}>SESSION {sess}</div>
-      <div style={fs.sr}><div style={fs.ss}><span style={fs.snum}>{ok}</span><span style={fs.slbl}>Correct</span></div><div style={fs.sdiv}/><div style={fs.ss}><span style={{...fs.snum,color:miss?"#e74c3c":"#2ecc71"}}>{miss}</span><span style={fs.slbl}>Missed</span></div><div style={fs.sdiv}/><div style={fs.ss}><span style={fs.snum}>{pct}%</span><span style={fs.slbl}>Score</span></div></div>
-      {hm&&<div style={fs.ml}><h3 style={fs.mt}>Missed</h3>{results.filter(r=>!r.correct).map(r=>{const c=cards.find(x=>x.id===r.cardId);return(<div key={r.cardId} style={fs.mi}><div style={fs.mc}>{c?.category}</div><div style={fs.mq}>{c?.question}</div><div className="md" style={fs.ma} dangerouslySetInnerHTML={{__html:renderMd(c?.answer)}}/></div>);})}</div>}
-      {history.length>1&&<div style={fs.hl}><h3 style={fs.ht}>Session History</h3>{[...history].reverse().slice(1).map((h,i)=><div key={i} style={fs.hi}><span style={fs.hn}>#{h.sess}</span><span style={fs.hp}>{h.pct}%</span><span style={fs.hd}>{h.cat||"All"} · {h.ok} correct · {h.miss} missed</span></div>)}</div>}
-      <div style={fs.br}><button style={fs.pri} onClick={()=>startQuiz()}>Full Deck</button>{hm&&<button style={fs.sec} onClick={startMissed}>Missed Only ({miss})</button>}<button style={fs.ghost} onClick={()=>setPhase("start")}>← Back</button></div>
+    return(<div style={t.page}>{tb}<div style={t.rev}>
+      <div style={t.badge}>SESSION {sess}</div>
+      <div style={t.strip}><div style={t.ss}><span style={t.snum}>{ok}</span><span style={t.slbl}>Correct</span></div><div style={t.sdiv}/><div style={t.ss}><span style={{...t.snum,color:miss?"#e74c3c":"#2ecc71"}}>{miss}</span><span style={t.slbl}>Missed</span></div><div style={t.sdiv}/><div style={t.ss}><span style={t.snum}>{pct}%</span><span style={t.slbl}>Score</span></div></div>
+      {hm&&<div style={t.ml}><h3 style={t.mt}>Missed</h3>{results.filter(r=>!r.correct).map(r=>{const c=cards.find(x=>x.id===r.cardId);return(<div key={r.cardId} style={fsQ.mi}><div style={fsQ.mc}>{c?.category}</div><div style={fsQ.mq}>{c?.question}</div><div className="md" style={fsQ.ma} dangerouslySetInnerHTML={{__html:renderMd(c?.answer)}}/></div>);})}</div>}
+      {history.length>1&&<div style={t.hl}><h3 style={t.ht}>Session History</h3>{[...history].reverse().slice(1).map((h,i)=><div key={i} style={t.hi}><span style={t.hn}>#{h.sess}</span><span style={t.hp}>{h.pct}%</span><span style={t.hd}>{h.cat||"All"} · {h.ok} correct · {h.miss} missed</span></div>)}</div>}
+      <div style={t.br}><button style={t.pri} onClick={()=>startQuiz()}>Full Deck</button>{hm&&<button style={t.sec} onClick={startMissed}>Missed Only ({miss})</button>}<button style={t.ghost} onClick={()=>setPhase("start")}>← Back</button></div>
     </div></div>);
   }
 
-  return(<div style={fs.page}>{tb}
-    <div style={fs.topb}><span style={fs.prog}>{ci+1} / {quizCards.length}</span><span style={fs.cat}>{card?.category}</span><span style={{...fs.cat,color:["","#e74c3c","#f39c12","#2ecc71"][srs[card?.id]||1]}}>BOX {srs[card?.id]||1}</span><span style={fs.rs}><span style={{color:"#2ecc71"}}>✓{ok}</span>{" · "}<span style={{color:"#e74c3c"}}>✗{miss}</span></span></div>
-    <div style={fs.pb}><div style={{...fs.pf,width:`${(ci+1)/quizCards.length*100}%`}}/></div>
-    <div style={fs.co}><div style={fs.qs}><p style={fs.qt}>{card?.question}</p></div>
-      {!showAns?<button style={fs.rb} onClick={()=>setShowAns(true)}>Reveal Answer<span style={fs.kh}>[Space]</span></button>:
-      <div style={fs.as}><div style={fs.al}>CORRECT ANSWER</div><div className="md" style={fs.at} dangerouslySetInnerHTML={{__html:renderMd(card?.answer)}}/>
-        <div style={fs.jb}><button style={fs.gi} onClick={()=>mark(true)}>✓ Got It<span style={fs.kh}>[Y / →]</span></button><button style={fs.mi2} onClick={()=>mark(false)}>✗ Missed It<span style={fs.kh}>[N / ←]</span></button></div>
+  return(<div style={t.page}>{tb}
+    <div style={t.topb}><span style={t.prog}>{ci+1} / {quizCards.length}</span><span style={t.cat}>{card?.category}</span><span style={{...t.cat,color:["","#e74c3c","#f39c12","#2ecc71"][srs[card?.id]||1]}}>BOX {srs[card?.id]||1}</span><span style={t.rs}><span style={{color:"#2ecc71"}}>✓{ok}</span>{" · "}<span style={{color:"#e74c3c"}}>✗{miss}</span></span></div>
+    <div style={t.pb}><div style={{...t.pf,width:`${(ci+1)/quizCards.length*100}%`}}/></div>
+    <div style={fsQ.co}><div style={fsQ.qs}><p style={fsQ.qt}>{card?.question}</p></div>
+      {!showAns?<button style={fsQ.rb} onClick={()=>setShowAns(true)}>Reveal Answer<span style={t.kh}>[Space]</span></button>:
+      <div style={fsQ.as}><div style={fsQ.al}>CORRECT ANSWER</div><div className="md" style={fsQ.at} dangerouslySetInnerHTML={{__html:renderMd(card?.answer)}}/>
+        <div style={fsQ.jb}><button style={fsQ.gi} onClick={()=>mark(true)}>✓ Got It<span style={t.kh}>[Y / →]</span></button><button style={fsQ.mi2} onClick={()=>mark(false)}>✗ Missed It<span style={t.kh}>[N / ←]</span></button></div>
       </div>}
     </div>
   </div>);
 }
 
-const fs={
-  page:{minHeight:"100vh",background:"#08080d",color:"#e8e6e1",fontFamily:"inherit",display:"flex",flexDirection:"column",alignItems:"center",padding:"0 16px 40px"},
-  toolbar:{width:"100%",maxWidth:640,display:"flex",justifyContent:"space-between",alignItems:"center",padding:"14px 0",borderBottom:"1px solid #1a1a24",marginBottom:24,flexWrap:"wrap",gap:8},
-  tl:{display:"flex",alignItems:"center",gap:10},tr:{display:"flex",gap:6,flexWrap:"wrap"},
-  dk:{fontSize:13,fontWeight:700,color:"#ccc"},cc:{fontSize:11,color:"#555",fontWeight:600},
-  tb:{background:"#14141e",color:"#888",border:"1px solid #1e1e2e",borderRadius:5,padding:"6px 12px",fontSize:11,fontWeight:600,fontFamily:"inherit",cursor:"pointer",whiteSpace:"nowrap"},
-  err:{width:"100%",maxWidth:640,background:"#e74c3c18",border:"1px solid #e74c3c44",color:"#e74c3c",borderRadius:6,padding:"10px 16px",fontSize:12,marginBottom:16},
-  hero:{textAlign:"center",maxWidth:540,marginTop:20},
-  badge:{display:"inline-block",fontSize:10,fontWeight:700,letterSpacing:"0.16em",color:"#f39c12",border:"1px solid #f39c1233",borderRadius:4,padding:"3px 10px",marginBottom:14},
-  title:{fontSize:28,fontWeight:800,margin:"0 0 6px",color:"#fff",letterSpacing:"-0.02em"},
-  sub:{fontSize:13,color:"#666",margin:"0 0 6px"},
-  srsBar:{fontSize:11,color:"#555",margin:"0 0 16px"},
-  cats:{display:"flex",flexWrap:"wrap",gap:6,justifyContent:"center",marginBottom:28},
-  pill:{fontSize:11,color:"#777",background:"#12121a",border:"1px solid #1e1e2a",borderRadius:20,padding:"4px 10px",cursor:"pointer"},
-  pillOn:{color:"#f39c12",background:"#f39c1211",borderColor:"#f39c1255"},
-  wf:{textAlign:"left",background:"#0e0e16",border:"1px solid #1a1a24",borderRadius:10,padding:"18px 20px",marginBottom:28,display:"flex",flexDirection:"column",gap:12},
-  ws:{display:"flex",alignItems:"center",gap:12,fontSize:13,color:"#999",lineHeight:1.5},
-  sn:{width:24,height:24,borderRadius:"50%",background:"#f39c1222",color:"#f39c12",display:"flex",alignItems:"center",justifyContent:"center",fontSize:12,fontWeight:800,flexShrink:0},
-  pri:{background:"#f39c12",color:"#08080d",border:"none",borderRadius:6,padding:"12px 32px",fontSize:13,fontWeight:700,fontFamily:"inherit",cursor:"pointer",letterSpacing:"0.04em"},
-  sec:{background:"transparent",color:"#f39c12",border:"1px solid #f39c1255",borderRadius:6,padding:"12px 24px",fontSize:12,fontWeight:600,fontFamily:"inherit",cursor:"pointer"},
-  ghost:{background:"transparent",color:"#555",border:"none",padding:"12px 16px",fontSize:12,fontFamily:"inherit",cursor:"pointer"},
-  rev:{maxWidth:640,width:"100%",textAlign:"center"},
-  sr:{display:"flex",justifyContent:"center",alignItems:"center",gap:28,margin:"20px 0 28px"},
-  ss:{display:"flex",flexDirection:"column",alignItems:"center",gap:3},
-  snum:{fontSize:32,fontWeight:800,color:"#fff"},slbl:{fontSize:10,color:"#555",fontWeight:600,letterSpacing:"0.1em",textTransform:"uppercase"},
-  sdiv:{width:1,height:44,background:"#1a1a24"},
-  ml:{textAlign:"left",background:"#0e0e16",border:"1px solid #1a1a24",borderRadius:8,padding:"18px 20px",marginBottom:24},
-  mt:{fontSize:11,fontWeight:700,letterSpacing:"0.12em",color:"#e74c3c",margin:"0 0 14px",textTransform:"uppercase"},
-  mi:{marginBottom:14,paddingBottom:14,borderBottom:"1px solid #14141e"},
-  mc:{fontSize:10,color:"#555",fontWeight:600,letterSpacing:"0.1em",textTransform:"uppercase",marginBottom:4},
+const fsQ={
+  mi:{marginBottom:14,paddingBottom:14,borderBottom:"1px solid #151520"},
+  mc:{fontSize:10,color:"#444",fontWeight:600,letterSpacing:"0.1em",textTransform:"uppercase",marginBottom:4},
   mq:{fontSize:12,fontWeight:600,color:"#ddd",marginBottom:5},ma:{fontSize:11,lineHeight:1.7,color:"#777"},
-  br:{display:"flex",gap:10,justifyContent:"center",flexWrap:"wrap"},
-  hl:{textAlign:"left",background:"#0e0e16",border:"1px solid #1a1a24",borderRadius:8,padding:"14px 20px",marginBottom:24},
-  ht:{fontSize:10,fontWeight:700,letterSpacing:"0.12em",color:"#555",margin:"0 0 10px",textTransform:"uppercase"},
-  hi:{display:"flex",alignItems:"center",gap:12,padding:"5px 0",borderBottom:"1px solid #14141e",fontSize:12},
-  hn:{color:"#555",fontWeight:600,width:40,flexShrink:0},
-  hp:{fontWeight:700,color:"#f39c12",width:40,flexShrink:0},
-  hd:{color:"#666",fontSize:11},
-  topb:{width:"100%",maxWidth:640,display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8,fontSize:12},
-  prog:{color:"#555",fontWeight:600},cat:{color:"#f39c12",fontSize:10,fontWeight:700,letterSpacing:"0.12em",textTransform:"uppercase"},
-  rs:{fontSize:12,fontWeight:600},
-  pb:{width:"100%",maxWidth:640,height:3,background:"#1a1a24",borderRadius:2,marginBottom:20,overflow:"hidden"},
-  pf:{height:"100%",background:"#f39c12",borderRadius:2,transition:"width 0.3s ease"},
-  co:{width:"100%",maxWidth:640,background:"#0e0e16",border:"1px solid #1a1a24",borderRadius:10,overflow:"hidden"},
+  co:{width:"100%",maxWidth:660,background:"#0a0a12",border:"1px solid #151520",borderRadius:10,overflow:"hidden"},
   qs:{padding:"28px 24px"},qt:{fontSize:15,lineHeight:1.75,margin:0,color:"#e8e6e1"},
-  rb:{width:"100%",background:"#14141e",color:"#f39c12",border:"none",borderTop:"1px solid #1a1a24",padding:"14px",fontSize:13,fontWeight:700,fontFamily:"inherit",cursor:"pointer"},
-  as:{borderTop:"1px solid #1a1a24",padding:"22px 24px",background:"#0a0a12"},
+  rb:{width:"100%",background:"#10101a",color:"#f39c12",border:"none",borderTop:"1px solid #151520",padding:"14px",fontSize:13,fontWeight:700,fontFamily:"inherit",cursor:"pointer"},
+  as:{borderTop:"1px solid #151520",padding:"22px 24px",background:"#0a0a12"},
   al:{fontSize:10,fontWeight:700,letterSpacing:"0.15em",color:"#2ecc71",marginBottom:10},
   at:{fontSize:13,lineHeight:1.8,color:"#bbb",margin:"0 0 20px"},
   jb:{display:"flex",gap:10},
   gi:{flex:1,background:"#2ecc7118",color:"#2ecc71",border:"1px solid #2ecc7133",borderRadius:6,padding:"11px",fontSize:13,fontWeight:700,fontFamily:"inherit",cursor:"pointer"},
   mi2:{flex:1,background:"#e74c3c18",color:"#e74c3c",border:"1px solid #e74c3c33",borderRadius:6,padding:"11px",fontSize:13,fontWeight:700,fontFamily:"inherit",cursor:"pointer"},
-  kh:{opacity:0.45,fontSize:10,fontWeight:400,marginLeft:5},
 };
 
 
 /* ===== MCQ COMPONENT ===== */
 function MCQQuiz(){
+  const t=T_MCQ;
   const [questions,setQuestions]=useState(()=>{const d=store.loadDeck("mcq");return d?d.items:SAMPLE_MCQ;});
   const [deckName,setDeckName]=useState(()=>{const d=store.loadDeck("mcq");return (d&&d.name)||"No quiz loaded";});
   const [phase,setPhase]=useState("start");
@@ -449,32 +452,32 @@ function MCQQuiz(){
   const q=quizQs[idx];
   const {ok,miss}=summarise(results);
 
-  const tb=(<div style={ms.toolbar}>
-    <div style={ms.tl}><span style={ms.dk}>{deckName}</span><span style={ms.qc}>{questions.length} Qs</span></div>
-    <div style={ms.tr2}>
-      <button style={ms.tb} onClick={()=>downloadJSON(MCQ_TEMPLATE,"mcq-template.json")}>↓ Template</button>
-      <label style={ms.tb}>↑ Import<input type="file" accept=".json" onChange={handleImport} style={{display:"none"}}/></label>
-      {questions!==SAMPLE_MCQ&&<button style={ms.tb} onClick={()=>downloadJSON({quiz_name:deckName,questions},deckName.replace(/\s+/g,"-").toLowerCase()+"-quiz.json")}>↓ Export</button>}
-      {questions!==SAMPLE_MCQ&&<button style={ms.tb} onClick={clearDeck}>✕ Clear</button>}
+  const tb=(<div style={t.toolbar}>
+    <div style={t.tl}><span style={t.dk}>{deckName}</span><span style={t.cc}>{questions.length} Qs</span></div>
+    <div style={t.tr}>
+      <button style={t.tb} onClick={()=>downloadJSON(MCQ_TEMPLATE,"mcq-template.json")}>↓ Template</button>
+      <label style={t.tb}>↑ Import<input type="file" accept=".json" onChange={handleImport} style={{display:"none"}}/></label>
+      {questions!==SAMPLE_MCQ&&<button style={t.tb} onClick={()=>downloadJSON({quiz_name:deckName,questions},deckName.replace(/\s+/g,"-").toLowerCase()+"-quiz.json")}>↓ Export</button>}
+      {questions!==SAMPLE_MCQ&&<button style={t.tb} onClick={clearDeck}>✕ Clear</button>}
     </div>
   </div>);
 
   if(phase==="start"){
     const cats=[...new Set(questions.map(q=>q.category||"General"))];
-    return(<div style={ms.page}>{tb}{err&&<div style={ms.err}>{err}</div>}<div style={ms.hero}>
-      <div style={ms.tag}>MULTIPLE CHOICE</div><h1 style={ms.title}>{deckName}</h1>
-      <p style={ms.sub}>{questions.length} questions · {cats.length} categories</p>
-      <div style={ms.cats}>
-        <span style={selCat===null?{...ms.pill,...ms.pillOn}:ms.pill} onClick={()=>setSelCat(null)}>All ({questions.length})</span>
-        {cats.map(c=><span key={c} style={selCat===c?{...ms.pill,...ms.pillOn}:ms.pill} onClick={()=>setSelCat(selCat===c?null:c)}>{c} ({questions.filter(x=>(x.category||"General")===c).length})</span>)}
+    return(<div style={t.page}>{tb}{err&&<div style={t.err}>{err}</div>}<div style={t.hero}>
+      <div style={t.badge}>MULTIPLE CHOICE</div><h1 style={t.title}>{deckName}</h1>
+      <p style={t.sub}>{questions.length} questions · {cats.length} categories</p>
+      <div style={t.cats}>
+        <span style={selCat===null?{...t.pill,...t.pillOn}:t.pill} onClick={()=>setSelCat(null)}>All ({questions.length})</span>
+        {cats.map(c=><span key={c} style={selCat===c?{...t.pill,...t.pillOn}:t.pill} onClick={()=>setSelCat(selCat===c?null:c)}>{c} ({questions.filter(x=>(x.category||"General")===c).length})</span>)}
       </div>
-      <div style={ms.wf}>
-        <div style={ms.ws}><span style={ms.sn}>1</span><span>Download the <strong>Template</strong> JSON</span></div>
-        <div style={ms.ws}><span style={ms.sn}>2</span><span>Give it to Claude with your notes — it generates MCQs</span></div>
-        <div style={ms.ws}><span style={ms.sn}>3</span><span><strong>Import</strong> the JSON and test yourself</span></div>
+      <div style={t.wf}>
+        <div style={t.ws}><span style={t.sn}>1</span><span>Download the <strong>Template</strong> JSON</span></div>
+        <div style={t.ws}><span style={t.sn}>2</span><span>Give it to Claude with your notes — it generates MCQs</span></div>
+        <div style={t.ws}><span style={t.sn}>3</span><span><strong>Import</strong> the JSON and test yourself</span></div>
       </div>
-      <button style={ms.pri} onClick={()=>startQuiz()}>{selCat?`Exam: ${selCat}`:"Begin Exam"}</button>
-      <HistoryPanel history={history} isSample={questions===SAMPLE_MCQ}/>
+      <button style={t.pri} onClick={()=>startQuiz()}>{selCat?`Exam: ${selCat}`:"Begin Exam"}</button>
+      <HistoryPanel t={t} history={history} isSample={questions===SAMPLE_MCQ}/>
     </div></div>);
   }
 
@@ -482,74 +485,48 @@ function MCQQuiz(){
     const {tot,pct}=summarise(results);const hm=miss>0;
     const grade=pct>=90?"A":pct>=80?"B":pct>=70?"C":pct>=60?"D":"F";
     const gc=pct>=80?"#2ecc71":pct>=60?"#f39c12":"#e74c3c";
-    return(<div style={ms.page}>{tb}<div style={ms.rev}>
-      <div style={ms.tag}>SESSION {sess}</div>
-      <div style={ms.gc}><span style={{...ms.gl,color:gc}}>{grade}</span><span style={ms.gp}>{pct}%</span></div>
-      <div style={ms.strip}><div style={ms.sc}><span style={ms.sv}>{ok}</span><span style={ms.sl}>Correct</span></div><div style={ms.sdiv}/><div style={ms.sc}><span style={{...ms.sv,color:miss?"#e74c3c":"#2ecc71"}}>{miss}</span><span style={ms.sl}>Wrong</span></div><div style={ms.sdiv}/><div style={ms.sc}><span style={ms.sv}>{tot}</span><span style={ms.sl}>Total</span></div></div>
-      {hm&&<div style={ms.mb}><h3 style={ms.mh}>Review Incorrect</h3>{results.filter(r=>!r.correct).map(r=>{
+    return(<div style={t.page}>{tb}<div style={t.rev}>
+      <div style={t.badge}>SESSION {sess}</div>
+      <div style={msQ.gc}><span style={{...msQ.gl,color:gc}}>{grade}</span><span style={msQ.gp}>{pct}%</span></div>
+      <div style={t.strip}><div style={t.ss}><span style={t.snum}>{ok}</span><span style={t.slbl}>Correct</span></div><div style={t.sdiv}/><div style={t.ss}><span style={{...t.snum,color:miss?"#e74c3c":"#2ecc71"}}>{miss}</span><span style={t.slbl}>Wrong</span></div><div style={t.sdiv}/><div style={t.ss}><span style={t.snum}>{tot}</span><span style={t.slbl}>Total</span></div></div>
+      {hm&&<div style={t.ml}><h3 style={t.mt}>Review Incorrect</h3>{results.filter(r=>!r.correct).map(r=>{
         const qo=quizQs.find(x=>x.id===r.qId);if(!qo)return null;
         const ch=qo.options.find(o=>o.label===r.chose);const co=qo.options.find(o=>o.label===qo.correct);
-        return(<div key={r.qId} style={ms.mc2}><div style={ms.mcat}>{qo.category}</div><div style={ms.mqt}>{qo.question}</div>
-          <div style={ms.ac}><div style={ms.ya}><span style={{fontWeight:800}}>✗</span> You: <strong>{r.chose}</strong> — {ch?.text}</div><div style={ms.ca}><span style={{fontWeight:800}}>✓</span> Correct: <strong>{qo.correct}</strong> — {co?.text}</div></div>
-          {qo.explanation&&<div className="md" style={ms.exp} dangerouslySetInnerHTML={{__html:renderMd(qo.explanation)}}/>}</div>);})}</div>}
-      {history.length>1&&<div style={ms.hl}><h3 style={ms.ht}>Session History</h3>{[...history].reverse().slice(1).map((h,i)=><div key={i} style={ms.hi}><span style={ms.hn}>#{h.sess}</span><span style={ms.hp}>{h.pct}%</span><span style={ms.hd}>{h.cat||"All"} · {h.ok} correct · {h.miss} wrong</span></div>)}</div>}
-      <div style={ms.br}><button style={ms.pri} onClick={()=>startQuiz()}>Full Quiz</button>{hm&&<button style={ms.sec} onClick={startMissed}>Wrong Only ({miss})</button>}<button style={ms.ghost} onClick={()=>setPhase("start")}>← Back</button></div>
+        return(<div key={r.qId} style={msQ.mc2}><div style={msQ.mcat}>{qo.category}</div><div style={msQ.mqt}>{qo.question}</div>
+          <div style={msQ.ac}><div style={msQ.ya}><span style={{fontWeight:800}}>✗</span> You: <strong>{r.chose}</strong> — {ch?.text}</div><div style={msQ.ca}><span style={{fontWeight:800}}>✓</span> Correct: <strong>{qo.correct}</strong> — {co?.text}</div></div>
+          {qo.explanation&&<div className="md" style={msQ.exp} dangerouslySetInnerHTML={{__html:renderMd(qo.explanation)}}/>}</div>);})}</div>}
+      {history.length>1&&<div style={t.hl}><h3 style={t.ht}>Session History</h3>{[...history].reverse().slice(1).map((h,i)=><div key={i} style={t.hi}><span style={t.hn}>#{h.sess}</span><span style={t.hp}>{h.pct}%</span><span style={t.hd}>{h.cat||"All"} · {h.ok} correct · {h.miss} wrong</span></div>)}</div>}
+      <div style={t.br}><button style={t.pri} onClick={()=>startQuiz()}>Full Quiz</button>{hm&&<button style={t.sec} onClick={startMissed}>Wrong Only ({miss})</button>}<button style={t.ghost} onClick={()=>setPhase("start")}>← Back</button></div>
     </div></div>);
   }
 
   // Quiz
-  return(<div style={ms.page}>{tb}
-    <div style={ms.qbar}><span style={ms.qprog}>{idx+1} / {quizQs.length}</span><span style={ms.qcat}>{q?.category}</span><span style={ms.qrs}><span style={{color:"#2ecc71"}}>✓{ok}</span>{" · "}<span style={{color:"#e74c3c"}}>✗{miss}</span></span></div>
-    <div style={ms.pb}><div style={{...ms.pbf,width:`${(idx+1)/quizQs.length*100}%`}}/></div>
-    <div style={ms.qcard}>
-      <div style={ms.stem}><p style={ms.stxt}>{q?.question}</p></div>
-      <div style={ms.opts}>{q?.options.map(opt=>{
+  return(<div style={t.page}>{tb}
+    <div style={t.topb}><span style={t.prog}>{idx+1} / {quizQs.length}</span><span style={t.cat}>{q?.category}</span><span style={t.rs}><span style={{color:"#2ecc71"}}>✓{ok}</span>{" · "}<span style={{color:"#e74c3c"}}>✗{miss}</span></span></div>
+    <div style={t.pb}><div style={{...t.pf,width:`${(idx+1)/quizQs.length*100}%`}}/></div>
+    <div style={msQ.qcard}>
+      <div style={msQ.stem}><p style={msQ.stxt}>{q?.question}</p></div>
+      <div style={msQ.opts}>{q?.options.map(opt=>{
         const isSel=selected===opt.label;const isCor=locked&&opt.label===q.correct;const isWS=locked&&isSel&&opt.label!==q.correct;
         let bg="#0c0c14",bdr="#1e1e2e",col="#ccc",lbg="#1a1a28",lc="#888";
         if(!locked&&isSel){bg="#1a1a2e";bdr="#3b82f6";lbg="#3b82f6";lc="#fff";}
         if(isCor){bg="#2ecc7112";bdr="#2ecc7155";col="#2ecc71";lbg="#2ecc71";lc="#000";}
         if(isWS){bg="#e74c3c12";bdr="#e74c3c55";col="#e74c3c";lbg="#e74c3c";lc="#fff";}
-        return(<button key={opt.label} style={{...ms.obtn,background:bg,borderColor:bdr,color:col,cursor:locked?"default":"pointer"}} onClick={()=>!locked&&setSelected(opt.label)} disabled={locked}>
-          <span style={{...ms.olab,background:lbg,color:lc}}>{opt.label}</span><span style={{flex:1}}>{opt.text}</span></button>);
+        return(<button key={opt.label} style={{...msQ.obtn,background:bg,borderColor:bdr,color:col,cursor:locked?"default":"pointer"}} onClick={()=>!locked&&setSelected(opt.label)} disabled={locked}>
+          <span style={{...msQ.olab,background:lbg,color:lc}}>{opt.label}</span><span style={{flex:1}}>{opt.text}</span></button>);
       })}</div>
-      {locked&&q?.explanation&&<div style={ms.ebox}><div style={ms.elab}>EXPLANATION</div><div className="md" style={ms.etxt} dangerouslySetInnerHTML={{__html:renderMd(q.explanation)}}/></div>}
-      <div style={ms.abar}>{!locked?
-        <button style={{...ms.conf,opacity:selected===null?0.35:1,cursor:selected===null?"default":"pointer"}} onClick={confirmAns} disabled={selected===null}>Lock Answer<span style={ms.kh}>[Enter]</span></button>:
-        <button style={ms.next} onClick={nextQ}>{idx+1<quizQs.length?"Next Question →":"See Results →"}<span style={ms.kh}>[Enter]</span></button>
+      {locked&&q?.explanation&&<div style={msQ.ebox}><div style={msQ.elab}>EXPLANATION</div><div className="md" style={msQ.etxt} dangerouslySetInnerHTML={{__html:renderMd(q.explanation)}}/></div>}
+      <div style={msQ.abar}>{!locked?
+        <button style={{...msQ.conf,opacity:selected===null?0.35:1,cursor:selected===null?"default":"pointer"}} onClick={confirmAns} disabled={selected===null}>Lock Answer<span style={t.kh}>[Enter]</span></button>:
+        <button style={msQ.next} onClick={nextQ}>{idx+1<quizQs.length?"Next Question →":"See Results →"}<span style={t.kh}>[Enter]</span></button>
       }</div>
     </div>
   </div>);
 }
 
-const ms={
-  page:{minHeight:"100vh",background:"#06060b",color:"#e8e6e1",fontFamily:"inherit",display:"flex",flexDirection:"column",alignItems:"center",padding:"0 16px 48px"},
-  toolbar:{width:"100%",maxWidth:660,display:"flex",justifyContent:"space-between",alignItems:"center",padding:"14px 0",borderBottom:"1px solid #151520",marginBottom:24,flexWrap:"wrap",gap:8},
-  tl:{display:"flex",alignItems:"center",gap:10},tr2:{display:"flex",gap:6,flexWrap:"wrap"},
-  dk:{fontSize:13,fontWeight:700,color:"#bbb"},qc:{fontSize:11,color:"#444",fontWeight:600},
-  tb:{background:"#10101a",color:"#777",border:"1px solid #1a1a28",borderRadius:5,padding:"6px 12px",fontSize:11,fontWeight:600,fontFamily:"inherit",cursor:"pointer",whiteSpace:"nowrap"},
-  err:{width:"100%",maxWidth:660,background:"#e74c3c14",border:"1px solid #e74c3c33",color:"#e74c3c",borderRadius:6,padding:"10px 16px",fontSize:12,marginBottom:16},
-  hero:{textAlign:"center",maxWidth:560,marginTop:16},
-  tag:{display:"inline-block",fontSize:10,fontWeight:700,letterSpacing:"0.16em",color:"#3b82f6",border:"1px solid #3b82f633",borderRadius:4,padding:"3px 10px",marginBottom:14},
-  title:{fontSize:28,fontWeight:800,margin:"0 0 6px",color:"#fff",letterSpacing:"-0.02em"},
-  sub:{fontSize:13,color:"#555",margin:"0 0 18px"},
-  cats:{display:"flex",flexWrap:"wrap",gap:6,justifyContent:"center",marginBottom:28},
-  pill:{fontSize:11,color:"#666",background:"#0e0e16",border:"1px solid #1a1a24",borderRadius:20,padding:"4px 10px",cursor:"pointer"},
-  pillOn:{color:"#3b82f6",background:"#3b82f611",borderColor:"#3b82f655"},
-  wf:{textAlign:"left",background:"#0a0a12",border:"1px solid #151520",borderRadius:10,padding:"18px 20px",marginBottom:28,display:"flex",flexDirection:"column",gap:12},
-  ws:{display:"flex",alignItems:"center",gap:12,fontSize:13,color:"#888",lineHeight:1.5},
-  sn:{width:24,height:24,borderRadius:"50%",background:"#3b82f618",color:"#3b82f6",display:"flex",alignItems:"center",justifyContent:"center",fontSize:12,fontWeight:800,flexShrink:0},
-  pri:{background:"#3b82f6",color:"#fff",border:"none",borderRadius:6,padding:"12px 32px",fontSize:13,fontWeight:700,fontFamily:"inherit",cursor:"pointer",letterSpacing:"0.04em"},
-  sec:{background:"transparent",color:"#3b82f6",border:"1px solid #3b82f644",borderRadius:6,padding:"12px 24px",fontSize:12,fontWeight:600,fontFamily:"inherit",cursor:"pointer"},
-  ghost:{background:"transparent",color:"#444",border:"none",padding:"12px 16px",fontSize:12,fontFamily:"inherit",cursor:"pointer"},
-  rev:{maxWidth:660,width:"100%",textAlign:"center"},
+const msQ={
   gc:{display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",width:100,height:100,borderRadius:"50%",border:"2px solid #1a1a28",margin:"20px auto 16px"},
   gl:{fontSize:36,fontWeight:900,lineHeight:1},gp:{fontSize:12,color:"#555",fontWeight:600,marginTop:2},
-  strip:{display:"flex",justifyContent:"center",alignItems:"center",gap:24,marginBottom:28},
-  sc:{display:"flex",flexDirection:"column",alignItems:"center",gap:3},
-  sv:{fontSize:28,fontWeight:800,color:"#fff"},sl:{fontSize:10,color:"#555",fontWeight:600,letterSpacing:"0.1em",textTransform:"uppercase"},
-  sdiv:{width:1,height:40,background:"#1a1a24"},
-  mb:{textAlign:"left",background:"#0a0a12",border:"1px solid #151520",borderRadius:8,padding:"20px",marginBottom:24},
-  mh:{fontSize:11,fontWeight:700,letterSpacing:"0.12em",color:"#e74c3c",margin:"0 0 16px",textTransform:"uppercase"},
   mc2:{marginBottom:18,paddingBottom:18,borderBottom:"1px solid #151520"},
   mcat:{fontSize:10,color:"#444",fontWeight:600,letterSpacing:"0.1em",textTransform:"uppercase",marginBottom:4},
   mqt:{fontSize:13,fontWeight:600,color:"#ddd",marginBottom:10,lineHeight:1.6},
@@ -557,19 +534,6 @@ const ms={
   ya:{display:"flex",alignItems:"center",gap:8,fontSize:12,color:"#e74c3c"},
   ca:{display:"flex",alignItems:"center",gap:8,fontSize:12,color:"#2ecc71"},
   exp:{fontSize:11,lineHeight:1.7,color:"#777",background:"#0e0e18",borderRadius:6,padding:"10px 14px"},
-  br:{display:"flex",gap:10,justifyContent:"center",flexWrap:"wrap"},
-  hl:{textAlign:"left",background:"#0a0a12",border:"1px solid #151520",borderRadius:8,padding:"14px 20px",marginBottom:24},
-  ht:{fontSize:10,fontWeight:700,letterSpacing:"0.12em",color:"#444",margin:"0 0 10px",textTransform:"uppercase"},
-  hi:{display:"flex",alignItems:"center",gap:12,padding:"5px 0",borderBottom:"1px solid #151520",fontSize:12},
-  hn:{color:"#444",fontWeight:600,width:40,flexShrink:0},
-  hp:{fontWeight:700,color:"#3b82f6",width:40,flexShrink:0},
-  hd:{color:"#555",fontSize:11},
-  // quiz
-  qbar:{width:"100%",maxWidth:660,display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8,fontSize:12},
-  qprog:{color:"#444",fontWeight:600},qcat:{color:"#3b82f6",fontSize:10,fontWeight:700,letterSpacing:"0.12em",textTransform:"uppercase"},
-  qrs:{fontSize:12,fontWeight:600},
-  pb:{width:"100%",maxWidth:660,height:3,background:"#151520",borderRadius:2,marginBottom:20,overflow:"hidden"},
-  pbf:{height:"100%",background:"#3b82f6",borderRadius:2,transition:"width 0.3s ease"},
   qcard:{width:"100%",maxWidth:660,background:"#0a0a12",border:"1px solid #151520",borderRadius:10,overflow:"hidden"},
   stem:{padding:"28px 24px 20px"},stxt:{fontSize:15,lineHeight:1.75,margin:0,color:"#e8e6e1"},
   opts:{padding:"0 24px 8px",display:"flex",flexDirection:"column",gap:8},
@@ -581,7 +545,6 @@ const ms={
   abar:{padding:"16px 24px 20px"},
   conf:{width:"100%",background:"#3b82f6",color:"#fff",border:"none",borderRadius:6,padding:"13px",fontSize:13,fontWeight:700,fontFamily:"inherit",letterSpacing:"0.04em"},
   next:{width:"100%",background:"#151522",color:"#3b82f6",border:"1px solid #3b82f633",borderRadius:6,padding:"13px",fontSize:13,fontWeight:700,fontFamily:"inherit",cursor:"pointer",letterSpacing:"0.04em"},
-  kh:{opacity:0.45,fontSize:10,fontWeight:400,marginLeft:5},
 };
 
 
