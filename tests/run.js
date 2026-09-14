@@ -10,9 +10,16 @@ function load() {
   const html = fs.readFileSync(HTML, "utf8");
   const m = html.match(/\/\* PURE-START \*\/([\s\S]*?)\/\* PURE-END \*\//);
   if (!m) throw new Error("PURE-START/PURE-END markers not found in study-drill.html");
-  const ctx = {};
-  vm.runInNewContext(m[1], ctx, { filename: "study-drill.html(pure)" });
-  return ctx;
+  // Run in this realm (not vm.runInNewContext's separate context) so object/array
+  // literals the pure functions return share Object/Array prototypes with this file's
+  // realm — otherwise assert.deepStrictEqual reports "not reference-equal" even when
+  // structurally identical, because a fresh vm context has its own intrinsics.
+  const names = [];
+  const nameRe = /^function\s+(\w+)/gm;
+  let mm;
+  while ((mm = nameRe.exec(m[1]))) names.push(mm[1]);
+  const wrapped = m[1] + "\n;({" + names.join(",") + "});";
+  return vm.runInThisContext(wrapped, { filename: "study-drill.html(pure)" });
 }
 
 function memStorage(opts = {}) {
@@ -50,6 +57,86 @@ test("generateUUID produces v4-shaped ids that differ", () => {
   const re = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
   const a = P.generateUUID(), b = P.generateUUID();
   assert.match(a, re); assert.match(b, re); assert.notStrictEqual(a, b);
+});
+
+console.log("validators");
+const FC_EXAMPLE = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "flashcards.json"), "utf8"));
+const MCQ_EXAMPLE = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "mcq.json"), "utf8"));
+const opts4 = () => [{label:"A",text:"a"},{label:"B",text:"b"},{label:"C",text:"c"},{label:"D",text:"d"}];
+
+test("validateFlashcards accepts the example deck and uses deck_name", () => {
+  const v = P.validateFlashcards(FC_EXAMPLE, "fallback");
+  assert.strictEqual(v.ok, true);
+  assert.strictEqual(v.items.length, FC_EXAMPLE.cards.length);
+  assert.strictEqual(v.name, FC_EXAMPLE.deck_name || "fallback");
+});
+test("validateFlashcards accepts a bare array and falls back to the filename", () => {
+  const v = P.validateFlashcards([{id:1,question:"q",answer:"a"}], "my-deck");
+  assert.deepStrictEqual(v, {ok:true, name:"my-deck", items:[{id:1,question:"q",answer:"a"}]});
+});
+test("validateFlashcards rejects empty, missing fields, null id, duplicate ids", () => {
+  assert.deepStrictEqual(P.validateFlashcards({cards:[]}, "x"), {ok:false, error:"JSON must contain a 'cards' array."});
+  assert.deepStrictEqual(P.validateFlashcards({foo:1}, "x"), {ok:false, error:"JSON must contain a 'cards' array."});
+  assert.deepStrictEqual(P.validateFlashcards(null, "x"), {ok:false, error:"JSON must contain a 'cards' array."});
+  assert.deepStrictEqual(P.validateFlashcards({cards:[{id:1,question:"q"}]}, "x"), {ok:false, error:"Every card needs id, question, answer."});
+  assert.deepStrictEqual(P.validateFlashcards({cards:[{id:null,question:"q",answer:"a"}]}, "x"), {ok:false, error:"Every card needs id, question, answer."});
+  assert.deepStrictEqual(P.validateFlashcards({cards:[{id:1,question:"q",answer:"a"},{id:1,question:"q2",answer:"a"}]}, "x"), {ok:false, error:"Card ids must be unique."});
+});
+test("validateMcq accepts the example quiz", () => {
+  const v = P.validateMcq(MCQ_EXAMPLE, "fallback");
+  assert.strictEqual(v.ok, true);
+  assert.strictEqual(v.items.length, MCQ_EXAMPLE.questions.length);
+});
+test("validateMcq rejects empty, missing fields, 3 or 5 options, unmatched correct, duplicate ids", () => {
+  const q = (over) => ({id:1,question:"q",options:opts4(),correct:"A",...over});
+  assert.deepStrictEqual(P.validateMcq({questions:[]}, "x"), {ok:false, error:"JSON must contain a 'questions' array."});
+  assert.deepStrictEqual(P.validateMcq({questions:[q({correct:undefined})]}, "x"), {ok:false, error:"Every question needs id, question, options[], correct."});
+  assert.deepStrictEqual(P.validateMcq({questions:[q({options:opts4().slice(0,3)})]}, "x"), {ok:false, error:"Every question needs exactly 4 options."});
+  assert.deepStrictEqual(P.validateMcq({questions:[q({options:[...opts4(),{label:"E",text:"e"}]})]}, "x"), {ok:false, error:"Every question needs exactly 4 options."});
+  assert.deepStrictEqual(P.validateMcq({questions:[q({correct:"b"})]}, "x"), {ok:false, error:"Every question's 'correct' must match one of its option labels."});
+  assert.deepStrictEqual(P.validateMcq({questions:[q(), q({question:"q2"})]}, "x"), {ok:false, error:"Question ids must be unique."});
+});
+
+console.log("ordering and shuffling");
+test("orderByBox puts box 1 before 2 before 3, missing entries count as box 1, and is a permutation", () => {
+  const pool = [{id:1},{id:2},{id:3},{id:4},{id:5},{id:6}];
+  const srs = {2:3, 3:2, 5:3, 6:2};
+  const out = P.orderByBox(pool, srs);
+  assert.deepStrictEqual(out.map(c => c.id).sort(), [1,2,3,4,5,6]);
+  assert.deepStrictEqual(out.map(c => srs[c.id] || 1), [1,1,2,2,3,3]);
+});
+test("shuffleMcqOptions relabels A-D, keeps a permutation, remaps correct, and does not mutate", () => {
+  const q = {id:9, question:"q", options:opts4(), correct:"C", explanation:"e"};
+  const before = JSON.stringify(q);
+  for (let i = 0; i < 25; i++) {
+    const s = P.shuffleMcqOptions(q);
+    assert.deepStrictEqual(s.options.map(o => o.label), ["A","B","C","D"]);
+    assert.deepStrictEqual(s.options.map(o => o.text).sort(), ["a","b","c","d"]);
+    assert.strictEqual(s.options.find(o => o.label === s.correct).text, "c");
+    assert.strictEqual(s.id, 9); assert.strictEqual(s.explanation, "e");
+  }
+  assert.strictEqual(JSON.stringify(q), before);
+});
+test("shuffleMcqOptions tracks the correct option by identity when two options share text", () => {
+  const q = {id:1, question:"q", options:[{label:"A",text:"same"},{label:"B",text:"same"},{label:"C",text:"x"},{label:"D",text:"y"}], correct:"B"};
+  for (let i = 0; i < 25; i++) {
+    const s = P.shuffleMcqOptions(q);
+    const idx = s.options.findIndex(o => o.label === s.correct);
+    assert.strictEqual(s.options[idx].text, "same");
+    // exactly one option carries the correct label
+    assert.strictEqual(s.options.filter(o => o.label === s.correct).length, 1);
+  }
+});
+
+console.log("stats");
+test("summarise counts, rounds, and handles empty", () => {
+  assert.deepStrictEqual(P.summarise([]), {ok:0, miss:0, tot:0, pct:0});
+  assert.deepStrictEqual(P.summarise([{correct:true},{correct:false},{correct:true}]), {ok:2, miss:1, tot:3, pct:67});
+});
+test("sectionStats groups by cat with 'All' default, averages, sorts ascending", () => {
+  const h = [{cat:null,pct:50},{cat:"B",pct:100},{cat:"A",pct:80},{cat:null,pct:70},{cat:"A",pct:60}];
+  assert.deepStrictEqual(P.sectionStats(h), [{cat:"All",count:2,avg:60},{cat:"A",count:2,avg:70},{cat:"B",count:1,avg:100}]);
+  assert.deepStrictEqual(P.sectionStats([]), []);
 });
 
 module.exports = { load, test, memStorage, P, assert };

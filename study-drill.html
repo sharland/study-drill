@@ -40,6 +40,40 @@ function generateUUID(){
     return(c==='x'?r:(r&0x3|0x8)).toString(16);
   });
 }
+function validateFlashcards(d,fallbackName){
+  const a=(d&&d.cards)||d;
+  if(!Array.isArray(a)||!a.length)return{ok:false,error:"JSON must contain a 'cards' array."};
+  if(!a.every(c=>c&&c.id!=null&&c.question&&c.answer))return{ok:false,error:"Every card needs id, question, answer."};
+  if(new Set(a.map(c=>c.id)).size!==a.length)return{ok:false,error:"Card ids must be unique."};
+  return{ok:true,name:(d&&d.deck_name)||fallbackName,items:a};
+}
+function validateMcq(d,fallbackName){
+  const a=(d&&d.questions)||d;
+  if(!Array.isArray(a)||!a.length)return{ok:false,error:"JSON must contain a 'questions' array."};
+  if(!a.every(q=>q&&q.id!=null&&q.question&&Array.isArray(q.options)&&q.correct))return{ok:false,error:"Every question needs id, question, options[], correct."};
+  if(!a.every(q=>q.options.length===4))return{ok:false,error:"Every question needs exactly 4 options."};
+  if(!a.every(q=>q.options.some(o=>o&&o.label===q.correct)))return{ok:false,error:"Every question's 'correct' must match one of its option labels."};
+  if(new Set(a.map(q=>q.id)).size!==a.length)return{ok:false,error:"Question ids must be unique."};
+  return{ok:true,name:(d&&d.quiz_name)||fallbackName,items:a};
+}
+function orderByBox(pool,srs){
+  return[1,2,3].flatMap(b=>shuffleArray(pool.filter(c=>(srs[c.id]||1)===b)));
+}
+function shuffleMcqOptions(q){
+  const correct=q.options.find(o=>o.label===q.correct);
+  const shuffled=shuffleArray(q.options);
+  const idx=shuffled.indexOf(correct);
+  return{...q,options:shuffled.map((o,i)=>({...o,label:"ABCD"[i]})),correct:"ABCD"[idx]};
+}
+function summarise(results){
+  const tot=results.length,ok=results.filter(r=>r.correct).length;
+  return{ok,miss:tot-ok,tot,pct:tot?Math.round(ok/tot*100):0};
+}
+function sectionStats(history){
+  const by={};
+  history.forEach(h=>{const k=h.cat||"All";if(!by[k])by[k]={count:0,total:0};by[k].count++;by[k].total+=h.pct;});
+  return Object.entries(by).map(([cat,v])=>({cat,count:v.count,avg:Math.round(v.total/v.count)})).sort((a,b)=>a.avg-b.avg);
+}
 /* PURE-END */
 
 /* ===== DOM UTILITIES ===== */
@@ -81,15 +115,7 @@ const SAMPLE_MCQ=[{id:1,category:"Sample",question:"Import your own JSON quiz to
 function HistoryPanel({history,isSample}){
   if(isSample)return null;
   const recent=[...history].reverse().slice(0,5);
-  const bySection={};
-  history.forEach(h=>{
-    const k=h.cat||"All";
-    if(!bySection[k])bySection[k]={count:0,total:0};
-    bySection[k].count++;bySection[k].total+=h.pct;
-  });
-  const sections=Object.entries(bySection)
-    .map(([k,v])=>({cat:k,count:v.count,avg:Math.round(v.total/v.count)}))
-    .sort((a,b)=>a.avg-b.avg);
+  const sections=sectionStats(history);
   return(<div style={hpS.wrap}>
     <div style={hpS.title}>SESSION HISTORY</div>
     {!history.length
@@ -141,16 +167,14 @@ function FlashcardDrill(){
   const handleImport=useCallback((e)=>{
     const f=e.target.files?.[0];if(!f)return;setErr(null);
     const r=new FileReader();
-    r.onload=(ev)=>{try{
-      const d=JSON.parse(ev.target.result);const a=d.cards||d;
-      if(!Array.isArray(a)||!a.length){setErr("JSON must contain a 'cards' array.");return;}
-      if(!a.every(c=>c.id!=null&&c.question&&c.answer)){setErr("Every card needs id, question, answer.");return;}
-      if(new Set(a.map(c=>c.id)).size!==a.length){setErr("Card ids must be unique.");return;}
-      const name=d.deck_name||f.name.replace(/\.json$/,"");
-      setCards(a);setDeckName(name);setPhase("start");setSess(0);setSelCat(null);
-      localStorage.setItem("fc_deck",JSON.stringify({deck_name:name,cards:a}));
+    r.onload=(ev)=>{
+      let d;try{d=JSON.parse(ev.target.result);}catch{setErr("Invalid JSON.");return;}
+      const v=validateFlashcards(d,f.name.replace(/\.json$/,""));
+      if(!v.ok){setErr(v.error);return;}
+      setCards(v.items);setDeckName(v.name);setPhase("start");setSess(0);setSelCat(null);
+      localStorage.setItem("fc_deck",JSON.stringify({deck_name:v.name,cards:v.items}));
       localStorage.removeItem("fc_srs");setSrs({});
-    }catch{setErr("Invalid JSON.");}};
+    };
     r.readAsText(f);e.target.value="";
   },[]);
 
@@ -161,7 +185,7 @@ function FlashcardDrill(){
 
   const startQuiz=useCallback((sub)=>{
     const pool=sub||(selCat?cards.filter(c=>(c.category||"Uncategorised")===selCat):cards);
-    const sorted=[1,2,3].flatMap(b=>shuffleArray(pool.filter(c=>(srs[c.id]||1)===b)));
+    const sorted=orderByBox(pool,srs);
     setQuizCards(sorted);setCi(0);setShowAns(false);setResults([]);setSess(c=>c+1);setPhase("quiz");
   },[cards,selCat,srs]);
 
@@ -179,8 +203,8 @@ function FlashcardDrill(){
     setResults(newResults);
     if(ci+1<quizCards.length){setCi(i=>i+1);setShowAns(false);}
     else{
-      const okCount=newResults.filter(r=>r.correct).length;
-      setHistory(h=>[...h,{sess,pct:Math.round(okCount/newResults.length*100),ok:okCount,miss:newResults.length-okCount,tot:newResults.length,cat:selCat}]);
+      const s=summarise(newResults);
+      setHistory(h=>[...h,{sess,pct:s.pct,ok:s.ok,miss:s.miss,tot:s.tot,cat:selCat}]);
       setPhase("review");
     }
   },[quizCards,ci,results,sess,selCat,srs]);
@@ -200,8 +224,7 @@ function FlashcardDrill(){
   },[phase,showAns,mark]);
 
   const card=quizCards[ci];
-  const ok=results.filter(r=>r.correct).length;
-  const miss=results.filter(r=>!r.correct).length;
+  const {ok,miss}=summarise(results);
 
   const tb=(<div style={fs.toolbar}>
     <div style={fs.tl}><span style={fs.dk}>{deckName}</span><span style={fs.cc}>{cards.length} cards</span></div>
@@ -234,7 +257,7 @@ function FlashcardDrill(){
   }
 
   if(phase==="review"){
-    const tot=results.length;const pct=tot?Math.round(ok/tot*100):0;const hm=miss>0;
+    const {tot,pct}=summarise(results);const hm=miss>0;
     return(<div style={fs.page}>{tb}<div style={fs.rev}>
       <div style={fs.badge}>SESSION {sess}</div>
       <div style={fs.sr}><div style={fs.ss}><span style={fs.snum}>{ok}</span><span style={fs.slbl}>Correct</span></div><div style={fs.sdiv}/><div style={fs.ss}><span style={{...fs.snum,color:miss?"#e74c3c":"#2ecc71"}}>{miss}</span><span style={fs.slbl}>Missed</span></div><div style={fs.sdiv}/><div style={fs.ss}><span style={fs.snum}>{pct}%</span><span style={fs.slbl}>Score</span></div></div>
@@ -343,14 +366,11 @@ function MCQQuiz(){
   const handleImport=useCallback((e)=>{
     const f=e.target.files?.[0];if(!f)return;setErr(null);
     const r=new FileReader();
-    r.onload=(ev)=>{try{
-      const d=JSON.parse(ev.target.result);const a=d.questions||d;
-      if(!Array.isArray(a)||!a.length){setErr("JSON must contain a 'questions' array.");return;}
-      if(!a.every(q=>q.id!=null&&q.question&&Array.isArray(q.options)&&q.correct)){setErr("Every question needs id, question, options[], correct.");return;}
-      if(!a.every(q=>q.options.length===4)){setErr("Every question needs exactly 4 options.");return;}
-      if(!a.every(q=>q.options.some(o=>o.label===q.correct))){setErr("Every question's 'correct' must match one of its option labels.");return;}
-      if(new Set(a.map(q=>q.id)).size!==a.length){setErr("Question ids must be unique.");return;}
-      const name=d.quiz_name||f.name.replace(/\.json$/,"");
+    r.onload=(ev)=>{
+      let d;try{d=JSON.parse(ev.target.result);}catch{setErr("Invalid JSON.");return;}
+      const v=validateMcq(d,f.name.replace(/\.json$/,""));
+      if(!v.ok){setErr(v.error);return;}
+      const a=v.items,name=v.name;
       const storedId=localStorage.getItem("mcq_deck_id");
       const storedName=JSON.parse(localStorage.getItem("mcq_deck")||"{}").quiz_name;
       const id=(storedId&&storedName===name)?storedId:generateUUID();
@@ -360,7 +380,7 @@ function MCQQuiz(){
       setQuestions(a);setDeckName(name);setDeckId(id);setPhase("start");setSess(storedSess);setSelCat(null);setHistory(newHistory);
       localStorage.setItem("mcq_deck",JSON.stringify({quiz_name:name,questions:a}));
       localStorage.setItem("mcq_deck_id",id);
-    }catch{setErr("Invalid JSON.");}};
+    };
     r.readAsText(f);e.target.value="";
   },[]);
 
@@ -373,12 +393,7 @@ function MCQQuiz(){
 
   const startQuiz=useCallback((sub)=>{
     const pool=sub||(selCat?questions.filter(q=>(q.category||"General")===selCat):questions);
-    const shuffled=shuffleArray(pool).map(q=>{
-      const correctText=q.options.find(o=>o.label===q.correct)?.text;
-      const newOpts=shuffleArray(q.options).map((o,i)=>({...o,label:["A","B","C","D"][i]}));
-      const newCorrect=newOpts.find(o=>o.text===correctText)?.label;
-      return{...q,options:newOpts,correct:newCorrect};
-    });
+    const shuffled=shuffleArray(pool).map(shuffleMcqOptions);
     setQuizQs(shuffled);setIdx(0);setSelected(null);setLocked(false);setResults([]);setSess(c=>c+1);setPhase("quiz");
   },[questions,selCat]);
 
@@ -396,8 +411,7 @@ function MCQQuiz(){
   const nextQ=useCallback(()=>{
     if(idx+1<quizQs.length){setIdx(i=>i+1);setSelected(null);setLocked(false);}
     else{
-      const okCount=results.filter(r=>r.correct).length;
-      const record={ts:Date.now(),cat:selCat,pct:Math.round(okCount/results.length*100),ok:okCount,miss:results.length-okCount,tot:results.length};
+      const s=summarise(results);const record={ts:Date.now(),cat:selCat,pct:s.pct,ok:s.ok,miss:s.miss,tot:s.tot};
       if(deckId){
         const key=`mcq_history_${deckId}`;
         const stored=JSON.parse(localStorage.getItem(key)||"[]");
@@ -427,8 +441,7 @@ function MCQQuiz(){
   },[phase,locked,selected,confirmAns,nextQ]);
 
   const q=quizQs[idx];
-  const ok=results.filter(r=>r.correct).length;
-  const miss=results.filter(r=>!r.correct).length;
+  const {ok,miss}=summarise(results);
 
   const tb=(<div style={ms.toolbar}>
     <div style={ms.tl}><span style={ms.dk}>{deckName}</span><span style={ms.qc}>{questions.length} Qs</span></div>
@@ -460,7 +473,7 @@ function MCQQuiz(){
   }
 
   if(phase==="review"){
-    const tot=results.length;const pct=tot?Math.round(ok/tot*100):0;const hm=miss>0;
+    const {tot,pct}=summarise(results);const hm=miss>0;
     const grade=pct>=90?"A":pct>=80?"B":pct>=70?"C":pct>=60?"D":"F";
     const gc=pct>=80?"#2ecc71":pct>=60?"#f39c12":"#e74c3c";
     return(<div style={ms.page}>{tb}<div style={ms.rev}>
