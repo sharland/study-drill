@@ -203,6 +203,38 @@ function makeTheme({accent,onAccent}){
 const T_FC=makeTheme({accent:"#f39c12",onAccent:"#08080d"});
 const T_MCQ=makeTheme({accent:"#3b82f6",onAccent:"#fff"});
 
+/* ===== SHARED COMPONENTS ===== */
+function Toolbar({t,name,countLabel,isSample,onTemplate,onImport,onExport,onClear}){
+  return(<div style={t.toolbar}>
+    <div style={t.tl}><span style={t.dk}>{name}</span><span style={t.cc}>{countLabel}</span></div>
+    <div style={t.tr}>
+      <button style={t.tb} onClick={onTemplate}>↓ Template</button>
+      <label style={t.tb}>↑ Import<input type="file" accept=".json" onChange={e=>{const f=e.target.files?.[0];e.target.value="";if(f)onImport(f);}} style={{display:"none"}}/></label>
+      {!isSample&&<button style={t.tb} onClick={onExport}>↓ Export</button>}
+      {!isSample&&<button style={t.tb} onClick={onClear}>✕ Clear</button>}
+    </div>
+  </div>);
+}
+
+function StartScreen({t,badge,title,subtitle,extra,cats,total,catCount,selCat,onSelCat,steps,startLabel,onStart,children}){
+  const pill=on=>on?{...t.pill,...t.pillOn}:t.pill;
+  return(<div style={t.hero}>
+    <div style={t.badge}>{badge}</div><h1 style={t.title}>{title}</h1>
+    <p style={t.sub}>{subtitle}</p>
+    {extra}
+    <div style={t.cats}>
+      <span style={pill(selCat===null)} onClick={()=>onSelCat(null)}>All ({total})</span>
+      {cats.map(c=><span key={c} style={pill(selCat===c)} onClick={()=>onSelCat(selCat===c?null:c)}>{c} ({catCount(c)})</span>)}
+    </div>
+    <div style={t.wf}>{steps.map((s,i)=><div key={i} style={t.ws}><span style={t.sn}>{i+1}</span><span>{s}</span></div>)}</div>
+    <button style={t.pri} onClick={onStart}>{startLabel}</button>
+    {children}
+  </div>);
+}
+
+const FC_STEPS=[<>Download the <strong>Template</strong> JSON</>,<>Give it to Claude with your notes</>,<><strong>Import</strong> the JSON back here and drill</>];
+const MCQ_STEPS=[<>Download the <strong>Template</strong> JSON</>,<>Give it to Claude with your notes — it generates MCQs</>,<><strong>Import</strong> the JSON and test yourself</>];
+
 function HistoryPanel({t,history,isSample}){
   if(isSample)return null;
   const recent=[...history].reverse().slice(0,5);
@@ -244,8 +276,8 @@ function FlashcardDrill(){
   const [history,setHistory]=useState([]);
   const [srs,setSrs]=useState(()=>store.loadSrs());
 
-  const handleImport=useCallback((e)=>{
-    const f=e.target.files?.[0];if(!f)return;setErr(null);
+  const handleImport=useCallback((f)=>{
+    setErr(null);
     const r=new FileReader();
     r.onload=(ev)=>{
       let d;try{d=JSON.parse(ev.target.result);}catch{setErr("Invalid JSON.");return;}
@@ -255,7 +287,7 @@ function FlashcardDrill(){
       setCards(v.items);setDeckName(v.name);setPhase("start");setSess(0);setSelCat(null);
       store.clearSrs();setSrs({});
     };
-    r.readAsText(f);e.target.value="";
+    r.readAsText(f);
   },[]);
 
   const clearDeck=useCallback(()=>{
@@ -300,34 +332,20 @@ function FlashcardDrill(){
   const card=quizCards[ci];
   const {ok,miss}=summarise(results);
 
-  const tb=(<div style={t.toolbar}>
-    <div style={t.tl}><span style={t.dk}>{deckName}</span><span style={t.cc}>{cards.length} cards</span></div>
-    <div style={t.tr}>
-      <button style={t.tb} onClick={()=>downloadJSON(FC_TEMPLATE,"flashcard-template.json")}>↓ Template</button>
-      <label style={t.tb}>↑ Import<input type="file" accept=".json" onChange={handleImport} style={{display:"none"}}/></label>
-      {cards!==SAMPLE_FC&&<button style={t.tb} onClick={()=>downloadJSON({deck_name:deckName,cards},deckName.replace(/\s+/g,"-").toLowerCase()+"-deck.json")}>↓ Export</button>}
-      {cards!==SAMPLE_FC&&<button style={t.tb} onClick={clearDeck}>✕ Clear</button>}
-    </div>
-  </div>);
+  const tb=<Toolbar t={t} name={deckName} countLabel={`${cards.length} cards`} isSample={cards===SAMPLE_FC}
+    onTemplate={()=>downloadJSON(FC_TEMPLATE,"flashcard-template.json")} onImport={handleImport}
+    onExport={()=>downloadJSON({deck_name:deckName,cards},deckName.replace(/\s+/g,"-").toLowerCase()+"-deck.json")} onClear={clearDeck}/>;
 
   if(phase==="start"){
     const cats=[...new Set(cards.map(c=>c.category||"Uncategorised"))];
     const boxCounts=[1,2,3].map(b=>cards.filter(c=>(srs[c.id]||1)===b).length);
-    return(<div style={t.page}>{tb}{err&&<div style={t.err}>{err}</div>}<div style={t.hero}>
-      <div style={t.badge}>FLASHCARD DRILL</div><h1 style={t.title}>{deckName}</h1>
-      <p style={t.sub}>{cards.length} cards · {cats.length} categories</p>
-      <p style={t.extra}><span style={{color:"#e74c3c"}}>■ {boxCounts[0]}</span>{" · "}<span style={{color:"#f39c12"}}>■ {boxCounts[1]}</span>{" · "}<span style={{color:"#2ecc71"}}>■ {boxCounts[2]}</span>{" box 1 / 2 / 3"}</p>
-      <div style={t.cats}>
-        <span style={selCat===null?{...t.pill,...t.pillOn}:t.pill} onClick={()=>setSelCat(null)}>All ({cards.length})</span>
-        {cats.map(c=><span key={c} style={selCat===c?{...t.pill,...t.pillOn}:t.pill} onClick={()=>setSelCat(selCat===c?null:c)}>{c} ({cards.filter(x=>(x.category||"Uncategorised")===c).length})</span>)}
-      </div>
-      <div style={t.wf}>
-        <div style={t.ws}><span style={t.sn}>1</span><span>Download the <strong>Template</strong> JSON</span></div>
-        <div style={t.ws}><span style={t.sn}>2</span><span>Give it to Claude with your notes</span></div>
-        <div style={t.ws}><span style={t.sn}>3</span><span><strong>Import</strong> the JSON back here and drill</span></div>
-      </div>
-      <button style={t.pri} onClick={()=>startQuiz()}>{selCat?`Drill: ${selCat}`:"Start Drill"}</button>
-    </div></div>);
+    return(<div style={t.page}>{tb}{err&&<div style={t.err}>{err}</div>}
+      <StartScreen t={t} badge="FLASHCARD DRILL" title={deckName} subtitle={`${cards.length} cards · ${cats.length} categories`}
+        extra={<p style={t.extra}><span style={{color:"#e74c3c"}}>■ {boxCounts[0]}</span>{" · "}<span style={{color:"#f39c12"}}>■ {boxCounts[1]}</span>{" · "}<span style={{color:"#2ecc71"}}>■ {boxCounts[2]}</span>{" box 1 / 2 / 3"}</p>}
+        cats={cats} total={cards.length} catCount={c=>cards.filter(x=>(x.category||"Uncategorised")===c).length}
+        selCat={selCat} onSelCat={setSelCat} steps={FC_STEPS}
+        startLabel={selCat?`Drill: ${selCat}`:"Start Drill"} onStart={()=>startQuiz()}/>
+    </div>);
   }
 
   if(phase==="review"){
@@ -386,8 +404,8 @@ function MCQQuiz(){
   const [selCat,setSelCat]=useState(null);
   const [history,setHistory]=useState(()=>{const id=store.loadDeckId("mcq");return id?store.loadHistory(id).map((rec,i)=>({...rec,sess:i+1})):[];});
 
-  const handleImport=useCallback((e)=>{
-    const f=e.target.files?.[0];if(!f)return;setErr(null);
+  const handleImport=useCallback((f)=>{
+    setErr(null);
     const r=new FileReader();
     r.onload=(ev)=>{
       let d;try{d=JSON.parse(ev.target.result);}catch{setErr("Invalid JSON.");return;}
@@ -402,7 +420,7 @@ function MCQQuiz(){
       setQuestions(a);setDeckName(name);setDeckId(id);setPhase("start");setSess(stored.length);setSelCat(null);
       setHistory(stored.map((rec,i)=>({...rec,sess:i+1})));
     };
-    r.readAsText(f);e.target.value="";
+    r.readAsText(f);
   },[]);
 
   const clearDeck=useCallback(()=>{
@@ -452,33 +470,20 @@ function MCQQuiz(){
   const q=quizQs[idx];
   const {ok,miss}=summarise(results);
 
-  const tb=(<div style={t.toolbar}>
-    <div style={t.tl}><span style={t.dk}>{deckName}</span><span style={t.cc}>{questions.length} Qs</span></div>
-    <div style={t.tr}>
-      <button style={t.tb} onClick={()=>downloadJSON(MCQ_TEMPLATE,"mcq-template.json")}>↓ Template</button>
-      <label style={t.tb}>↑ Import<input type="file" accept=".json" onChange={handleImport} style={{display:"none"}}/></label>
-      {questions!==SAMPLE_MCQ&&<button style={t.tb} onClick={()=>downloadJSON({quiz_name:deckName,questions},deckName.replace(/\s+/g,"-").toLowerCase()+"-quiz.json")}>↓ Export</button>}
-      {questions!==SAMPLE_MCQ&&<button style={t.tb} onClick={clearDeck}>✕ Clear</button>}
-    </div>
-  </div>);
+  const tb=<Toolbar t={t} name={deckName} countLabel={`${questions.length} Qs`} isSample={questions===SAMPLE_MCQ}
+    onTemplate={()=>downloadJSON(MCQ_TEMPLATE,"mcq-template.json")} onImport={handleImport}
+    onExport={()=>downloadJSON({quiz_name:deckName,questions},deckName.replace(/\s+/g,"-").toLowerCase()+"-quiz.json")} onClear={clearDeck}/>;
 
   if(phase==="start"){
     const cats=[...new Set(questions.map(q=>q.category||"General"))];
-    return(<div style={t.page}>{tb}{err&&<div style={t.err}>{err}</div>}<div style={t.hero}>
-      <div style={t.badge}>MULTIPLE CHOICE</div><h1 style={t.title}>{deckName}</h1>
-      <p style={t.sub}>{questions.length} questions · {cats.length} categories</p>
-      <div style={t.cats}>
-        <span style={selCat===null?{...t.pill,...t.pillOn}:t.pill} onClick={()=>setSelCat(null)}>All ({questions.length})</span>
-        {cats.map(c=><span key={c} style={selCat===c?{...t.pill,...t.pillOn}:t.pill} onClick={()=>setSelCat(selCat===c?null:c)}>{c} ({questions.filter(x=>(x.category||"General")===c).length})</span>)}
-      </div>
-      <div style={t.wf}>
-        <div style={t.ws}><span style={t.sn}>1</span><span>Download the <strong>Template</strong> JSON</span></div>
-        <div style={t.ws}><span style={t.sn}>2</span><span>Give it to Claude with your notes — it generates MCQs</span></div>
-        <div style={t.ws}><span style={t.sn}>3</span><span><strong>Import</strong> the JSON and test yourself</span></div>
-      </div>
-      <button style={t.pri} onClick={()=>startQuiz()}>{selCat?`Exam: ${selCat}`:"Begin Exam"}</button>
-      <HistoryPanel t={t} history={history} isSample={questions===SAMPLE_MCQ}/>
-    </div></div>);
+    return(<div style={t.page}>{tb}{err&&<div style={t.err}>{err}</div>}
+      <StartScreen t={t} badge="MULTIPLE CHOICE" title={deckName} subtitle={`${questions.length} questions · ${cats.length} categories`}
+        cats={cats} total={questions.length} catCount={c=>questions.filter(x=>(x.category||"General")===c).length}
+        selCat={selCat} onSelCat={setSelCat} steps={MCQ_STEPS}
+        startLabel={selCat?`Exam: ${selCat}`:"Begin Exam"} onStart={()=>startQuiz()}>
+        <HistoryPanel t={t} history={history} isSample={questions===SAMPLE_MCQ}/>
+      </StartScreen>
+    </div>);
   }
 
   if(phase==="review"){
