@@ -235,7 +235,29 @@ function StartScreen({t,badge,title,subtitle,extra,cats,total,catCount,selCat,on
 const FC_STEPS=[<>Download the <strong>Template</strong> JSON</>,<>Give it to Claude with your notes</>,<><strong>Import</strong> the JSON back here and drill</>];
 const MCQ_STEPS=[<>Download the <strong>Template</strong> JSON</>,<>Give it to Claude with your notes — it generates MCQs</>,<><strong>Import</strong> the JSON and test yourself</>];
 
-function HistoryPanel({t,history,isSample}){
+function SessionList({t,rows,wrongLabel}){
+  return rows.map(h=><div key={h.ts??h.sess} style={t.hi}>
+    <span style={t.hn}>#{h.sess}</span><span style={t.hp}>{h.pct}%</span>
+    <span style={t.hd}>{h.cat||"All"} · {h.ok} correct · {h.miss} {wrongLabel}</span>
+  </div>);
+}
+
+function ReviewScreen({t,sess,header,stats,missed,history,wrongLabel,actions}){
+  const prev=[...history].reverse().slice(1);
+  return(<div style={t.rev}>
+    <div style={t.badge}>SESSION {sess}</div>
+    {header}
+    <div style={t.strip}>{stats.map((s,i)=><React.Fragment key={s.label}>
+      {i>0&&<div style={t.sdiv}/>}
+      <div style={t.ss}><span style={s.color?{...t.snum,color:s.color}:t.snum}>{s.value}</span><span style={t.slbl}>{s.label}</span></div>
+    </React.Fragment>)}</div>
+    {missed}
+    {prev.length>0&&<div style={t.hl}><h3 style={t.ht}>Session History</h3><SessionList t={t} rows={prev} wrongLabel={wrongLabel}/></div>}
+    <div style={t.br}>{actions}</div>
+  </div>);
+}
+
+function HistoryPanel({t,history,isSample,wrongLabel}){
   if(isSample)return null;
   const recent=[...history].reverse().slice(0,5);
   const sections=sectionStats(history);
@@ -245,15 +267,10 @@ function HistoryPanel({t,history,isSample}){
       ?<p style={t.hpEmpty}>No sessions recorded yet.</p>
       :<>
         <div style={t.hpSub}>RECENT</div>
-        {recent.map((h)=><div key={h.ts} style={t.hi}>
-          <span style={t.hn}>#{h.sess}</span>
-          <span style={t.hp}>{h.pct}%</span>
-          <span style={t.hd}>{h.cat||"All"} · {h.ok} correct · {h.miss} wrong</span>
-        </div>)}
+        <SessionList t={t} rows={recent} wrongLabel={wrongLabel}/>
         <div style={{...t.hpSub,marginTop:14}}>BY SECTION</div>
-        {sections.map((s)=><div key={s.cat} style={t.hi}>
-          <span style={t.hpCat}>{s.cat}</span>
-          <span style={t.hp}>{s.avg}%</span>
+        {sections.map(s=><div key={s.cat} style={t.hi}>
+          <span style={t.hpCat}>{s.cat}</span><span style={t.hp}>{s.avg}%</span>
           <span style={t.hd}>{s.count} session{s.count!==1?"s":""}</span>
         </div>)}
       </>}
@@ -350,13 +367,17 @@ function FlashcardDrill(){
 
   if(phase==="review"){
     const {tot,pct}=summarise(results);const hm=miss>0;
-    return(<div style={t.page}>{tb}<div style={t.rev}>
-      <div style={t.badge}>SESSION {sess}</div>
-      <div style={t.strip}><div style={t.ss}><span style={t.snum}>{ok}</span><span style={t.slbl}>Correct</span></div><div style={t.sdiv}/><div style={t.ss}><span style={{...t.snum,color:miss?"#e74c3c":"#2ecc71"}}>{miss}</span><span style={t.slbl}>Missed</span></div><div style={t.sdiv}/><div style={t.ss}><span style={t.snum}>{pct}%</span><span style={t.slbl}>Score</span></div></div>
-      {hm&&<div style={t.ml}><h3 style={t.mt}>Missed</h3>{results.filter(r=>!r.correct).map(r=>{const c=cards.find(x=>x.id===r.cardId);return(<div key={r.cardId} style={fsQ.mi}><div style={fsQ.mc}>{c?.category}</div><div style={fsQ.mq}>{c?.question}</div><div className="md" style={fsQ.ma} dangerouslySetInnerHTML={{__html:renderMd(c?.answer)}}/></div>);})}</div>}
-      {history.length>1&&<div style={t.hl}><h3 style={t.ht}>Session History</h3>{[...history].reverse().slice(1).map((h,i)=><div key={i} style={t.hi}><span style={t.hn}>#{h.sess}</span><span style={t.hp}>{h.pct}%</span><span style={t.hd}>{h.cat||"All"} · {h.ok} correct · {h.miss} missed</span></div>)}</div>}
-      <div style={t.br}><button style={t.pri} onClick={()=>startQuiz()}>Full Deck</button>{hm&&<button style={t.sec} onClick={startMissed}>Missed Only ({miss})</button>}<button style={t.ghost} onClick={()=>setPhase("start")}>← Back</button></div>
-    </div></div>);
+    const missed=hm&&<div style={t.ml}><h3 style={t.mt}>Missed</h3>{results.filter(r=>!r.correct).map(r=>{const c=cards.find(x=>x.id===r.cardId);
+      return(<div key={r.cardId} style={fsQ.mi}><div style={fsQ.mc}>{c?.category}</div><div style={fsQ.mq}>{c?.question}</div><div className="md" style={fsQ.ma} dangerouslySetInnerHTML={{__html:renderMd(c?.answer)}}/></div>);})}</div>;
+    return(<div style={t.page}>{tb}
+      <ReviewScreen t={t} sess={sess} history={history} wrongLabel="missed" missed={missed}
+        stats={[{value:ok,label:"Correct"},{value:miss,label:"Missed",color:miss?"#e74c3c":"#2ecc71"},{value:`${pct}%`,label:"Score"}]}
+        actions={<>
+          <button style={t.pri} onClick={()=>startQuiz()}>Full Deck</button>
+          {hm&&<button style={t.sec} onClick={startMissed}>Missed Only ({miss})</button>}
+          <button style={t.ghost} onClick={()=>setPhase("start")}>← Back</button>
+        </>}/>
+    </div>);
   }
 
   return(<div style={t.page}>{tb}
@@ -481,7 +502,7 @@ function MCQQuiz(){
         cats={cats} total={questions.length} catCount={c=>questions.filter(x=>(x.category||"General")===c).length}
         selCat={selCat} onSelCat={setSelCat} steps={MCQ_STEPS}
         startLabel={selCat?`Exam: ${selCat}`:"Begin Exam"} onStart={()=>startQuiz()}>
-        <HistoryPanel t={t} history={history} isSample={questions===SAMPLE_MCQ}/>
+        <HistoryPanel t={t} history={history} isSample={questions===SAMPLE_MCQ} wrongLabel="wrong"/>
       </StartScreen>
     </div>);
   }
@@ -490,19 +511,22 @@ function MCQQuiz(){
     const {tot,pct}=summarise(results);const hm=miss>0;
     const grade=pct>=90?"A":pct>=80?"B":pct>=70?"C":pct>=60?"D":"F";
     const gc=pct>=80?"#2ecc71":pct>=60?"#f39c12":"#e74c3c";
-    return(<div style={t.page}>{tb}<div style={t.rev}>
-      <div style={t.badge}>SESSION {sess}</div>
-      <div style={msQ.gc}><span style={{...msQ.gl,color:gc}}>{grade}</span><span style={msQ.gp}>{pct}%</span></div>
-      <div style={t.strip}><div style={t.ss}><span style={t.snum}>{ok}</span><span style={t.slbl}>Correct</span></div><div style={t.sdiv}/><div style={t.ss}><span style={{...t.snum,color:miss?"#e74c3c":"#2ecc71"}}>{miss}</span><span style={t.slbl}>Wrong</span></div><div style={t.sdiv}/><div style={t.ss}><span style={t.snum}>{tot}</span><span style={t.slbl}>Total</span></div></div>
-      {hm&&<div style={t.ml}><h3 style={t.mt}>Review Incorrect</h3>{results.filter(r=>!r.correct).map(r=>{
-        const qo=quizQs.find(x=>x.id===r.qId);if(!qo)return null;
-        const ch=qo.options.find(o=>o.label===r.chose);const co=qo.options.find(o=>o.label===qo.correct);
-        return(<div key={r.qId} style={msQ.mc2}><div style={msQ.mcat}>{qo.category}</div><div style={msQ.mqt}>{qo.question}</div>
-          <div style={msQ.ac}><div style={msQ.ya}><span style={{fontWeight:800}}>✗</span> You: <strong>{r.chose}</strong> — {ch?.text}</div><div style={msQ.ca}><span style={{fontWeight:800}}>✓</span> Correct: <strong>{qo.correct}</strong> — {co?.text}</div></div>
-          {qo.explanation&&<div className="md" style={msQ.exp} dangerouslySetInnerHTML={{__html:renderMd(qo.explanation)}}/>}</div>);})}</div>}
-      {history.length>1&&<div style={t.hl}><h3 style={t.ht}>Session History</h3>{[...history].reverse().slice(1).map((h,i)=><div key={i} style={t.hi}><span style={t.hn}>#{h.sess}</span><span style={t.hp}>{h.pct}%</span><span style={t.hd}>{h.cat||"All"} · {h.ok} correct · {h.miss} wrong</span></div>)}</div>}
-      <div style={t.br}><button style={t.pri} onClick={()=>startQuiz()}>Full Quiz</button>{hm&&<button style={t.sec} onClick={startMissed}>Wrong Only ({miss})</button>}<button style={t.ghost} onClick={()=>setPhase("start")}>← Back</button></div>
-    </div></div>);
+    const missed=hm&&<div style={t.ml}><h3 style={t.mt}>Review Incorrect</h3>{results.filter(r=>!r.correct).map(r=>{
+      const qo=quizQs.find(x=>x.id===r.qId);if(!qo)return null;
+      const ch=qo.options.find(o=>o.label===r.chose);const co=qo.options.find(o=>o.label===qo.correct);
+      return(<div key={r.qId} style={msQ.mc2}><div style={msQ.mcat}>{qo.category}</div><div style={msQ.mqt}>{qo.question}</div>
+        <div style={msQ.ac}><div style={msQ.ya}><span style={{fontWeight:800}}>✗</span> You: <strong>{r.chose}</strong> — {ch?.text}</div><div style={msQ.ca}><span style={{fontWeight:800}}>✓</span> Correct: <strong>{qo.correct}</strong> — {co?.text}</div></div>
+        {qo.explanation&&<div className="md" style={msQ.exp} dangerouslySetInnerHTML={{__html:renderMd(qo.explanation)}}/>}</div>);})}</div>;
+    return(<div style={t.page}>{tb}
+      <ReviewScreen t={t} sess={sess} history={history} wrongLabel="wrong" missed={missed}
+        header={<div style={msQ.gc}><span style={{...msQ.gl,color:gc}}>{grade}</span><span style={msQ.gp}>{pct}%</span></div>}
+        stats={[{value:ok,label:"Correct"},{value:miss,label:"Wrong",color:miss?"#e74c3c":"#2ecc71"},{value:tot,label:"Total"}]}
+        actions={<>
+          <button style={t.pri} onClick={()=>startQuiz()}>Full Quiz</button>
+          {hm&&<button style={t.sec} onClick={startMissed}>Wrong Only ({miss})</button>}
+          <button style={t.ghost} onClick={()=>setPhase("start")}>← Back</button>
+        </>}/>
+    </div>);
   }
 
   // Quiz
