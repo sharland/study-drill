@@ -139,6 +139,62 @@ test("sectionStats groups by cat with 'All' default, averages, sorts ascending",
   assert.deepStrictEqual(P.sectionStats([]), []);
 });
 
+console.log("store");
+test("deck round-trip preserves the on-disk shape for both kinds", () => {
+  const b = memStorage(); const s = P.createStore(b);
+  assert.strictEqual(s.saveDeck("fc", {name:"Deck", items:[{id:1}]}), true);
+  assert.deepStrictEqual(JSON.parse(b._map.get("fc_deck")), {deck_name:"Deck", cards:[{id:1}]});
+  assert.deepStrictEqual(s.loadDeck("fc"), {name:"Deck", items:[{id:1}]});
+  assert.strictEqual(s.saveDeck("mcq", {name:"Quiz", items:[{id:2}]}), true);
+  assert.deepStrictEqual(JSON.parse(b._map.get("mcq_deck")), {quiz_name:"Quiz", questions:[{id:2}]});
+  assert.deepStrictEqual(s.loadDeck("mcq"), {name:"Quiz", items:[{id:2}]});
+  s.clearDeck("fc"); assert.strictEqual(s.loadDeck("fc"), null); assert.strictEqual(b._map.has("fc_deck"), false);
+});
+test("loadDeck returns null for missing, corrupt, or empty decks and null name when absent", () => {
+  const b = memStorage(); const s = P.createStore(b);
+  assert.strictEqual(s.loadDeck("fc"), null);
+  b._map.set("fc_deck", "{not json"); assert.strictEqual(s.loadDeck("fc"), null);
+  b._map.set("fc_deck", JSON.stringify({deck_name:"x", cards:[]})); assert.strictEqual(s.loadDeck("fc"), null);
+  b._map.set("fc_deck", JSON.stringify({cards:[{id:1}]})); assert.deepStrictEqual(s.loadDeck("fc"), {name:null, items:[{id:1}]});
+});
+test("deck ids use fc_deck_id / mcq_deck_id", () => {
+  const b = memStorage(); const s = P.createStore(b);
+  assert.strictEqual(s.loadDeckId("mcq"), null);
+  assert.strictEqual(s.saveDeckId("mcq", "abc"), true);
+  assert.strictEqual(b._map.get("mcq_deck_id"), "abc");
+  assert.strictEqual(s.loadDeckId("mcq"), "abc");
+  s.saveDeckId("fc", "def"); assert.strictEqual(b._map.get("fc_deck_id"), "def");
+  s.clearDeckId("mcq"); assert.strictEqual(s.loadDeckId("mcq"), null);
+});
+test("history uses mcq_history_<id>, caps at 20 keeping the newest, tolerates corrupt data", () => {
+  const b = memStorage(); const s = P.createStore(b);
+  assert.deepStrictEqual(s.loadHistory("id1"), []);
+  for (let i = 1; i <= 23; i++) assert.strictEqual(s.appendHistory("id1", {ts:i}), true);
+  const h = s.loadHistory("id1");
+  assert.strictEqual(h.length, 20);
+  assert.strictEqual(h[0].ts, 4); assert.strictEqual(h[19].ts, 23);
+  assert.strictEqual(b._map.has("mcq_history_id1"), true);
+  b._map.set("mcq_history_id2", "nope"); assert.deepStrictEqual(s.loadHistory("id2"), []);
+  b._map.set("mcq_history_id3", JSON.stringify({a:1})); assert.deepStrictEqual(s.loadHistory("id3"), []);
+  s.clearHistory("id1"); assert.strictEqual(b._map.has("mcq_history_id1"), false);
+});
+test("srs uses fc_srs and returns {} for missing or non-object data", () => {
+  const b = memStorage(); const s = P.createStore(b);
+  assert.deepStrictEqual(s.loadSrs(), {});
+  assert.strictEqual(s.saveSrs({1:2}), true);
+  assert.strictEqual(b._map.get("fc_srs"), JSON.stringify({1:2}));
+  assert.deepStrictEqual(s.loadSrs(), {1:2});
+  b._map.set("fc_srs", "[1,2]"); assert.deepStrictEqual(s.loadSrs(), {});
+  s.clearSrs(); assert.strictEqual(b._map.has("fc_srs"), false);
+});
+test("writes return false instead of throwing when the backend throws", () => {
+  const s = P.createStore(memStorage({throwOnSet:true}));
+  assert.strictEqual(s.saveDeck("fc", {name:"x", items:[{id:1}]}), false);
+  assert.strictEqual(s.saveDeckId("fc", "x"), false);
+  assert.strictEqual(s.appendHistory("x", {ts:1}), false);
+  assert.strictEqual(s.saveSrs({}), false);
+});
+
 module.exports = { load, test, memStorage, P, assert };
 
 if (require.main === module) {
